@@ -18,7 +18,9 @@ const client = new Client({
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.GuildMessageReactions,
-        GatewayIntentBits.MessageContent,
+        ...(process.env.PINBOARD_MESSAGE_CONTENT_INTENT === 'true'
+            ? [GatewayIntentBits.MessageContent]
+            : []),
     ],
     partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 });
