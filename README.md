@@ -1,113 +1,150 @@
 # GravityBot
 
-Vibe-coded politics prediction betting discord bot.
-
----
-# Getting Started app for Discord
-
-This project contains a basic rock-paper-scissors-style Discord app written in JavaScript, built for the [getting started guide](https://discord.com/developers/docs/getting-started).
-
-![Demo of app](https://github.com/discord/discord-example-app/raw/main/assets/getting-started-demo.gif?raw=true)
+A vibe-coded politics prediction betting Discord bot. Create predictions, place bets with virtual credits, and resolve outcomes with admin commands.
 
 ## Project structure
-Below is a basic overview of the project structure:
 
 ```
-├── examples    -> short, feature-specific sample apps
-│   ├── app.js  -> finished app.js code
-│   ├── button.js
-│   ├── command.js
-│   ├── modal.js
-│   ├── selectMenu.js
-├── .env.sample -> sample .env file
-├── app.js      -> main entrypoint for app
-├── commands.js -> slash command payloads + helpers
-├── game.js     -> logic specific to RPS
-├── utils.js    -> utility functions and enums
+├── app.js           -> main entrypoint and interaction handler
+├── commands.js      -> slash command definitions
+├── betting.js       -> core betting system logic
+├── game.js          -> utility functions for game logic
+├── utils.js         -> utility functions and enums
+├── db.js            -> database connection and queries
+├── migrate.js       -> database schema and migrations
 ├── package.json
-├── README.md
-└── .gitignore
+├── Procfile        -> deployment configuration
+├── LICENSE
+└── examples/        -> feature-specific code examples
 ```
 
-## Running app locally
+## Installation
 
-Before you start, you'll need to install [NodeJS](https://nodejs.org/en/download/) and [create a Discord app](https://discord.com/developers/applications) with the proper permissions:
-- `applications.commands`
-- `bot` (with Send Messages enabled)
+### Prerequisites
+
+- [Node.js](https://nodejs.org/en/download/) (v14 or higher)
+- A [Discord bot application](https://discord.com/developers/applications) with these permissions:
+  - `applications.commands` (Scope)
+  - `bot` Scope with **Send Messages** enabled
+- A database (PostgreSQL recommended)
+
+### Setup
+
+1. **Clone and install dependencies:**
+   ```
+   git clone <repository-url>
+   cd GravityBot
+   npm install
+   ```
+
+2. **Configure environment variables:**
+   Create a `.env` file in the project root with:
+   ```
+   DISCORD_TOKEN=your_bot_token
+   APP_ID=your_app_id
+   PUBLIC_KEY=your_public_key
+   DATABASE_URL=postgresql://user:password@localhost:5432/gravitybot
+   ```
+
+3. **Initialize the database:**
+   ```
+   npm run migrate
+   ```
+
+4. **Register slash commands:**
+   ```
+   npm run register
+   ```
+
+5. **Set up interactivity webhook:**
+   Use [ngrok](https://ngrok.com/) or similar to tunnel to localhost:3000
+   ```
+   ngrok http 3000
+   ```
+   
+   Add the forwarding URL + `/interactions` to your Discord app's **Interactions Endpoint URL** in the Developer Portal.
+
+6. **Start the bot:**
+   ```
+   npm start
+   ```
+   or for development with auto-reload:
+   ```
+   npm install -g nodemon
+   nodemon app.js
+   ```
+
+## Basic Usage
+
+### Creating a Prediction
+
+1. Use `/predict` to open the prediction form
+2. Enter a clear question (e.g., "Will Biden run in 2028?")
+3. Define the possible outcomes (typically "Yes" and "No")
+
+### Placing a Bet
+
+1. Use `/predictions` to see all active predictions
+2. Use `/bet <prediction_id>` to bet on a prediction
+3. Select your predicted outcome and enter your bet amount
+4. Confirm to lock in your bet
+
+### Checking Your Status
+
+- `/balance` - View your credit balance
+- `/mybets` - View your active bets and their status
+- `/balances` - See all users' balances (excluding defaults)
+
+## Advanced Use (Admin Commands)
+
+Only users listed in `ADMIN_IDS` in [app.js](app.js) can use these commands:
+
+### Resolving a Prediction
+
+Use `/resolve <prediction_id>` to:
+1. Select the prediction ID
+2. Choose the correct outcome
+3. Confirm resolution
+
+**Payouts are calculated automatically:**
+- Users who bet on the correct outcome receive winnings proportional to their bet
+- Total payout pool = all bet amounts on that prediction
+- Users who bet on the wrong outcome lose their bet
+
+### Voiding a Prediction
+
+Use `/voidprediction <prediction_id>` to:
+- Refund all bets on a prediction (full amount returned)
+- Useful for predictions that become invalid or cancelled
+
+### Managing Credits
+
+Use `/changebalance <user> <action> <amount>` to:
+- **Add** - Give credits to a user
+- **Remove** - Deduct credits from a user
+- **Set** - Set a user's balance to a specific amount
+
+### Debug Commands
+
+Use `/debug` with subcommands:
+- `stats` - View overall database statistics
+- `prediction <id>` - Inspect a specific prediction and all its bets
+- `user <user> [limit]` - View a user's balance and bet history
+- `recent [limit]` - Show recent predictions
+- `reset` - Clear all database data (⚠️ DANGEROUS)
+- `sql` - Execute custom SQL queries (⚠️ DANGEROUS)
+
+## License
+
+This project is licensed under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/). 
+
+You are free to:
+- Share and adapt this work
+- Use it commercially or personally
+
+As long as you:
+- Provide attribution to the original creator
+- Include a link to the license
 
 
-Configuring the app is covered in detail in the [getting started guide](https://discord.com/developers/docs/getting-started).
 
-### Setup project
-
-First clone the project:
-```
-git clone https://github.com/discord/discord-example-app.git
-```
-
-Then navigate to its directory and install dependencies:
-```
-cd discord-example-app
-npm install
-```
-### Get app credentials
-
-Fetch the credentials from your app's settings and add them to a `.env` file (see `.env.sample` for an example). You'll need your app ID (`APP_ID`), bot token (`DISCORD_TOKEN`), and public key (`PUBLIC_KEY`).
-
-Fetching credentials is covered in detail in the [getting started guide](https://discord.com/developers/docs/getting-started).
-
-> 🔑 Environment variables can be added to the `.env` file in Glitch or when developing locally, and in the Secrets tab in Replit (the lock icon on the left).
-
-### Install slash commands
-
-The commands for the example app are set up in `commands.js`. All of the commands in the `ALL_COMMANDS` array at the bottom of `commands.js` will be installed when you run the `register` command configured in `package.json`:
-
-```
-npm run register
-```
-
-### Run the app
-
-After your credentials are added, go ahead and run the app:
-
-```
-node app.js
-```
-
-> ⚙️ A package [like `nodemon`](https://github.com/remy/nodemon), which watches for local changes and restarts your app, may be helpful while locally developing.
-
-If you aren't following the [getting started guide](https://discord.com/developers/docs/getting-started), you can move the contents of `examples/app.js` (the finished `app.js` file) to the top-level `app.js`.
-
-### Set up interactivity
-
-The project needs a public endpoint where Discord can send requests. To develop and test locally, you can use something like [`ngrok`](https://ngrok.com/) to tunnel HTTP traffic.
-
-Install ngrok if you haven't already, then start listening on port `3000`:
-
-```
-ngrok http 3000
-```
-
-You should see your connection open:
-
-```
-Tunnel Status                 online
-Version                       2.0/2.0
-Web Interface                 http://127.0.0.1:4040
-Forwarding                    https://1234-someurl.ngrok.io -> localhost:3000
-
-Connections                  ttl     opn     rt1     rt5     p50     p90
-                              0       0       0.00    0.00    0.00    0.00
-```
-
-Copy the forwarding address that starts with `https`, in this case `https://1234-someurl.ngrok.io`, then go to your [app's settings](https://discord.com/developers/applications).
-
-On the **General Information** tab, there will be an **Interactions Endpoint URL**. Paste your ngrok address there, and append `/interactions` to it (`https://1234-someurl.ngrok.io/interactions` in the example).
-
-Click **Save Changes**, and your app should be ready to run 🚀
-
-## Other resources
-- Read **[the documentation](https://discord.com/developers/docs/intro)** for in-depth information about API features.
-- Browse the `examples/` folder in this project for smaller, feature-specific code examples
-- Join the **[Discord Developers server](https://discord.gg/discord-developers)** to ask questions about the API, attend events hosted by the Discord API team, and interact with other devs.
-- Check out **[community resources](https://discord.com/developers/docs/topics/community-resources#community-resources)** for language-specific tools maintained by community members.
