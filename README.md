@@ -134,6 +134,44 @@ Use `/debug` with subcommands:
 - `reset` - Clear all database data (⚠️ DANGEROUS)
 - `sql` - Execute custom SQL queries (⚠️ DANGEROUS)
 
+## Database Structure
+
+GravityBot uses PostgreSQL with three main tables:
+
+### Users Table
+Stores user accounts and credit balances.
+
+| Column    | Type      | Description                                  |
+| --------- | --------- | -------------------------------------------- |
+| `user_id` | TEXT (PK) | Discord user ID                              |
+| `balance` | INTEGER   | User's current credit balance (default: 100) |
+
+### Predictions Table
+Stores all predictions created by users.
+
+| Column       | Type        | Description                              |
+| ------------ | ----------- | ---------------------------------------- |
+| `id`         | SERIAL (PK) | Unique prediction identifier             |
+| `question`   | TEXT        | The prediction question/prompt           |
+| `options`    | TEXT[]      | Array of possible outcomes               |
+| `creator_id` | TEXT        | Discord ID of prediction creator         |
+| `resolved`   | BOOLEAN     | Whether the prediction has been resolved |
+| `outcome`    | TEXT        | The correct outcome (null if unresolved) |
+| `created_at` | TIMESTAMPTZ | Timestamp when prediction was created    |
+
+### Bets Table
+Stores all individual bets placed on predictions.
+
+| Column          | Type         | Description                  |
+| --------------- | ------------ | ---------------------------- |
+| `id`            | SERIAL (PK)  | Unique bet identifier        |
+| `prediction_id` | INTEGER (FK) | References `predictions(id)` |
+| `user_id`       | TEXT         | Discord ID of bet placer     |
+| `prediction`    | TEXT         | The chosen outcome           |
+| `amount`        | INTEGER      | Amount of credits bet        |
+
+**Note:** Bets cascade delete when their prediction is deleted.
+
 ## License
 
 This project is licensed under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/). 
