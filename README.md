@@ -201,29 +201,29 @@ The pinboard feature adds these tables:
 
 #### Pinboard Config
 
-| Column             | Type    | Description                             |
-| ------------------ | ------- | --------------------------------------- |
-| `id`               | INTEGER | Single row (id = 1)                     |
-| `target_channel_id`| TEXT    | Channel ID where pinboard posts go      |
-| `threshold`        | INTEGER | Reaction threshold (default: 3)         |
-| `emoji`            | TEXT    | Emoji to track (default: 📌)            |
+| Column              | Type    | Description                        |
+| ------------------- | ------- | ---------------------------------- |
+| `id`                | INTEGER | Single row (id = 1)                |
+| `target_channel_id` | TEXT    | Channel ID where pinboard posts go |
+| `threshold`         | INTEGER | Reaction threshold (default: 3)    |
+| `emoji`             | TEXT    | Emoji to track (default: 📌)        |
 
 #### Pinboard Whitelist
 
-| Column      | Type | Description                   |
-| ----------- | ---- | ----------------------------- |
-| `channel_id`| TEXT | Allowed source channel IDs    |
+| Column       | Type | Description                |
+| ------------ | ---- | -------------------------- |
+| `channel_id` | TEXT | Allowed source channel IDs |
 
 #### Pinboard Posts
 
-| Column               | Type       | Description                                 |
-| -------------------- | ---------- | ------------------------------------------- |
-| `message_id`         | TEXT (PK)  | Original message ID                         |
-| `source_channel_id`  | TEXT       | Source channel ID                           |
-| `pinboard_message_id`| TEXT       | Message ID in the pinboard channel          |
-| `author_id`          | TEXT       | Author of the original message              |
-| `reaction_count`     | INTEGER    | Last tracked reaction count                 |
-| `created_at`         | TIMESTAMPTZ| When the pinboard entry was created         |
+| Column                | Type        | Description                         |
+| --------------------- | ----------- | ----------------------------------- |
+| `message_id`          | TEXT (PK)   | Original message ID                 |
+| `source_channel_id`   | TEXT        | Source channel ID                   |
+| `pinboard_message_id` | TEXT        | Message ID in the pinboard channel  |
+| `author_id`           | TEXT        | Author of the original message      |
+| `reaction_count`      | INTEGER     | Last tracked reaction count         |
+| `created_at`          | TIMESTAMPTZ | When the pinboard entry was created |
 
 ## License
 

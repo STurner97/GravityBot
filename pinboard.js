@@ -1,6 +1,6 @@
 import { query } from './db.js';
 
-const DEFAULT_THRESHOLD = 3;
+const DEFAULT_THRESHOLD = 1;
 const DEFAULT_EMOJI = '📌';
 
 async function ensurePinboardConfig() {
