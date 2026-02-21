@@ -10,13 +10,16 @@
   },
   "scripts": {
     "start": "node app.js",
+    "start:worker": "node pinboard-worker.js",
     "register": "node commands.js",
     "dev": "nodemon app.js",
+    "dev:worker": "nodemon pinboard-worker.js",
     "migrate": "node migrate.js"
   },
   "author": "Shay DeWael",
   "license": "MIT",
   "dependencies": {
+    "discord.js": "^14.16.3",
     "discord-interactions": "^4.0.0",
     "dotenv": "^16.6.1",
     "express": "^4.18.2",

@@ -12,6 +12,8 @@ A vibe-coded politics prediction betting Discord bot. Create predictions, place 
 ├── utils.js         -> utility functions and enums
 ├── db.js            -> database connection and queries
 ├── migrate.js       -> database schema and migrations
+├── pinboard.js       -> pinboard config + DB helpers
+├── pinboard-worker.js -> gateway worker for 📌 reactions
 ├── package.json
 ├── Procfile        -> deployment configuration
 ├── LICENSE
@@ -68,10 +70,18 @@ A vibe-coded politics prediction betting Discord bot. Create predictions, place 
    ```
    npm start
    ```
+   Start the pinboard worker in a second terminal:
+   ```
+   npm run start:worker
+   ```
    or for development with auto-reload:
    ```
    npm install -g nodemon
    nodemon app.js
+   ```
+   and in another terminal:
+   ```
+   nodemon pinboard-worker.js
    ```
 
 ## Basic Usage
@@ -124,6 +134,19 @@ Use `/changebalance <user> <action> <amount>` to:
 - **Remove** - Deduct credits from a user
 - **Set** - Set a user's balance to a specific amount
 
+### Pinboard (📌)
+
+Pinboard posts a message to a dedicated channel once **3 unique users** react with 📌.
+- Bots are ignored
+- Self-pins are ignored
+- Only whitelisted channels are monitored
+
+Use `/pinboard` with subcommands:
+- `setchannel <channel>` - Set the pinboard destination
+- `whitelist_add <channel>` - Monitor a channel for 📌 reactions
+- `whitelist_remove <channel>` - Stop monitoring a channel
+- `whitelist_list` - Show current whitelist and destination channel
+
 ### Debug Commands
 
 Use `/debug` with subcommands:
@@ -171,6 +194,36 @@ Stores all individual bets placed on predictions.
 | `amount`        | INTEGER      | Amount of credits bet        |
 
 **Note:** Bets cascade delete when their prediction is deleted.
+
+### Pinboard Tables
+
+The pinboard feature adds these tables:
+
+#### Pinboard Config
+
+| Column             | Type    | Description                             |
+| ------------------ | ------- | --------------------------------------- |
+| `id`               | INTEGER | Single row (id = 1)                     |
+| `target_channel_id`| TEXT    | Channel ID where pinboard posts go      |
+| `threshold`        | INTEGER | Reaction threshold (default: 3)         |
+| `emoji`            | TEXT    | Emoji to track (default: 📌)            |
+
+#### Pinboard Whitelist
+
+| Column      | Type | Description                   |
+| ----------- | ---- | ----------------------------- |
+| `channel_id`| TEXT | Allowed source channel IDs    |
+
+#### Pinboard Posts
+
+| Column               | Type       | Description                                 |
+| -------------------- | ---------- | ------------------------------------------- |
+| `message_id`         | TEXT (PK)  | Original message ID                         |
+| `source_channel_id`  | TEXT       | Source channel ID                           |
+| `pinboard_message_id`| TEXT       | Message ID in the pinboard channel          |
+| `author_id`          | TEXT       | Author of the original message              |
+| `reaction_count`     | INTEGER    | Last tracked reaction count                 |
+| `created_at`         | TIMESTAMPTZ| When the pinboard entry was created         |
 
 ## License
 

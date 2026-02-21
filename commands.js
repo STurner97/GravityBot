@@ -211,6 +211,60 @@ const DEBUG_COMMAND = {
   contexts: [0, 2],
 };
 
+const PINBOARD_COMMAND = {
+  name: 'pinboard',
+  description: '[ADMIN] Configure pinboard settings',
+  options: [
+    {
+      type: 1,
+      name: 'setchannel',
+      description: 'Set the pinboard target channel',
+      options: [
+        {
+          type: 7,
+          name: 'channel',
+          description: 'Channel to post pinned messages in',
+          required: true,
+        },
+      ],
+    },
+    {
+      type: 1,
+      name: 'whitelist_add',
+      description: 'Add a channel to the pinboard whitelist',
+      options: [
+        {
+          type: 7,
+          name: 'channel',
+          description: 'Channel to monitor for pins',
+          required: true,
+        },
+      ],
+    },
+    {
+      type: 1,
+      name: 'whitelist_remove',
+      description: 'Remove a channel from the pinboard whitelist',
+      options: [
+        {
+          type: 7,
+          name: 'channel',
+          description: 'Channel to stop monitoring',
+          required: true,
+        },
+      ],
+    },
+    {
+      type: 1,
+      name: 'whitelist_list',
+      description: 'List all whitelisted channels',
+    },
+  ],
+  type: 1,
+  integration_types: [0, 1],
+  contexts: [0, 2],
+};
+
 const ALL_COMMANDS = [
   BALANCE_COMMAND,
   PREDICT_COMMAND,
@@ -222,6 +276,7 @@ const ALL_COMMANDS = [
   BALANCES_COMMAND,
   CHANGEBALANCE_COMMAND,
   DEBUG_COMMAND,
+  PINBOARD_COMMAND,
 ];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);

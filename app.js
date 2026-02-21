@@ -24,6 +24,13 @@ import {
   getRecentPredictions,
   resetDatabase,
 } from './betting.js';
+import {
+  getPinboardConfig,
+  setPinboardChannel,
+  listPinboardWhitelist,
+  addPinboardWhitelist,
+  removePinboardWhitelist,
+} from './pinboard.js';
 import { query } from './db.js';
 
 // Create an express app
@@ -369,6 +376,131 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           content: '❌ Unknown debug subcommand.',
+          flags: 64,
+        },
+      });
+    }
+
+    // /pinboard command - admin only
+    if (name === 'pinboard') {
+      if (!ADMIN_IDS.includes(userId)) {
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: '❌ You do not have permission to use this command.',
+            flags: 64,
+          },
+        });
+      }
+
+      const subcommand = options?.[0];
+      if (!subcommand) {
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: '❌ Missing pinboard subcommand.',
+            flags: 64,
+          },
+        });
+      }
+
+      if (subcommand.name === 'setchannel') {
+        const channelId = subcommand.options?.find(opt => opt.name === 'channel')?.value;
+        if (!channelId) {
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: '❌ Missing channel for pinboard target.',
+              flags: 64,
+            },
+          });
+        }
+
+        await setPinboardChannel(channelId);
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `📌 Pinboard channel set to <#${channelId}>.`,
+            flags: 64,
+          },
+        });
+      }
+
+      if (subcommand.name === 'whitelist_add') {
+        const channelId = subcommand.options?.find(opt => opt.name === 'channel')?.value;
+        if (!channelId) {
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: '❌ Missing channel to whitelist.',
+              flags: 64,
+            },
+          });
+        }
+
+        await addPinboardWhitelist(channelId);
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `✅ Added <#${channelId}> to the pinboard whitelist.`,
+            flags: 64,
+          },
+        });
+      }
+
+      if (subcommand.name === 'whitelist_remove') {
+        const channelId = subcommand.options?.find(opt => opt.name === 'channel')?.value;
+        if (!channelId) {
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: '❌ Missing channel to remove.',
+              flags: 64,
+            },
+          });
+        }
+
+        await removePinboardWhitelist(channelId);
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `✅ Removed <#${channelId}> from the pinboard whitelist.`,
+            flags: 64,
+          },
+        });
+      }
+
+      if (subcommand.name === 'whitelist_list') {
+        const channels = await listPinboardWhitelist();
+        const config = await getPinboardConfig();
+        const targetText = config?.target_channel_id
+          ? `<#${config.target_channel_id}>`
+          : 'not set';
+
+        if (channels.length === 0) {
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: `📌 Pinboard channel: ${targetText}\nWhitelist is empty.`,
+              flags: 64,
+            },
+          });
+        }
+
+        const lines = channels.map(id => `<#${id}>`).join('\n');
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `📌 Pinboard channel: ${targetText}\nWhitelisted channels:\n${lines}`,
+            flags: 64,
+          },
+        });
+      }
+
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: '❌ Unknown pinboard subcommand.',
           flags: 64,
         },
       });

@@ -31,6 +31,32 @@ async function migrate() {
     );
   `);
 
+  await query(`
+    CREATE TABLE IF NOT EXISTS pinboard_config (
+      id INTEGER PRIMARY KEY,
+      target_channel_id TEXT,
+      threshold INTEGER NOT NULL DEFAULT 3,
+      emoji TEXT NOT NULL DEFAULT '📌'
+    );
+  `);
+
+  await query(`
+    CREATE TABLE IF NOT EXISTS pinboard_whitelist (
+      channel_id TEXT PRIMARY KEY
+    );
+  `);
+
+  await query(`
+    CREATE TABLE IF NOT EXISTS pinboard_posts (
+      message_id TEXT PRIMARY KEY,
+      source_channel_id TEXT NOT NULL,
+      pinboard_message_id TEXT NOT NULL,
+      author_id TEXT NOT NULL,
+      reaction_count INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+
   console.log('Migration complete');
 }
 
