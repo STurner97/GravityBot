@@ -905,31 +905,10 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 
       const successMessage = `✅ Prediction created!\n\n**ID:** ${predictionId}\n**Question:** ${question}\n**Options:**\n${predefinedOptions.map(opt => `• ${opt}`).join('\n')}\n\n<@${userId}> bet **${amount}** credits on: **${validChoice}**\n\nOthers can bet using \`/bet ${predictionId}\` or \`/predictions\`!`;
 
-      // Always ask if user wants to attach an image
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: successMessage + '\n\n📸 Would you like to attach an image to this prediction?',
-          components: [
-            {
-              type: MessageComponentTypes.ACTION_ROW,
-              components: [
-                {
-                  type: MessageComponentTypes.BUTTON,
-                  style: ButtonStyleTypes.PRIMARY,
-                  label: 'Yes',
-                  custom_id: `image_yes_${predictionId}`,
-                },
-                {
-                  type: MessageComponentTypes.BUTTON,
-                  style: ButtonStyleTypes.SECONDARY,
-                  label: 'No',
-                  custom_id: `image_no_${predictionId}`,
-                },
-              ],
-            },
-          ],
-          flags: 64, // Ephemeral - only visible to the user
+          content: successMessage,
         },
       });
     }
@@ -1092,29 +1071,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
               ],
             },
           ],
-        },
-      });
-    }
-
-    // Handle image attachment yes/no buttons
-    if (custom_id.startsWith('image_yes_')) {
-      const predictionId = parseInt(custom_id.split('_')[2]);
-
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: `📤 **Upload an image for Prediction #${predictionId}**\n\nPlease drag and drop or select an image file to attach.`,
-          flags: 64, // Ephemeral - only visible to the user
-        },
-      });
-    }
-
-    if (custom_id.startsWith('image_no_')) {
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: '✅ No problem! Your prediction is ready to go.',
-          flags: 64, // Ephemeral - only visible to the user
         },
       });
     }
