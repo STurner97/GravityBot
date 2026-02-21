@@ -204,6 +204,22 @@ export async function placeBet(predictionId, userId, prediction, amount) {
             return { success: false, error: `Invalid option. Choose from: ${pred.options.join(', ')}` };
         }
 
+        // Check if user is trying to bet on all options
+        const userBetsResult = await client.query(
+            'SELECT DISTINCT prediction FROM bets WHERE prediction_id = $1 AND user_id = $2',
+            [predictionId, userId]
+        );
+        const optionsUserHasBetOn = userBetsResult.rows.map(row => row.prediction);
+
+        // Calculate max options allowed (total options - 1)
+        const totalOptions = pred.options.length;
+        const maxOptionsAllowed = totalOptions - 1;
+
+        // If user already has bets on maxOptionsAllowed different options, and is trying to bet on a new one
+        if (!optionsUserHasBetOn.includes(validOption.toLowerCase()) && optionsUserHasBetOn.length >= maxOptionsAllowed) {
+            return { success: false, error: `You cannot bet on all ${totalOptions} options. Maximum allowed: ${maxOptionsAllowed} options.` };
+        }
+
         await ensureUser(userId, client);
         const balanceResult = await client.query(
             'SELECT balance FROM users WHERE user_id = $1 FOR UPDATE',

@@ -200,6 +200,11 @@ const DEBUG_COMMAND = {
       name: 'reset',
       description: 'Reset database (truncate all tables) - DANGEROUS',
     },
+    {
+      type: 1,
+      name: 'sql',
+      description: 'Execute a custom SQL query and view results',
+    },
   ],
   type: 1,
   integration_types: [0, 1],

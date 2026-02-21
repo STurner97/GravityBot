@@ -24,6 +24,7 @@ import {
   getRecentPredictions,
   resetDatabase,
 } from './betting.js';
+import { query } from './db.js';
 
 // Create an express app
 const app = express();
@@ -334,6 +335,32 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
               },
             ],
             flags: 64,
+          },
+        });
+      }
+
+      if (subcommand.name === 'sql') {
+        return res.send({
+          type: InteractionResponseType.MODAL,
+          data: {
+            custom_id: 'debug_sql_modal',
+            title: 'Execute SQL Query',
+            components: [
+              {
+                type: MessageComponentTypes.ACTION_ROW,
+                components: [
+                  {
+                    type: MessageComponentTypes.INPUT_TEXT,
+                    custom_id: 'sql_query_input',
+                    label: 'SQL Query',
+                    style: TextStyleTypes.PARAGRAPH,
+                    placeholder: 'SELECT * FROM users;',
+                    required: true,
+                    max_length: 2000,
+                  },
+                ],
+              },
+            ],
           },
         });
       }
@@ -731,6 +758,84 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
   if (type === InteractionType.MODAL_SUBMIT) {
     const { custom_id, components } = data;
 
+    // Handle debug SQL modal
+    if (custom_id === 'debug_sql_modal') {
+      // Admin check
+      if (!ADMIN_IDS.includes(userId)) {
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: '❌ You do not have permission to execute SQL queries.',
+            flags: 64,
+          },
+        });
+      }
+
+      const sqlQuery = components[0].components[0].value;
+
+      try {
+        const result = await query(sqlQuery);
+
+        if (!result.rows || result.rows.length === 0) {
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: `✅ Query executed.\n\`\`\`\nRows affected: ${result.rowCount}\n\`\`\``,
+              flags: 64,
+            },
+          });
+        }
+
+        // Format results as a table
+        const rows = result.rows;
+        const keys = Object.keys(rows[0]);
+
+        // Calculate column widths
+        const widths = keys.map(key => {
+          const headerLen = key.length;
+          const maxDataLen = Math.max(...rows.map(row => String(row[key] ?? 'NULL').length));
+          return Math.min(Math.max(headerLen, maxDataLen), 20); // Cap at 20 chars
+        });
+
+        // Build table
+        let table = '```\n';
+
+        // Header
+        table += keys.map((key, i) => key.padEnd(widths[i])).join(' | ') + '\n';
+        table += keys.map((key, i) => '-'.repeat(widths[i])).join('-+-') + '\n';
+
+        // Rows
+        for (const row of rows.slice(0, 15)) {
+          table += keys.map((key, i) => {
+            const val = String(row[key] ?? 'NULL').substring(0, widths[i]);
+            return val.padEnd(widths[i]);
+          }).join(' | ') + '\n';
+        }
+
+        if (rows.length > 15) {
+          table += `... and ${rows.length - 15} more rows\n`;
+        }
+
+        table += '```';
+
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `✅ Query executed. (${result.rowCount} rows)\n\n${table}`,
+            flags: 64,
+          },
+        });
+      } catch (err) {
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `❌ SQL Error:\n\`\`\`\n${err.message}\n\`\`\``,
+            flags: 64,
+          },
+        });
+      }
+    }
+
     // Handle prediction creation modal
     if (custom_id === 'predict_modal') {
       const question = components[0].components[0].value;
@@ -798,10 +903,33 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       }
       const predictionId = createResult.predictionId;
 
+      const successMessage = `✅ Prediction created!\n\n**ID:** ${predictionId}\n**Question:** ${question}\n**Options:**\n${predefinedOptions.map(opt => `• ${opt}`).join('\n')}\n\n<@${userId}> bet **${amount}** credits on: **${validChoice}**\n\nOthers can bet using \`/bet ${predictionId}\` or \`/predictions\`!`;
+
+      // Always ask if user wants to attach an image
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: `✅ Prediction created!\n\n**ID:** ${predictionId}\n**Question:** ${question}\n**Options:**\n${predefinedOptions.map(opt => `• ${opt}`).join('\n')}\n\n<@${userId}> bet **${amount}** credits on: **${validChoice}**\n\nOthers can bet using \`/bet ${predictionId}\` or \`/predictions\`!`,
+          content: successMessage + '\n\n📸 Would you like to attach an image to this prediction?',
+          components: [
+            {
+              type: MessageComponentTypes.ACTION_ROW,
+              components: [
+                {
+                  type: MessageComponentTypes.BUTTON,
+                  style: ButtonStyleTypes.PRIMARY,
+                  label: 'Yes',
+                  custom_id: `image_yes_${predictionId}`,
+                },
+                {
+                  type: MessageComponentTypes.BUTTON,
+                  style: ButtonStyleTypes.SECONDARY,
+                  label: 'No',
+                  custom_id: `image_no_${predictionId}`,
+                },
+              ],
+            },
+          ],
+          flags: 64, // Ephemeral - only visible to the user
         },
       });
     }
@@ -964,6 +1092,29 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
               ],
             },
           ],
+        },
+      });
+    }
+
+    // Handle image attachment yes/no buttons
+    if (custom_id.startsWith('image_yes_')) {
+      const predictionId = parseInt(custom_id.split('_')[2]);
+
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: `📤 **Upload an image for Prediction #${predictionId}**\n\nPlease drag and drop or select an image file to attach.`,
+          flags: 64, // Ephemeral - only visible to the user
+        },
+      });
+    }
+
+    if (custom_id.startsWith('image_no_')) {
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: '✅ No problem! Your prediction is ready to go.',
+          flags: 64, // Ephemeral - only visible to the user
         },
       });
     }
