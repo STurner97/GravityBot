@@ -12,6 +12,7 @@ import {
     upsertPinboardPost,
     deletePinboardPost,
     PINBOARD_EMOJI,
+    buildPinboardEmbed,
 } from './pinboard.js';
 
 const client = new Client({
@@ -29,34 +30,6 @@ const client = new Client({
 async function getReactionCount(reaction, messageAuthorId) {
     const users = await reaction.users.fetch();
     return users.filter(user => !user.bot && user.id !== messageAuthorId).size;
-}
-
-function buildPinboardEmbed({ count, channelId, messageUrl, messageContent, authorId, authorTag, createdAt, imageUrl }) {
-    const timestamp = createdAt ? Math.floor(createdAt.getTime() / 1000) : Math.floor(Date.now() / 1000);
-
-    const embed = {
-        color: 0xED4245, // Discord red
-        author: {
-            name: `📌 ${count} Pin${count !== 1 ? 's' : ' '}`,
-        },
-        description: messageContent || ' ',
-        fields: [
-            {
-                name: 'Posted by',
-                value: `<@${authorId}> · ${messageUrl}`,
-                inline: false,
-            },
-        ],
-        timestamp: new Date(timestamp * 1000).toISOString(),
-        url: messageUrl,
-    };
-
-    // Add image if there's a single image attachment
-    if (imageUrl) {
-        embed.image = { url: imageUrl };
-    }
-
-    return embed;
 }
 
 async function ensureMessage(reaction) {
@@ -170,11 +143,9 @@ async function handleReactionChange(reaction, user) {
 
     const pinboardEmbed = buildPinboardEmbed({
         count: reactionCount,
-        channelId: message.channelId,
         messageUrl: message.url,
         messageContent: message.content,
         authorId: message.author?.id,
-        authorTag: message.author?.tag,
         createdAt: message.createdAt,
         imageUrl: imageAttachment?.url || gifUrl,
     });

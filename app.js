@@ -538,6 +538,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         try {
           // Fetch message from Discord API
           const { DiscordRequest } = await import('./utils.js');
+          const { buildPinboardEmbed } = await import('./pinboard.js');
           const messageRes = await DiscordRequest(`channels/${channelId}/messages/${messageId}`, { method: 'GET' });
           const message = await messageRes.json();
 
@@ -562,29 +563,19 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
             gifEmbed?.video?.url ||
             gifEmbed?.thumbnail?.url;
 
-          // Build pinboard embed
-          const timestamp = message.timestamp ? Math.floor(new Date(message.timestamp).getTime() / 1000) : Math.floor(Date.now() / 1000);
-          const pinboardEmbed = {
-            color: 0xED4245,
-            author: {
-              name: `📌 1 Pin (forced)`,
-            },
-            description: message.content || '*(no text content)*',
-            fields: [
-              {
-                name: 'Posted by',
-                value: `<@${message.author.id}> ${sourceMessageUrl}`,
-                inline: false,
-              },
-            ],
-            timestamp: new Date(timestamp * 1000).toISOString(),
-            url: sourceMessageUrl,
-          };
+          // Build pinboard embed using shared function
+          const timestamp = message.timestamp ? new Date(message.timestamp) : new Date();
+          const pinboardEmbed = buildPinboardEmbed({
+            count: 1,
+            messageUrl: sourceMessageUrl,
+            messageContent: message.content,
+            authorId: message.author.id,
+            createdAt: timestamp,
+            imageUrl: imageAttachment?.url || gifUrl,
+          });
 
-          // Add image/gif if available
-          if (imageAttachment?.url || gifUrl) {
-            pinboardEmbed.image = { url: imageAttachment?.url || gifUrl };
-          }
+          // Add forced pin indicator
+          pinboardEmbed.author.name = '📌 1 Pin (forced)';
 
           const embeds = [pinboardEmbed];
           // Only include non-GIF embeds
