@@ -529,6 +529,14 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           const messageRes = await DiscordRequest(`channels/${channelId}/messages/${messageId}`, { method: 'GET' });
           const message = await messageRes.json();
 
+          const messageUrl = `https://discord.com/channels/${message.guild_id}/${channelId}/${messageId}`;
+
+          // Check for image attachments
+          const imageAttachment = message.attachments?.find(att =>
+            att.content_type?.startsWith('image/') ||
+            /\.(png|jpe?g|gif|webp)$/i.test(att.filename || att.url)
+          );
+
           // Build pinboard embed
           const timestamp = message.timestamp ? Math.floor(new Date(message.timestamp).getTime() / 1000) : Math.floor(Date.now() / 1000);
           const pinboardEmbed = {
@@ -540,13 +548,18 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
             fields: [
               {
                 name: 'Posted by',
-                value: `<@${message.author.id}> in <#${channelId}>`,
+                value: `<@${message.author.id}> ${messageUrl}`,
                 inline: false,
               },
             ],
             timestamp: new Date(timestamp * 1000).toISOString(),
-            url: `https://discord.com/channels/${message.guild_id}/${channelId}/${messageId}`,
+            url: messageUrl,
           };
+
+          // Add image if available
+          if (imageAttachment) {
+            pinboardEmbed.image = { url: imageAttachment.url };
+          }
 
           const embeds = [pinboardEmbed];
           if (message.embeds && message.embeds.length > 0) {

@@ -31,10 +31,10 @@ async function getReactionCount(reaction, messageAuthorId) {
     return users.filter(user => !user.bot && user.id !== messageAuthorId).size;
 }
 
-function buildPinboardEmbed({ count, channelId, messageUrl, messageContent, authorId, authorTag, createdAt }) {
+function buildPinboardEmbed({ count, channelId, messageUrl, messageContent, authorId, authorTag, createdAt, imageUrl }) {
     const timestamp = createdAt ? Math.floor(createdAt.getTime() / 1000) : Math.floor(Date.now() / 1000);
 
-    return {
+    const embed = {
         color: 0xED4245, // Discord red
         author: {
             name: `📌 ${count} Pin${count !== 1 ? 's' : ''}`,
@@ -43,13 +43,20 @@ function buildPinboardEmbed({ count, channelId, messageUrl, messageContent, auth
         fields: [
             {
                 name: 'Posted by',
-                value: `<@${authorId}> in <#${channelId}>`,
+                value: `<@${authorId}> ${messageUrl}`,
                 inline: false,
             },
         ],
         timestamp: new Date(timestamp * 1000).toISOString(),
         url: messageUrl,
     };
+
+    // Add image if there's a single image attachment
+    if (imageUrl) {
+        embed.image = { url: imageUrl };
+    }
+
+    return embed;
 }
 
 async function ensureMessage(reaction) {
@@ -141,6 +148,13 @@ async function handleReactionChange(reaction, user) {
         return;
     }
 
+    // Check for image attachments
+    const attachments = Array.from(message.attachments.values());
+    const imageAttachment = attachments.find(att =>
+        att.contentType?.startsWith('image/') ||
+        /\.(png|jpe?g|gif|webp)$/i.test(att.name || att.url)
+    );
+
     const pinboardEmbed = buildPinboardEmbed({
         count: reactionCount,
         channelId: message.channelId,
@@ -149,10 +163,11 @@ async function handleReactionChange(reaction, user) {
         authorId: message.author?.id,
         authorTag: message.author?.tag,
         createdAt: message.createdAt,
+        imageUrl: imageAttachment?.url,
     });
 
     const embeds = message.embeds ? message.embeds.slice(0, 10).map(e => e.toJSON()) : [];
-    const files = message.attachments
+    const files = message.attachments && !imageAttachment
         ? Array.from(message.attachments.values()).map(attachment => ({
             attachment: attachment.url,
             name: attachment.name || undefined,
