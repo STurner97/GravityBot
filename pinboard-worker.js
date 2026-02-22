@@ -31,23 +31,26 @@ async function getReactionCount(reaction, messageAuthorId) {
     return users.filter(user => !user.bot && user.id !== messageAuthorId).size;
 }
 
-function buildPinboardContent({ count, channelId, messageUrl, messageContent, authorId, authorTag, createdAt }) {
-    const timestamp = createdAt ? `<t:${Math.floor(createdAt.getTime() / 1000)}:R>` : 'unknown';
-    const author = authorId ? `<@${authorId}>` : 'unknown user';
+function buildPinboardEmbed({ count, channelId, messageUrl, messageContent, authorId, authorTag, createdAt }) {
+    const timestamp = createdAt ? Math.floor(createdAt.getTime() / 1000) : Math.floor(Date.now() / 1000);
 
-    let content = `📌 **${count} Pin${count !== 1 ? 's' : ''}**`;
-    content += `\n\nPosted ${timestamp} by ${author} · ${messageUrl}`;
-
-    if (messageContent) {
-        // Format originalxmessage as a quote block
-        const quotedContent = messageContent
-            .split('\n')
-            .map(line => `> ${line}`)
-            .join('\n');
-        content += `\n${quotedContent}`;
-    }
-
-    return content;
+    return {
+        color: 0xED4245, // Discord red
+        author: {
+            name: `${count} Pin${count !== 1 ? 's' : ''}`,
+            icon_url: 'https://discord.com/assets/7060f1dfd416b7c23b02707b95b991e8.png', // Pin emoji
+        },
+        description: messageContent || '*(no text content)*',
+        fields: [
+            {
+                name: 'Posted by',
+                value: `<@${authorId}> in <#${channelId}>`,
+                inline: false,
+            },
+        ],
+        timestamp: new Date(timestamp * 1000).toISOString(),
+        url: messageUrl,
+    };
 }
 
 async function ensureMessage(reaction) {
@@ -139,7 +142,7 @@ async function handleReactionChange(reaction, user) {
         return;
     }
 
-    const content = buildPinboardContent({
+    const pinboardEmbed = buildPinboardEmbed({
         count: reactionCount,
         channelId: message.channelId,
         messageUrl: message.url,
@@ -160,7 +163,7 @@ async function handleReactionChange(reaction, user) {
     if (existing?.pinboard_message_id) {
         const pinMessage = await targetChannel.messages.fetch(existing.pinboard_message_id).catch(() => null);
         if (pinMessage) {
-            await pinMessage.edit({ content, embeds, files: files.length > 0 ? files : undefined });
+            await pinMessage.edit({ embeds: [pinboardEmbed, ...embeds], files: files.length > 0 ? files : undefined });
             await upsertPinboardPost({
                 messageId: message.id,
                 sourceChannelId: message.channelId,
@@ -173,8 +176,7 @@ async function handleReactionChange(reaction, user) {
     }
 
     const sent = await targetChannel.send({
-        content,
-        embeds,
+        embeds: [pinboardEmbed, ...embeds],
         files: files.length > 0 ? files : undefined,
     });
 
