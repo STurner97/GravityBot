@@ -1,7 +1,12 @@
 import { query } from './db.js';
 
-const DEFAULT_THRESHOLD = 1;
-const DEFAULT_EMOJI = '📌';
+export const DEFAULT_THRESHOLD = 1;
+export const PINBOARD_EMOJI = {
+    character: '📌',
+    discordName: 'pushpin',
+};
+
+export const DEFAULT_EMOJI = PINBOARD_EMOJI.character;
 
 async function ensurePinboardConfig() {
     await query(

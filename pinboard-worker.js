@@ -11,6 +11,7 @@ import {
     getPinboardPost,
     upsertPinboardPost,
     deletePinboardPost,
+    PINBOARD_EMOJI,
 } from './pinboard.js';
 
 const client = new Client({
@@ -55,41 +56,63 @@ async function ensureMessage(reaction) {
 }
 
 async function handleReactionChange(reaction, user) {
-    const { emoji } = await getPinboardConfig();
-    if (reaction.emoji.name !== emoji) {
+    const config = await getPinboardConfig();
+    const { emoji: configEmoji } = config;
+
+    // Match both emoji character and Discord name
+    const emojiMatches = reaction.emoji.name === configEmoji ||
+        (reaction.emoji.name === PINBOARD_EMOJI.discordName && configEmoji === PINBOARD_EMOJI.character);
+
+    if (!emojiMatches) {
+        console.log(`[Pinboard] Emoji mismatch: reaction=${reaction.emoji.name}, config=${configEmoji}`);
         return;
     }
 
+    console.log(`[Pinboard] Emoji matched: ${reaction.emoji.name}`);
+
     const message = await ensureMessage(reaction);
+    console.log(`[Pinboard] Message from channel ${message.channelId}, author ${message.author?.id}`);
+
     if (!message.guild || message.channel?.type === ChannelType.DM) {
+        console.log(`[Pinboard] Skipped: DM or no guild`);
         return;
     }
 
     if (user?.bot) {
+        console.log(`[Pinboard] Skipped: bot user`);
         return;
     }
 
     const authorId = message.author?.id;
     if (authorId && user?.id === authorId) {
+        console.log(`[Pinboard] Skipped: self-pin`);
         return;
     }
 
     const whitelist = await listPinboardWhitelist();
+    console.log(`[Pinboard] Whitelist: ${whitelist.join(', ') || 'empty'} | Current channel: ${message.channelId}`);
     if (whitelist.length === 0 || !whitelist.includes(message.channelId)) {
+        console.log(`[Pinboard] Skipped: channel not whitelisted`);
         return;
     }
 
-    const { target_channel_id: targetChannelId, threshold } = await getPinboardConfig();
+    const { target_channel_id: targetChannelId, threshold } = config;
     if (!targetChannelId) {
+        console.log(`[Pinboard] Skipped: target channel not set`);
         return;
     }
 
     const reactionCount = await getReactionCount(reaction, authorId);
     const existing = await getPinboardPost(message.id);
 
+    console.log(`[Pinboard] Reaction count: ${reactionCount} | Threshold: ${threshold} | Existing: ${!!existing}`);
+
     if (reactionCount < threshold && !existing) {
+        console.log(`[Pinboard] Below threshold and not already pinned`);
         return;
     }
+
+    console.log(`[Pinboard] Publishing to pinboard (${targetChannelId})`);
 
     const targetChannel = await client.channels.fetch(targetChannelId);
     if (!targetChannel || !targetChannel.isTextBased()) {
@@ -181,7 +204,8 @@ client.on('messageDelete', async (message) => {
 });
 
 client.once('ready', () => {
-    console.log(`Pinboard worker logged in as ${client.user?.tag}`);
+    console.log(`[Pinboard] Worker logged in as ${client.user?.tag}`);
+    console.log(`[Pinboard] Message Content Intent enabled: ${client.options.intents.has('MessageContent')}`);
 });
 
 client.login(process.env.DISCORD_TOKEN);
