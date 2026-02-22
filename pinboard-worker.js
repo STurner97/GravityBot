@@ -31,18 +31,23 @@ async function getReactionCount(reaction, messageAuthorId) {
     return users.filter(user => !user.bot && user.id !== messageAuthorId).size;
 }
 
-function buildPinboardContent({ count, channelId, messageUrl, messageContent }) {
-    const header = `📌 ${count} | <#${channelId}> | ${messageUrl}`;
-    if (!messageContent) {
-        return header;
+function buildPinboardContent({ count, channelId, messageUrl, messageContent, authorId, authorTag, createdAt }) {
+    const timestamp = createdAt ? `<t:${Math.floor(createdAt.getTime() / 1000)}:R>` : 'unknown';
+    const author = authorId ? `<@${authorId}>` : 'unknown user';
+
+    let content = `📌 **${count} Pin${count !== 1 ? 's' : ''}** · Post by ${author} at ${timestamp} in <#${channelId}>`;
+    content += `\n${messageUrl}`;
+
+    if (messageContent) {
+        // Format originalxmessage as a quote block
+        const quotedContent = messageContent
+            .split('\n')
+            .map(line => `> ${line}`)
+            .join('\n');
+        content += `\n${quotedContent}`;
     }
 
-    const combined = `${header}\n${messageContent}`;
-    if (combined.length <= 2000) {
-        return combined;
-    }
-
-    return `${header}\n${messageContent.slice(0, 1950).trimEnd()}...`;
+    return content;
 }
 
 async function ensureMessage(reaction) {
@@ -107,6 +112,20 @@ async function handleReactionChange(reaction, user) {
 
     console.log(`[Pinboard] Reaction count: ${reactionCount} | Threshold: ${threshold} | Existing: ${!!existing}`);
 
+    // If pinned but no more reactions, remove from pinboard
+    if (existing && reactionCount === 0) {
+        console.log(`[Pinboard] No reactions left, removing from pinboard`);
+        const { target_channel_id: targetChannelId } = config;
+        if (targetChannelId) {
+            const targetChannel = await client.channels.fetch(targetChannelId).catch(() => null);
+            if (targetChannel?.isTextBased()) {
+                await targetChannel.messages.delete(existing.pinboard_message_id).catch(() => null);
+            }
+        }
+        await deletePinboardPost(message.id);
+        return;
+    }
+
     if (reactionCount < threshold && !existing) {
         console.log(`[Pinboard] Below threshold and not already pinned`);
         return;
@@ -124,6 +143,9 @@ async function handleReactionChange(reaction, user) {
         channelId: message.channelId,
         messageUrl: message.url,
         messageContent: message.content,
+        authorId: message.author?.id,
+        authorTag: message.author?.tag,
+        createdAt: message.createdAt,
     });
 
     const embeds = message.embeds ? [...message.embeds].slice(0, 10) : [];
