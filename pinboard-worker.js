@@ -35,8 +35,8 @@ function buildPinboardContent({ count, channelId, messageUrl, messageContent, au
     const timestamp = createdAt ? `<t:${Math.floor(createdAt.getTime() / 1000)}:R>` : 'unknown';
     const author = authorId ? `<@${authorId}>` : 'unknown user';
 
-    let content = `📌 **${count} Pin${count !== 1 ? 's' : ''}** · Post by ${author} at ${timestamp} in <#${channelId}>`;
-    content += `\n${messageUrl}`;
+    let content = `📌 **${count} Pin${count !== 1 ? 's' : ''}**`;
+    content += `\n\nPosted ${timestamp} by ${author} · ${messageUrl}`;
 
     if (messageContent) {
         // Format originalxmessage as a quote block
