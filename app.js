@@ -541,7 +541,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           const messageRes = await DiscordRequest(`channels/${channelId}/messages/${messageId}`, { method: 'GET' });
           const message = await messageRes.json();
 
-          const messageUrl = `https://discord.com/channels/${message.guild_id}/${channelId}/${messageId}`;
+          const sourceMessageUrl = `https://discord.com/channels/${guildId}/${channelId}/${messageId}`;
 
           // Check for image attachments
           const imageAttachment = message.attachments?.find(att =>
@@ -573,12 +573,12 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
             fields: [
               {
                 name: 'Posted by',
-                value: `<@${message.author.id}> ${messageUrl}`,
+                value: `<@${message.author.id}> ${sourceMessageUrl}`,
                 inline: false,
               },
             ],
             timestamp: new Date(timestamp * 1000).toISOString(),
-            url: messageUrl,
+            url: sourceMessageUrl,
           };
 
           // Add image/gif if available
@@ -617,7 +617,7 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
           return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
-              content: `✅ Force pinned message: https://discord.com/channels/${message.guild_id}/${config.target_channel_id}/${sentMessage.id}`,
+              content: `✅ Force pinned message: https://discord.com/channels/${guildId}/${config.target_channel_id}/${sentMessage.id}`,
               flags: 64,
             },
           });

@@ -37,9 +37,9 @@ function buildPinboardEmbed({ count, channelId, messageUrl, messageContent, auth
     const embed = {
         color: 0xED4245, // Discord red
         author: {
-            name: `📌 ${count} Pin${count !== 1 ? 's' : ''}`,
+            name: `📌 ${count} Pin${count !== 1 ? 's' : ' '}`,
         },
-        description: messageContent || '',
+        description: messageContent || ' ',
         fields: [
             {
                 name: 'Posted by',
