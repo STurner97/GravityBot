@@ -148,7 +148,7 @@ async function handleReactionChange(reaction, user) {
         createdAt: message.createdAt,
     });
 
-    const embeds = message.embeds ? [...message.embeds].slice(0, 10) : [];
+    const embeds = message.embeds ? message.embeds.slice(0, 10).map(e => e.toJSON()) : [];
     const files = message.attachments
         ? Array.from(message.attachments.values()).map(attachment => ({
             attachment: attachment.url,
