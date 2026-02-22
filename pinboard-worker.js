@@ -77,6 +77,7 @@ async function handleReactionChange(reaction, user) {
 
     const message = await ensureMessage(reaction);
     console.log(`[Pinboard] Message from channel ${message.channelId}, author ${message.author?.id}`);
+    console.log(`[Pinboard] Message content length: ${message.content?.length || 0} | Has embeds: ${message.embeds.length > 0} | Has attachments: ${message.attachments.size > 0}`);
 
     if (!message.guild || message.channel?.type === ChannelType.DM) {
         console.log(`[Pinboard] Skipped: DM or no guild`);
