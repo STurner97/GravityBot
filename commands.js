@@ -266,15 +266,9 @@ const PINBOARD_COMMAND = {
       options: [
         {
           type: 3,
-          name: 'message_id',
-          description: 'Message ID to force pin',
+          name: 'message_url',
+          description: 'Message link (right-click message > Copy Message Link)',
           required: true,
-        },
-        {
-          type: 7,
-          name: 'channel',
-          description: 'Channel containing the message (defaults to current)',
-          required: false,
         },
       ],
     },

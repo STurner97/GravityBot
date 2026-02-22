@@ -146,6 +146,7 @@ Use `/pinboard` with subcommands:
 - `whitelist_add <channel>` - Monitor a channel for 📌 reactions
 - `whitelist_remove <channel>` - Stop monitoring a channel
 - `whitelist_list` - Show current whitelist and destination channel
+- `forcepin <message_url>` - Manually pin a message (testing/admin use)
 
 ### Debug Commands
 

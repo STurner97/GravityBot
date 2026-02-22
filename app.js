@@ -498,19 +498,31 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
       }
 
       if (subcommand.name === 'forcepin') {
-        const messageId = subcommand.options?.find(opt => opt.name === 'message_id')?.value;
-        const channelIdOption = subcommand.options?.find(opt => opt.name === 'channel')?.value;
-        const channelId = channelIdOption || req.body.channel?.id || req.body.channel_id;
+        const messageUrl = subcommand.options?.find(opt => opt.name === 'message_url')?.value;
 
-        if (!messageId || !channelId) {
+        if (!messageUrl) {
           return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
-              content: '❌ Message ID and channel are required.',
+              content: '❌ Message URL is required.',
               flags: 64,
             },
           });
         }
+
+        // Parse Discord message URL: https://discord.com/channels/{guild_id}/{channel_id}/{message_id}
+        const urlMatch = messageUrl.match(/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/);
+        if (!urlMatch) {
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: '❌ Invalid message URL format. Right-click a message and select "Copy Message Link".',
+              flags: 64,
+            },
+          });
+        }
+
+        const [, guildId, channelId, messageId] = urlMatch;
 
         const config = await getPinboardConfig();
         if (!config?.target_channel_id) {
