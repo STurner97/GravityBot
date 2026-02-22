@@ -13,7 +13,9 @@ async function ensurePinboardConfig() {
         `
     INSERT INTO pinboard_config (id, target_channel_id, threshold, emoji)
     VALUES (1, NULL, $1, $2)
-    ON CONFLICT (id) DO NOTHING
+    ON CONFLICT (id) DO UPDATE SET
+      threshold = EXCLUDED.threshold,
+      emoji = EXCLUDED.emoji
     `,
         [DEFAULT_THRESHOLD, DEFAULT_EMOJI]
     );
