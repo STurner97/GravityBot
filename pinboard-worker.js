@@ -39,11 +39,11 @@ function buildPinboardEmbed({ count, channelId, messageUrl, messageContent, auth
         author: {
             name: `📌 ${count} Pin${count !== 1 ? 's' : ''}`,
         },
-        description: messageContent || '*(no text content)*',
+        description: messageContent || '',
         fields: [
             {
                 name: 'Posted by',
-                value: `<@${authorId}> ${messageUrl}`,
+                value: `<@${authorId}> · ${messageUrl}`,
                 inline: false,
             },
         ],
@@ -155,6 +155,19 @@ async function handleReactionChange(reaction, user) {
         /\.(png|jpe?g|gif|webp)$/i.test(att.name || att.url)
     );
 
+    // Check for GIF/image in embeds (e.g., Tenor, Giphy)
+    const gifEmbed = message.embeds?.find(e =>
+        e.type === 'gifv' ||
+        e.type === 'image' ||
+        e.image ||
+        e.video ||
+        e.thumbnail
+    );
+
+    const gifUrl = gifEmbed?.image?.url ||
+        gifEmbed?.video?.url ||
+        gifEmbed?.thumbnail?.url;
+
     const pinboardEmbed = buildPinboardEmbed({
         count: reactionCount,
         channelId: message.channelId,
@@ -163,10 +176,17 @@ async function handleReactionChange(reaction, user) {
         authorId: message.author?.id,
         authorTag: message.author?.tag,
         createdAt: message.createdAt,
-        imageUrl: imageAttachment?.url,
+        imageUrl: imageAttachment?.url || gifUrl,
     });
 
-    const embeds = message.embeds ? message.embeds.slice(0, 10).map(e => e.toJSON()) : [];
+    // Exclude GIF embeds since we're displaying them inline
+    const embeds = message.embeds
+        ? message.embeds
+            .filter(e => !(e.type === 'gifv' || e.type === 'image' || e.image || e.video))
+            .slice(0, 10)
+            .map(e => e.toJSON())
+        : [];
+
     const files = message.attachments && !imageAttachment
         ? Array.from(message.attachments.values()).map(attachment => ({
             attachment: attachment.url,

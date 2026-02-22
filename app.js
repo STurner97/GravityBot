@@ -537,6 +537,19 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
             /\.(png|jpe?g|gif|webp)$/i.test(att.filename || att.url)
           );
 
+          // Check for GIF/image in embeds (e.g., Tenor, Giphy)
+          const gifEmbed = message.embeds?.find(e =>
+            e.type === 'gifv' ||
+            e.type === 'image' ||
+            e.image ||
+            e.video ||
+            e.thumbnail
+          );
+
+          const gifUrl = gifEmbed?.image?.url ||
+            gifEmbed?.video?.url ||
+            gifEmbed?.thumbnail?.url;
+
           // Build pinboard embed
           const timestamp = message.timestamp ? Math.floor(new Date(message.timestamp).getTime() / 1000) : Math.floor(Date.now() / 1000);
           const pinboardEmbed = {
@@ -556,14 +569,20 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
             url: messageUrl,
           };
 
-          // Add image if available
-          if (imageAttachment) {
-            pinboardEmbed.image = { url: imageAttachment.url };
+          // Add image/gif if available
+          if (imageAttachment?.url || gifUrl) {
+            pinboardEmbed.image = { url: imageAttachment?.url || gifUrl };
           }
 
           const embeds = [pinboardEmbed];
+          // Only include non-GIF embeds
           if (message.embeds && message.embeds.length > 0) {
-            embeds.push(...message.embeds.slice(0, 10));
+            const filteredEmbeds = message.embeds.filter(e =>
+              !(e.type === 'gifv' || e.type === 'image' || e.image || e.video)
+            );
+            if (filteredEmbeds.length > 0) {
+              embeds.push(...filteredEmbeds.slice(0, 10));
+            }
           }
 
           // Post to pinboard channel
