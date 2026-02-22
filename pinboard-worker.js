@@ -37,8 +37,7 @@ function buildPinboardEmbed({ count, channelId, messageUrl, messageContent, auth
     return {
         color: 0xED4245, // Discord red
         author: {
-            name: `${count} Pin${count !== 1 ? 's' : ''}`,
-            icon_url: 'https://discord.com/assets/7060f1dfd416b7c23b02707b95b991e8.png', // Pin emoji
+            name: `📌 ${count} Pin${count !== 1 ? 's' : ''}`,
         },
         description: messageContent || '*(no text content)*',
         fields: [

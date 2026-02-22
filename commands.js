@@ -259,6 +259,25 @@ const PINBOARD_COMMAND = {
       name: 'whitelist_list',
       description: 'List all whitelisted channels',
     },
+    {
+      type: 1,
+      name: 'forcepin',
+      description: 'Force pin a message (for testing)',
+      options: [
+        {
+          type: 3,
+          name: 'message_id',
+          description: 'Message ID to force pin',
+          required: true,
+        },
+        {
+          type: 7,
+          name: 'channel',
+          description: 'Channel containing the message (defaults to current)',
+          required: false,
+        },
+      ],
+    },
   ],
   type: 1,
   integration_types: [0, 1],

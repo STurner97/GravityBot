@@ -497,6 +497,98 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
         });
       }
 
+      if (subcommand.name === 'forcepin') {
+        const messageId = subcommand.options?.find(opt => opt.name === 'message_id')?.value;
+        const channelIdOption = subcommand.options?.find(opt => opt.name === 'channel')?.value;
+        const channelId = channelIdOption || req.body.channel?.id || req.body.channel_id;
+
+        if (!messageId || !channelId) {
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: '❌ Message ID and channel are required.',
+              flags: 64,
+            },
+          });
+        }
+
+        const config = await getPinboardConfig();
+        if (!config?.target_channel_id) {
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: '❌ Pinboard target channel not set.',
+              flags: 64,
+            },
+          });
+        }
+
+        try {
+          // Fetch message from Discord API
+          const { DiscordRequest } = await import('./utils.js');
+          const messageRes = await DiscordRequest(`channels/${channelId}/messages/${messageId}`, { method: 'GET' });
+          const message = await messageRes.json();
+
+          // Build pinboard embed
+          const timestamp = message.timestamp ? Math.floor(new Date(message.timestamp).getTime() / 1000) : Math.floor(Date.now() / 1000);
+          const pinboardEmbed = {
+            color: 0xED4245,
+            author: {
+              name: `📌 1 Pin (forced)`,
+            },
+            description: message.content || '*(no text content)*',
+            fields: [
+              {
+                name: 'Posted by',
+                value: `<@${message.author.id}> in <#${channelId}>`,
+                inline: false,
+              },
+            ],
+            timestamp: new Date(timestamp * 1000).toISOString(),
+            url: `https://discord.com/channels/${message.guild_id}/${channelId}/${messageId}`,
+          };
+
+          const embeds = [pinboardEmbed];
+          if (message.embeds && message.embeds.length > 0) {
+            embeds.push(...message.embeds.slice(0, 10));
+          }
+
+          // Post to pinboard channel
+          const postRes = await DiscordRequest(`channels/${config.target_channel_id}/messages`, {
+            method: 'POST',
+            body: { embeds },
+          });
+          const sentMessage = await postRes.json();
+
+          // Store in DB
+          const { upsertPinboardPost } = await import('./pinboard.js');
+          await upsertPinboardPost({
+            messageId: messageId,
+            sourceChannelId: channelId,
+            pinboardMessageId: sentMessage.id,
+            authorId: message.author.id,
+            reactionCount: 1,
+          });
+
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: `✅ Force pinned message: https://discord.com/channels/${message.guild_id}/${config.target_channel_id}/${sentMessage.id}`,
+              flags: 64,
+            },
+          });
+        } catch (err) {
+          console.error('Force pin failed', err);
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: `❌ Failed to force pin: ${err.message}`,
+              flags: 64,
+            },
+          });
+        }
+      }
+
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
