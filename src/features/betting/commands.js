@@ -1,0 +1,126 @@
+export const BETTING_COMMANDS = [
+  {
+    name: 'balance',
+    description: 'Check credit balance',
+    options: [
+      {
+        type: 3,
+        name: 'user',
+        description: 'User to check (tag a user)',
+        required: false,
+      },
+    ],
+    type: 1,
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+  },
+  {
+    name: 'predict',
+    description: 'Create a new prediction (opens a form)',
+    type: 1,
+    integration_types: [0, 1],
+    contexts: [0, 2],
+  },
+  {
+    name: 'bet',
+    description: 'Place a bet on a prediction (opens a form)',
+    options: [
+      {
+        type: 4,
+        name: 'prediction_id',
+        description: 'The ID of the prediction',
+        required: true,
+        min_value: 1,
+      },
+    ],
+    type: 1,
+    integration_types: [0, 1],
+    contexts: [0, 2],
+  },
+  {
+    name: 'predictions',
+    description: 'View all active predictions',
+    type: 1,
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+  },
+  {
+    name: 'resolve',
+    description: '[ADMIN] Resolve a prediction (opens a form)',
+    options: [
+      {
+        type: 4,
+        name: 'prediction_id',
+        description: 'The ID of the prediction to resolve',
+        required: true,
+        min_value: 1,
+      },
+    ],
+    type: 1,
+    integration_types: [0, 1],
+    contexts: [0, 2],
+  },
+  {
+    name: 'voidprediction',
+    description: '[ADMIN] Void a prediction and return all bets',
+    options: [
+      {
+        type: 4,
+        name: 'prediction_id',
+        description: 'The ID of the prediction to void',
+        required: true,
+        min_value: 1,
+      },
+    ],
+    type: 1,
+    integration_types: [0, 1],
+    contexts: [0, 2],
+  },
+  {
+    name: 'mybets',
+    description: 'View your active bets',
+    type: 1,
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+  },
+  {
+    name: 'balances',
+    description: "View everyone's balance (excludes default 1000)",
+    type: 1,
+    integration_types: [0, 1],
+    contexts: [0, 1, 2],
+  },
+  {
+    name: 'changebalance',
+    description: '[ADMIN] Add or remove credits from a user',
+    options: [
+      {
+        type: 6,
+        name: 'user',
+        description: 'The user to modify',
+        required: true,
+      },
+      {
+        type: 3,
+        name: 'action',
+        description: 'Add, remove, or set credits',
+        required: true,
+        choices: [
+          { name: 'Add', value: 'add' },
+          { name: 'Remove', value: 'remove' },
+          { name: 'Set', value: 'set' },
+        ],
+      },
+      {
+        type: 4,
+        name: 'amount',
+        description: 'Amount of credits',
+        required: true,
+        min_value: 1,
+      },
+    ],
+    type: 1,
+    integration_types: [0, 1],
+    contexts: [0, 2],
+  },
+];

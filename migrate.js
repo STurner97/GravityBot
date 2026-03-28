@@ -5,7 +5,7 @@ async function migrate() {
   await query(`
     CREATE TABLE IF NOT EXISTS users (
       user_id TEXT PRIMARY KEY,
-      balance INTEGER NOT NULL DEFAULT 100
+      balance INTEGER NOT NULL DEFAULT 1000
     );
   `);
 
@@ -55,6 +55,18 @@ async function migrate() {
       reaction_count INTEGER NOT NULL DEFAULT 0,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+  `);
+
+  // Fix any existing databases where the default was incorrectly set to 100.
+  await query(`
+    DO $$
+    BEGIN
+      IF (SELECT column_default FROM information_schema.columns
+          WHERE table_name = 'users' AND column_name = 'balance') <> '1000'
+      THEN
+        ALTER TABLE users ALTER COLUMN balance SET DEFAULT 1000;
+      END IF;
+    END $$;
   `);
 
   console.log('Migration complete');

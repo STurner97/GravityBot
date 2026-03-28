@@ -1,6 +1,5 @@
 import { query, withTransaction } from './db.js';
-
-const STARTING_BALANCE = 1000;
+import { STARTING_BALANCE } from './src/config.js';
 
 async function ensureUser(userId, client) {
     const q = client || { query };

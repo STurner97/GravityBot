@@ -1,242 +1,360 @@
 # GravityBot
 
-A vibe-coded politics prediction betting Discord bot. Create predictions, place bets with virtual credits, and resolve outcomes with admin commands.
+A Discord bot with a credit-based prediction betting system, a pinboard (starboard) feature, and admin debug tools. Built to be extended — adding new slash commands, modals, or buttons requires only creating new files under `src/features/`, never editing core dispatch code.
 
-## Project structure
+---
+
+## Architecture
+
+GravityBot runs as two Heroku processes:
+
+| Process | Entry point | Purpose |
+|---------|-------------|---------|
+| `web` | `app.js` | Express HTTP server — receives Discord interaction webhooks |
+| `worker` | `pinboard-worker.js` | Discord.js gateway client — handles emoji reactions |
+
+### Directory structure
 
 ```
-├── app.js           -> main entrypoint and interaction handler
-├── commands.js      -> slash command definitions
-├── betting.js       -> core betting system logic
-├── game.js          -> utility functions for game logic
-├── utils.js         -> utility functions and enums
-├── db.js            -> database connection and queries
-├── migrate.js       -> database schema and migrations
-├── pinboard.js       -> pinboard config + DB helpers
-├── pinboard-worker.js -> gateway worker for 📌 reactions
-├── package.json
-├── Procfile        -> deployment configuration
-├── LICENSE
-└── examples/        -> feature-specific code examples
+├── app.js                    # Express bootstrap (~15 lines)
+├── pinboard-worker.js        # Worker bootstrap (~3 lines)
+├── commands.js               # Command registration script (npm run register)
+├── betting.js                # Prediction/betting business logic
+├── db.js                     # PostgreSQL pool + query/withTransaction helpers
+├── migrate.js                # Database schema creation + migrations
+├── utils.js                  # DiscordRequest HTTP helper, InstallGlobalCommands
+│
+└── src/
+    ├── config.js             # All env-var reads + startup validation
+    │
+    ├── lib/
+    │   ├── response.js       # Discord response builders (ephemeral, public_, modal, pong)
+    │   ├── customId.js       # encode/decode for modal and button custom_id values
+    │   └── auth.js           # isAdmin() guard
+    │
+    ├── interactions/
+    │   ├── registry.js       # Handler Maps + registerCommand/Modal/Button functions
+    │   └── router.js         # POST /interactions dispatch with top-level error boundary
+    │
+    └── features/
+        ├── betting/
+        │   ├── commands.js   # BETTING_COMMANDS array (slash command definitions)
+        │   ├── handlers.js   # One function per slash command
+        │   ├── modals.js     # Modal builders + modal submit handlers
+        │   ├── buttons.js    # Button click handlers (bet button)
+        │   └── index.js      # Registers all betting handlers into the registry
+        │
+        ├── debug/
+        │   ├── commands.js   # DEBUG_COMMANDS array
+        │   ├── handlers.js   # /debug command handler + subcommands
+        │   ├── modals.js     # debug_sql_modal submit handler
+        │   ├── buttons.js    # confirm_reset button handler
+        │   └── index.js      # Registers all debug handlers into the registry
+        │
+        └── pinboard/
+            ├── commands.js   # PINBOARD_COMMANDS array
+            ├── data.js       # Database access layer for pinboard tables
+            ├── handlers.js   # /pinboard command handler + subcommands
+            ├── index.js      # Registers pinboard command handler
+            └── worker/
+                ├── helpers.js              # shouldProcessReaction, buildPostPayload, etc.
+                ├── handleReactionChange.js # Orchestrates a single reaction event
+                └── index.js               # Client setup, event wiring, startWorker()
 ```
 
-## Installation
+### How the dispatch system works
+
+1. Discord sends a `POST /interactions` webhook to `app.js`.
+2. `router.js` receives it, verifies the signature (via middleware), and reads the interaction type.
+3. For `APPLICATION_COMMAND`: looks up `data.name` in `commandHandlers`.
+4. For `MODAL_SUBMIT`: decodes the `custom_id` namespace, looks it up in `modalHandlers`.
+5. For `MESSAGE_COMPONENT`: decodes the `custom_id` namespace, looks it up in `buttonHandlers`.
+6. The matched handler function is called and its return value is sent back as the response.
+
+The three Maps in `registry.js` are populated at startup when `app.js` imports the feature index files:
+
+```js
+import './src/features/betting/index.js';
+import './src/features/debug/index.js';
+import './src/features/pinboard/index.js';
+```
+
+Each `index.js` calls `registerCommand`, `registerModal`, and `registerButton` for its feature's handlers.
+
+### `custom_id` encoding
+
+Modal and button `custom_id` values use colon-separated namespaces:
+
+```
+namespace:part1:part2
+```
+
+Examples:
+- `bet_modal:12` — the bet modal for prediction #12
+- `resolve_modal:5` — the resolve modal for prediction #5
+- `bet:3` — the "Bet on #3" button
+- `confirm_reset:yes` — the confirm-reset yes button
+
+Use `encode` and `decode` from `src/lib/customId.js`:
+
+```js
+import { encode, decode } from '../../lib/customId.js';
+
+const id = encode('bet_modal', predictionId); // → "bet_modal:12"
+const { namespace, parts } = decode(id);       // → { namespace: 'bet_modal', parts: ['12'] }
+```
+
+The router uses the namespace to look up the handler in the registry map.
+
+---
+
+## How to add a new feature
+
+### Adding a brand-new slash command group
+
+1. **Create `src/features/<name>/commands.js`** — export a `<NAME>_COMMANDS` array of command definition objects:
+
+   ```js
+   export const ECONOMY_COMMANDS = [
+     {
+       name: 'shop',
+       description: 'Browse the shop',
+       type: 1,
+       integration_types: [0],
+       contexts: [0],
+     },
+   ];
+   ```
+
+2. **Create `src/features/<name>/handlers.js`** — export one async function per command:
+
+   ```js
+   import { ephemeral, public_ } from '../../lib/response.js';
+
+   export async function handleShop(interaction) {
+     const { userId } = interaction;
+     return public_('🛒 Welcome to the shop!');
+   }
+   ```
+
+3. **Create `src/features/<name>/index.js`** — register your handlers:
+
+   ```js
+   import { registerCommand } from '../../interactions/registry.js';
+   import { handleShop } from './handlers.js';
+
+   registerCommand('shop', handleShop);
+   ```
+
+4. **Wire up in `app.js`** — add one import line:
+
+   ```js
+   import './src/features/economy/index.js';
+   ```
+
+5. **Wire up in `commands.js`** — import and include your commands:
+
+   ```js
+   import { ECONOMY_COMMANDS } from './src/features/economy/commands.js';
+   const ALL_COMMANDS = [...BETTING_COMMANDS, ...PINBOARD_COMMANDS, ...ECONOMY_COMMANDS];
+   ```
+
+6. **Register with Discord:**
+
+   ```sh
+   npm run register
+   ```
+
+No changes needed to `router.js`, `registry.js`, or any other feature's files.
+
+### Adding a modal to an existing feature
+
+1. Define the modal builder and handler in the feature's `modals.js`:
+
+   ```js
+   import { encode, decode } from '../../lib/customId.js';
+   import { modal, ephemeral } from '../../lib/response.js';
+
+   export function buildMyModal(itemId) {
+     return modal(encode('my_modal', itemId), 'My Modal Title', [ /* components */ ]);
+   }
+
+   export async function handleMyModal(interaction) {
+     const { parts } = decode(interaction.data.custom_id);
+     const itemId = parseInt(parts[0]);
+     // ... process submission
+     return ephemeral('✅ Done!');
+   }
+   ```
+
+2. Register it in the feature's `index.js`:
+
+   ```js
+   import { registerModal } from '../../interactions/registry.js';
+   import { handleMyModal } from './modals.js';
+
+   registerModal('my_modal', handleMyModal);
+   ```
+
+The router will route any `MODAL_SUBMIT` with a `custom_id` starting with `my_modal:` to your handler.
+
+### Adding a button to an existing feature
+
+1. Define the handler in the feature's `buttons.js`:
+
+   ```js
+   import { encode, decode } from '../../lib/customId.js';
+   import { ephemeral } from '../../lib/response.js';
+
+   export async function handleMyButton(interaction) {
+     const { parts } = decode(interaction.data.custom_id);
+     const action = parts[0]; // e.g. 'confirm' or 'cancel'
+     return ephemeral(action === 'confirm' ? '✅ Confirmed!' : '❌ Cancelled.');
+   }
+   ```
+
+2. Build the button component in your command/modal handler:
+
+   ```js
+   import { encode } from '../../lib/customId.js';
+   import { MessageComponentTypes, ButtonStyleTypes } from 'discord-interactions';
+
+   const component = {
+     type: MessageComponentTypes.BUTTON,
+     style: ButtonStyleTypes.PRIMARY,
+     label: 'Confirm',
+     custom_id: encode('my_action', 'confirm'),
+   };
+   ```
+
+3. Register it in the feature's `index.js`:
+
+   ```js
+   import { registerButton } from '../../interactions/registry.js';
+   import { handleMyButton } from './buttons.js';
+
+   registerButton('my_action', handleMyButton);
+   ```
+
+---
+
+## Environment variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `PUBLIC_KEY` | ✅ | Discord app public key (for request verification) |
+| `DISCORD_TOKEN` | ✅ | Bot token |
+| `APP_ID` | ✅ | Discord application ID |
+| `DATABASE_URL` | ✅ | PostgreSQL connection string |
+| `ADMIN_IDS` | — | Comma-separated Discord user IDs with admin access |
+| `ALLOWED_CHANNEL_IDS` | — | Comma-separated channel IDs where the bot responds (empty = all channels) |
+| `PINBOARD_MESSAGE_CONTENT_INTENT` | — | Set to `true` to enable the `MessageContent` gateway intent |
+| `PORT` | — | HTTP port (default: `3000`) |
+
+---
+
+## Setup
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/en/download/) (v14 or higher)
-- A [Discord bot application](https://discord.com/developers/applications) with these permissions:
-  - `applications.commands` (Scope)
-  - `bot` Scope with **Send Messages** enabled
-- A database (PostgreSQL recommended)
+- Node.js v18+
+- PostgreSQL database
+- A [Discord application](https://discord.com/developers/applications) with:
+  - `applications.commands` scope
+  - `bot` scope with **Send Messages** and **Read Message History** permissions
+  - **Message Content Intent** enabled (if using pinboard with message content)
+  - **Server Members Intent** and **Presence Intent** as needed
 
-### Setup
+### Installation
 
-1. **Clone and install dependencies:**
-   ```
-   git clone <repository-url>
+1. Clone and install:
+   ```sh
+   git clone <repo-url>
    cd GravityBot
    npm install
    ```
 
-2. **Configure environment variables:**
-   Create a `.env` file in the project root with:
+2. Create a `.env` file:
    ```
+   PUBLIC_KEY=your_discord_public_key
    DISCORD_TOKEN=your_bot_token
-   APP_ID=your_app_id
-   PUBLIC_KEY=your_public_key
+   APP_ID=your_application_id
    DATABASE_URL=postgresql://user:password@localhost:5432/gravitybot
+   ADMIN_IDS=your_discord_user_id,another_admin_id
+   ALLOWED_CHANNEL_IDS=channel_id_1,channel_id_2
    ```
 
-3. **Initialize the database:**
-   ```
+3. Run the database migration:
+   ```sh
    npm run migrate
    ```
 
-4. **Register slash commands:**
-   ```
+4. Register slash commands with Discord:
+   ```sh
    npm run register
    ```
 
-5. **Set up interactivity webhook:**
-   Use [ngrok](https://ngrok.com/) or similar to tunnel to localhost:3000
-   ```
-   ngrok http 3000
-   ```
-   
-   Add the forwarding URL + `/interactions` to your Discord app's **Interactions Endpoint URL** in the Developer Portal.
-
-6. **Start the bot:**
-   ```
+5. Start the web process:
+   ```sh
    npm start
    ```
-   Start the pinboard worker in a second terminal:
-   ```
+
+6. Start the pinboard worker (separate terminal or process):
+   ```sh
    npm run start:worker
    ```
-   or for development with auto-reload:
-   ```
-   npm install -g nodemon
-   nodemon app.js
-   ```
-   and in another terminal:
-   ```
-   nodemon pinboard-worker.js
-   ```
 
-## Basic Usage
+### Local development
 
-### Creating a Prediction
+Use [ngrok](https://ngrok.com/) or similar to expose `localhost:3000`:
 
-1. Use `/predict` to open the prediction form
-2. Enter a clear question (e.g., "Will Biden run in 2028?")
-3. Define the possible outcomes (typically "Yes" and "No")
+```sh
+ngrok http 3000
+```
 
-### Placing a Bet
+Set the forwarding URL + `/interactions` as the **Interactions Endpoint URL** in your Discord app's Developer Portal.
 
-1. Use `/predictions` to see all active predictions
-2. Use `/bet <prediction_id>` to bet on a prediction
-3. Select your predicted outcome and enter your bet amount
-4. Confirm to lock in your bet
+---
 
-### Checking Your Status
+## Commands reference
 
-- `/balance` - View your credit balance
-- `/mybets` - View your active bets and their status
-- `/balances` - See all users' balances (excluding defaults)
+### Betting
 
-## Advanced Use (Admin Commands)
+| Command | Who | Description |
+|---------|-----|-------------|
+| `/predict` | Anyone | Create a new prediction (opens a form) |
+| `/predictions` | Anyone | List active predictions with bet buttons |
+| `/bet <id>` | Anyone | Place a bet on a prediction (opens a form) |
+| `/mybets` | Anyone | View your active bets |
+| `/balance [user]` | Anyone | Check credit balance |
+| `/balances` | Anyone | View all non-default balances |
+| `/resolve <id>` | Admin | Resolve a prediction (opens a form) |
+| `/voidprediction <id>` | Admin | Void a prediction and refund all bets |
+| `/changebalance <user> <action> <amount>` | Admin | Add, remove, or set a user's credits |
 
-Only users listed in `ADMIN_IDS` in [app.js](app.js) can use these commands:
+### Pinboard
 
-### Resolving a Prediction
+| Command | Who | Description |
+|---------|-----|-------------|
+| `/pinboard setchannel <channel>` | Admin | Set the pinboard destination channel |
+| `/pinboard whitelist_add <channel>` | Admin | Monitor a channel for 📌 reactions |
+| `/pinboard whitelist_remove <channel>` | Admin | Stop monitoring a channel |
+| `/pinboard whitelist_list` | Admin | Show current configuration |
+| `/pinboard forcepin <message_url>` | Admin | Manually pin a message |
 
-Use `/resolve <prediction_id>` to:
-1. Select the prediction ID
-2. Choose the correct outcome
-3. Confirm resolution
+### Debug (Admin only)
 
-**Payouts are calculated automatically:**
-- Users who bet on the correct outcome receive winnings proportional to their bet
-- Total payout pool = all bet amounts on that prediction
-- Users who bet on the wrong outcome lose their bet
+| Subcommand | Description |
+|------------|-------------|
+| `/debug stats` | Overall database statistics |
+| `/debug prediction <id>` | Inspect a prediction and its bets |
+| `/debug user <user>` | Inspect a user's balance and bet history |
+| `/debug recent [limit]` | Recent predictions |
+| `/debug reset` | ⚠️ Truncate all tables |
+| `/debug sql` | ⚠️ Execute a raw SQL query |
 
-### Voiding a Prediction
-
-Use `/voidprediction <prediction_id>` to:
-- Refund all bets on a prediction (full amount returned)
-- Useful for predictions that become invalid or cancelled
-
-### Managing Credits
-
-Use `/changebalance <user> <action> <amount>` to:
-- **Add** - Give credits to a user
-- **Remove** - Deduct credits from a user
-- **Set** - Set a user's balance to a specific amount
-
-### Pinboard (📌)
-
-Pinboard posts a message to a dedicated channel once **3 unique users** react with 📌.
-- Bots are ignored
-- Self-pins are ignored
-- Only whitelisted channels are monitored
-
-Use `/pinboard` with subcommands:
-- `setchannel <channel>` - Set the pinboard destination
-- `whitelist_add <channel>` - Monitor a channel for 📌 reactions
-- `whitelist_remove <channel>` - Stop monitoring a channel
-- `whitelist_list` - Show current whitelist and destination channel
-- `forcepin <message_url>` - Manually pin a message (testing/admin use)
-
-### Debug Commands
-
-Use `/debug` with subcommands:
-- `stats` - View overall database statistics
-- `prediction <id>` - Inspect a specific prediction and all its bets
-- `user <user> [limit]` - View a user's balance and bet history
-- `recent [limit]` - Show recent predictions
-- `reset` - Clear all database data (⚠️ DANGEROUS)
-- `sql` - Execute custom SQL queries (⚠️ DANGEROUS)
-
-## Database Structure
-
-GravityBot uses PostgreSQL with three main tables:
-
-### Users Table
-Stores user accounts and credit balances.
-
-| Column    | Type      | Description                                  |
-| --------- | --------- | -------------------------------------------- |
-| `user_id` | TEXT (PK) | Discord user ID                              |
-| `balance` | INTEGER   | User's current credit balance (default: 100) |
-
-### Predictions Table
-Stores all predictions created by users.
-
-| Column       | Type        | Description                              |
-| ------------ | ----------- | ---------------------------------------- |
-| `id`         | SERIAL (PK) | Unique prediction identifier             |
-| `question`   | TEXT        | The prediction question/prompt           |
-| `options`    | TEXT[]      | Array of possible outcomes               |
-| `creator_id` | TEXT        | Discord ID of prediction creator         |
-| `resolved`   | BOOLEAN     | Whether the prediction has been resolved |
-| `outcome`    | TEXT        | The correct outcome (null if unresolved) |
-| `created_at` | TIMESTAMPTZ | Timestamp when prediction was created    |
-
-### Bets Table
-Stores all individual bets placed on predictions.
-
-| Column          | Type         | Description                  |
-| --------------- | ------------ | ---------------------------- |
-| `id`            | SERIAL (PK)  | Unique bet identifier        |
-| `prediction_id` | INTEGER (FK) | References `predictions(id)` |
-| `user_id`       | TEXT         | Discord ID of bet placer     |
-| `prediction`    | TEXT         | The chosen outcome           |
-| `amount`        | INTEGER      | Amount of credits bet        |
-
-**Note:** Bets cascade delete when their prediction is deleted.
-
-### Pinboard Tables
-
-The pinboard feature adds these tables:
-
-#### Pinboard Config
-
-| Column              | Type    | Description                        |
-| ------------------- | ------- | ---------------------------------- |
-| `id`                | INTEGER | Single row (id = 1)                |
-| `target_channel_id` | TEXT    | Channel ID where pinboard posts go |
-| `threshold`         | INTEGER | Reaction threshold (default: 3)    |
-| `emoji`             | TEXT    | Emoji to track (default: 📌)        |
-
-#### Pinboard Whitelist
-
-| Column       | Type | Description                |
-| ------------ | ---- | -------------------------- |
-| `channel_id` | TEXT | Allowed source channel IDs |
-
-#### Pinboard Posts
-
-| Column                | Type        | Description                         |
-| --------------------- | ----------- | ----------------------------------- |
-| `message_id`          | TEXT (PK)   | Original message ID                 |
-| `source_channel_id`   | TEXT        | Source channel ID                   |
-| `pinboard_message_id` | TEXT        | Message ID in the pinboard channel  |
-| `author_id`           | TEXT        | Author of the original message      |
-| `reaction_count`      | INTEGER     | Last tracked reaction count         |
-| `created_at`          | TIMESTAMPTZ | When the pinboard entry was created |
+---
 
 ## License
 
-This project is licensed under the [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/). 
-
-You are free to:
-- Share and adapt this work
-- Use it commercially or personally
-
-As long as you:
-- Provide attribution to the original creator
-- Include a link to the license
-
-
-
+[Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
