@@ -8,7 +8,7 @@ export function startWorker() {
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMessages,
       GatewayIntentBits.GuildMessageReactions,
-      ...(process.env.PINBOARD_MESSAGE_CONTENT_INTENT === 'true'
+      ...(process.env.PINBOARD_MESSAGE_CONTENT_INTENT?.toLowerCase() === 'true'
         ? [GatewayIntentBits.MessageContent]
         : []),
     ],
