@@ -332,6 +332,11 @@ Set the forwarding URL + `/interactions` as the **Interactions Endpoint URL** in
 | `/voidprediction <id>` | Admin | Void a prediction and refund all bets |
 | `/changebalance <user> <action> <amount>` | Admin | Add, remove, or set a user's credits |
 
+#### Betting rules
+
+- A user may place multiple bets on the same prediction, including multiple bets on the same option (each bet is a separate row in the `bets` table, and credits are deducted per bet).
+- A user may bet on more than one option, but they cannot cover every option. The maximum number of distinct options a user may bet on is **total options − 1**. For example, on a Yes/No prediction a user may only bet on one of the two options.
+
 ### Pinboard
 
 | Command | Who | Description |
