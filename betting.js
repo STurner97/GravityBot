@@ -208,7 +208,7 @@ export async function placeBet(predictionId, userId, prediction, amount) {
             'SELECT DISTINCT prediction FROM bets WHERE prediction_id = $1 AND user_id = $2',
             [predictionId, userId]
         );
-        const optionsUserHasBetOn = userBetsResult.rows.map(row => row.prediction);
+        const optionsUserHasBetOn = userBetsResult.rows.map(row => row.prediction.toLowerCase());
 
         // Calculate max options allowed (total options - 1)
         const totalOptions = pred.options.length;
