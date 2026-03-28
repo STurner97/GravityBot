@@ -355,6 +355,79 @@ Set the forwarding URL + `/interactions` as the **Interactions Endpoint URL** in
 
 ---
 
+## Database schema
+
+Six tables, created by `npm run migrate`. The migration is idempotent (`CREATE TABLE IF NOT EXISTS`) and safe to re-run.
+
+### `users`
+
+Stores each Discord user and their current credit balance.
+
+| Column | Type | Constraints | Default |
+|--------|------|-------------|---------|
+| `user_id` | `TEXT` | `PRIMARY KEY` | — |
+| `balance` | `INTEGER` | `NOT NULL` | `1000` |
+
+### `predictions`
+
+One row per prediction created via `/predict`.
+
+| Column | Type | Constraints | Default |
+|--------|------|-------------|---------|
+| `id` | `SERIAL` | `PRIMARY KEY` | — |
+| `question` | `TEXT` | `NOT NULL` | — |
+| `options` | `TEXT[]` | `NOT NULL` | — |
+| `creator_id` | `TEXT` | `NOT NULL` | — |
+| `resolved` | `BOOLEAN` | `NOT NULL` | `FALSE` |
+| `outcome` | `TEXT` | — | `NULL` |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL` | `NOW()` |
+
+### `bets`
+
+One row per individual bet placed on a prediction. Cascade-deletes when the parent prediction is deleted.
+
+| Column | Type | Constraints | Default |
+|--------|------|-------------|---------|
+| `id` | `SERIAL` | `PRIMARY KEY` | — |
+| `prediction_id` | `INTEGER` | `NOT NULL`, FK → `predictions(id)` ON DELETE CASCADE | — |
+| `user_id` | `TEXT` | `NOT NULL` | — |
+| `prediction` | `TEXT` | `NOT NULL` | — |
+| `amount` | `INTEGER` | `NOT NULL` | — |
+
+### `pinboard_config`
+
+Single-row configuration table (`id = 1`) for the pinboard feature.
+
+| Column | Type | Constraints | Default |
+|--------|------|-------------|---------|
+| `id` | `INTEGER` | `PRIMARY KEY` | — |
+| `target_channel_id` | `TEXT` | — | `NULL` |
+| `threshold` | `INTEGER` | `NOT NULL` | `3` |
+| `emoji` | `TEXT` | `NOT NULL` | `📌` |
+
+### `pinboard_whitelist`
+
+Source channels that the pinboard worker monitors for reactions.
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| `channel_id` | `TEXT` | `PRIMARY KEY` |
+
+### `pinboard_posts`
+
+Tracks which source messages have been posted to the pinboard channel, so they can be edited or deleted when reaction counts change.
+
+| Column | Type | Constraints | Default |
+|--------|------|-------------|---------|
+| `message_id` | `TEXT` | `PRIMARY KEY` | — |
+| `source_channel_id` | `TEXT` | `NOT NULL` | — |
+| `pinboard_message_id` | `TEXT` | `NOT NULL` | — |
+| `author_id` | `TEXT` | `NOT NULL` | — |
+| `reaction_count` | `INTEGER` | `NOT NULL` | `0` |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL` | `NOW()` |
+
+---
+
 ## License
 
 [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/)
