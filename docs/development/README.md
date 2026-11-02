@@ -7,7 +7,7 @@ prose below the fence, not the table.
 
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
-| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 3-development | in progress | — | write the development document |
+| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 3-development | in progress | — | developer pushes main so F1 deploys, then accepts on the server; agent drives, developer clicks |
 
 **By phase**
 

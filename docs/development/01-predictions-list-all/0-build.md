@@ -10,7 +10,7 @@ blocked_on:
 version: 1.1.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: write the development document
+next: developer pushes main so F1 deploys, then accepts on the server; agent drives, developer clicks
 updated: 2026-11-02
 ---
 
