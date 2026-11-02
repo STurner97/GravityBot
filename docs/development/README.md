@@ -7,11 +7,11 @@ prose below the fence, not the table.
 
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
-| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 1-requirements | in progress | — | Run design: research R1-R4 and design the paged list |
+| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 1-requirements | signed off | — | advance to 2-design |
 
 **By phase**
 
-- Requirements — [01](01-predictions-list-all/1-requirements.md)
+- Requirements — [01](01-predictions-list-all/1-requirements.md) ✓
 - Design — none yet
 - Development — none yet
 - Review — none yet

@@ -1,13 +1,14 @@
 ---
 build: 01-predictions-list-all
 phase: 1-requirements
-status: in-progress
+status: signed-off
 size: standard
 format: 2
-signed_off: 
+signed_off: 1-requirements
+signed_off_by: 1-requirements=Ferby
 blocked_on: 
 gate: developer agrees the MoSCoW list, Won't-have included
-next: Run design: research R1-R4 and design the paged list
+next: advance to 2-design
 updated: 2026-11-02
 ---
 

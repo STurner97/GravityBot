@@ -1,7 +1,7 @@
 # Build 01 — Phase 1: Requirements
 
 <!-- pipeline:nav -->
-> **Build 01 — List all active predictions** · Phase 1 of 5 · in progress
+> **Build 01 — List all active predictions** · Phase 1 of 5 · signed off
 > [State](0-build.md) · Design → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
