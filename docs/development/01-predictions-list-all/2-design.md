@@ -85,8 +85,11 @@ example the last page after a prediction resolved, shows the nearest page that d
 
 The stack is already decided and binding: Node.js with ES modules, the `discord-interactions`
 package for the REST interaction responses, PostgreSQL through `pg`. This build adds no
-dependency. Tests use Node's built-in test runner (`node --test`), which needs Node installed
-locally (O2).
+dependency. Tests use Node's built-in test runner (`node --test`), as the developer chose (O2).
+Development starts by installing Node 20 or later on the developer's machine, adding
+`"test": "node --test"` to `package.json`, and recording `npm test` as the `test` fact in
+`docs/project.md`. That fact is recorded only once Node is installed, because `check`
+verifies that the command resolves.
 
 The pattern follows the existing feature structure. The decisions sit in pure functions that
 take data and return a Discord response. The handlers are thin adapters that fetch, call, log
@@ -220,10 +223,15 @@ helpers. They hold no branching of their own. Checked by hand on the real server
 
 | | |
 |---|---|
-| Target version | none |
-| Stage | — |
-| Previous version | none; the project has never published a version |
-| Why this number | The project publishes no distributable (`publish` is `—` in the brief). It runs as a Heroku app and goes live when deployed. No version file or tag scheme exists to stamp. Versioning can be adopted in a later build if the developer wants release tags |
+| Target version | 1.1.0-alpha |
+| Stage | alpha |
+| Previous version | 1.0.0, untagged: the number in `package.json`, inherited from Discord's example app |
+| Why this number | The developer chose to keep the 1.x numbering already in `package.json` and treat today's bot as 1.0.0 (O3). This build adds a body of scope, so MINOR goes up. It is alpha because builds 02 to 04 are planned |
+
+The version lives in `package.json` and is stamped there in development. Publishing means the
+developer deploys the accepted commit to Heroku by hand. The commit is then tagged
+`v1.1.0-alpha`. The deploy command is recorded in `docs/project.md` once the developer gives
+it (O4).
 
 ## Push-back on the requirements
 
@@ -249,6 +257,7 @@ Discord's limit of 5, so the 5 Bet buttons sit together in one row under the ent
 ## Edit log
 
 - **2026-11-02** — first draft: R1-R3 researched w/ evidence, R4 waits on developer SQL (O1). M7 + S1 amendment proposed in push-back. Bet buttons one row (5-row limit).
+- **2026-11-02** — developer agreed M7 + S1; chose `node --test` (O2), version 1.1.0-alpha w/ Heroku deploy + tag as publish (O3).
 
 ## Evidence
 

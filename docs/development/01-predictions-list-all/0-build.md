@@ -8,8 +8,9 @@ signed_off: 1-requirements
 signed_off_by: 1-requirements=Ferby
 blocked_on: 
 gate: developer approves the design and feature plan, including any revised MoSCoW
-next: developer runs research/active-predictions.sql (O1), answers O2-O3, agrees M7 + S1 amendment, approves design
-version: none
+next: developer runs research/active-predictions.sql (O1), gives deploy command (O4), approves design
+version: 1.1.0-alpha
+stage: alpha
 updated: 2026-11-02
 ---
 
@@ -33,15 +34,19 @@ wants (builds 02 to 04).
 ## What changed during the build
 
 - **2026-11-02** — design proposed M7 (page length limit) and amended S1 (Discord limits
-  outside `src/config.js`); see the push-back in [2-design.md](2-design.md).
+  outside `src/config.js`); see the push-back in [2-design.md](2-design.md). Developer
+  agreed both.
+- **2026-11-02** — developer adopted unit tests (O2) and version tags from 1.1.0-alpha (O3);
+  see Technical integration and Version in [2-design.md](2-design.md).
 
 ## Open questions
 
 | # | Question | Status |
 |---|---|---|
 | O1 | R4: results of [research/active-predictions.sql](research/active-predictions.sql), the active count, the longest real text and the monthly growth | Open |
-| O2 | Unit tests need Node on this machine, which has none. Install Node 20 or later and adopt `node --test` as the project's `test` command, or check by hand only? | Open |
-| O3 | Version: none, because the project publishes nothing and goes live on Heroku deploy. Agree, or adopt version tags now? | Open |
+| O2 | Unit tests need Node on this machine, which has none. Install Node 20 or later and adopt `node --test` as the project's `test` command, or check by hand only? | Resolved 2026-11-02: install Node, `node --test` |
+| O3 | Version: none, or adopt version tags now? | Resolved 2026-11-02: tags, build 01 is 1.1.0-alpha; publish = Heroku deploy + tag |
+| O4 | The exact Heroku deploy command, for the `deploy` and `publish` facts in `docs/project.md` | Open |
 
 ## Notes for whoever picks this up
 
