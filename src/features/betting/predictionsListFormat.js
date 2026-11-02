@@ -32,7 +32,7 @@ function layoutEntry(prediction, question, optionsText) {
     `**ID ${prediction.id}:** ${question}\n` +
     `**Options:** ${optionsText}\n` +
     // `🕒 Created: ${formatTimestamp(prediction.createdAt)}\n` +
-    `${prediction.bets.length} 🎲 bet(s), totalling ${totalOfBets(prediction.bets)} 💰 credits | \n\n`
+    `${prediction.bets.length} 🎲 Bet(s), totalling ${totalOfBets(prediction.bets)} 💰 Credits | \n\n`
   );
 }
 
