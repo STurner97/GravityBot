@@ -1,16 +1,17 @@
 ---
 build: 01-predictions-list-all
 phase: 3-development
-status: awaiting-signoff
+status: signed-off
 size: standard
 format: 2
-signed_off: 1-requirements, 2-design
-signed_off_by: 1-requirements=Ferby, 2-design=Ferby
+signed_off: 1-requirements, 2-design, 3-development
+signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby
 blocked_on: 
+accepted: 5cb255cff5060ba2f7e071e082cf16d357c1d4db
 version: 1.1.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: developer pushes main so F1 deploys, then accepts on the server; agent drives, developer clicks
+next: start 4-review on opus: deploy is already live; update README /predictions row, final acceptance, next steps
 updated: 2026-11-02
 ---
 
