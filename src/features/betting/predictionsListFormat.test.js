@@ -9,18 +9,18 @@ const prediction = (overrides = {}) => ({
   id: 41,
   question: 'Will it snow in London before February?',
   options: ['Yes', 'No'],
-  bets: [{}, {}, {}],
+  bets: [{ amount: 100 }, { amount: 50 }, { amount: 200 }],
   createdAt: CREATED_AT,
   ...overrides,
 });
 
-test('entry keeps today\'s layout without the pot line', () => {
+test('entry shows the bets total and count on one line', () => {
   assert.equal(
     formatPredictionEntry(prediction()),
     '**ID 41:** Will it snow in London before February?\n' +
     '**Options:** Yes, No\n' +
     `🕒 Created: <t:${UNIX_SECONDS}:F>\n` +
-    '🎲 3 bet(s)\n\n'
+    '💰 Total: 350 credits | 🎲 3 bet(s)\n\n'
   );
 });
 
@@ -36,7 +36,7 @@ test('an entry over its limit shortens the options first and keeps the question 
   assert.ok(entry.length <= limit);
   assert.match(entry, /^\*\*ID 41:\*\* Will it snow in London before February\?\n/);
   assert.match(entry, /\*\*Options:\*\* .*…\n/);
-  assert.match(entry, /🎲 3 bet\(s\)\n\n$/);
+  assert.match(entry, /💰 Total: 350 credits \| 🎲 3 bet\(s\)\n\n$/);
 });
 
 test('when the options cannot absorb the cut the question is shortened too', () => {
@@ -55,4 +55,8 @@ test('a cut never splits an emoji in half', () => {
     assert.ok(entry.length <= limit, `limit ${limit}`);
     assert.equal(entry, entry.toWellFormed(), `limit ${limit}`);
   }
+});
+
+test('an entry with no bets shows a total of 0', () => {
+  assert.match(formatPredictionEntry(prediction({ bets: [] })), /💰 Total: 0 credits \| 🎲 0 bet\(s\)\n\n$/);
 });

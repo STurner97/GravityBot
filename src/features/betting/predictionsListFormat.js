@@ -25,12 +25,14 @@ function truncate(text, maxLength) {
   return kept + ELLIPSIS;
 }
 
+const totalOfBets = (bets) => bets.reduce((sum, bet) => sum + bet.amount, 0);
+
 function layoutEntry(prediction, question, optionsText) {
   return (
     `**ID ${prediction.id}:** ${question}\n` +
     `**Options:** ${optionsText}\n` +
     `🕒 Created: ${formatTimestamp(prediction.createdAt)}\n` +
-    `🎲 ${prediction.bets.length} bet(s)\n\n`
+    `💰 Total: ${totalOfBets(prediction.bets)} credits | 🎲 ${prediction.bets.length} bet(s)\n\n`
   );
 }
 

@@ -70,6 +70,7 @@ Node v26.13.0 (LTS) was installed from the official tarball into `~/.local/opt`,
 
 | Feedback | Decision | Where |
 |---|---|---|
+| Pot line back, renamed "Total" | Change a requirement: M5 amended, set to proposed, W5 reworded. Built test-first | [1-requirements.md](1-requirements.md), `predictionsListFormat.js` |
 
 ## How it works
 
@@ -87,7 +88,8 @@ Start at [predictionsList.js](../../../src/features/betting/predictionsList.js).
 - Bet buttons share one row, up to 5. A page size over 20 would need a sixth row, so
   `assertPageSizeFitsRows` stops startup if `PREDICTIONS_PAGE_SIZE` is changed that far.
 
-Departure from the design: the builder also returns `pageIndex` and `pageCount`, so the handler can
+Departures from the design: the entry shows `💰 Total: N credits | 🎲 N bet(s)` (M5 amended
+2026-11-02, so the pot sum is not retired), and the builder also returns `pageIndex` and `pageCount`, so the handler can
 log the page actually shown without repeating the clamp.
 
 
@@ -95,5 +97,6 @@ log the page actually shown without repeating the clamp.
 
 - **2026-11-02** — dev started. Node installed, `node --test`, version 1.1.0-alpha stamped. F1 built test-first (17 tests).
 - **2026-11-02** — F1 live acceptance on deploy 79f1850: M1-M3, S1 pass; M4, M6 pass with a limit. Developer skipped the second-account check.
+- **2026-11-02** — F2 built (27 tests). Pot line restored as "Total" per developer; M5 amended, awaiting re-agree.
 
 ## Evidence
