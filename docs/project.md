@@ -7,7 +7,10 @@ commands, gated by `ADMIN_IDS`. It was largely vibe coded, and is being brought 
 pipeline's standard for agentic development.
 
 It runs as two Heroku processes: a REST interaction handler (`app.js`) and a gateway worker
-(`pinboard-worker.js`). Heroku is deployed to by hand; no deploy command is recorded yet.
+(`pinboard-worker.js`). Heroku deploys automatically from `main` on GitHub (`origin`), so
+**every push to `main` goes live** on the server. Work in progress stays local or on another
+branch until it is meant to be deployed. Publishing a version is that deploy plus a
+`v<version>` tag (see [development/VERSIONS.md](development/VERSIONS.md)).
 
 ## Facts
 
@@ -17,8 +20,8 @@ It runs as two Heroku processes: a REST interaction handler (`app.js`) and a gat
 | test | — |
 | build | — |
 | lint | — |
-| deploy | — |
-| publish | — |
+| deploy | git push origin main |
+| publish | git push origin main |
 | docs | [README.md](../README.md), [CLAUDE.md](../CLAUDE.md) |
 
 ## Ground rules
