@@ -5,7 +5,6 @@ import {
 import {
   getUserBalance,
   getAllBalances,
-  getActivePredictions,
   getPrediction,
   getUserBets,
   changeBalance,
@@ -15,12 +14,7 @@ import { ephemeral, public_ } from '../../lib/response.js';
 import { isAdmin } from '../../lib/auth.js';
 import { encode } from '../../lib/customId.js';
 import { buildPredictModal, buildBetModal, buildResolveModal } from './modals.js';
-
-function formatTimestamp(dateStr, format = 'F') {
-  if (!dateStr) return 'unknown';
-  const unixSeconds = Math.floor(new Date(dateStr).getTime() / 1000);
-  return `<t:${unixSeconds}:${format}>`;
-}
+import { loadPredictionsPage } from './loadPredictionsPage.js';
 
 export async function handleBalance(interaction) {
   const { data, userId } = interaction;
@@ -74,39 +68,9 @@ export async function handleBet(interaction) {
   return buildBetModal(predictionId, prediction.options);
 }
 
-export async function handlePredictions() {
-  const activePredictions = await getActivePredictions();
-
-  if (activePredictions.length === 0) {
-    return ephemeral('📋 No active predictions. Create one with `/predict`!');
-  }
-
-  let message = '📋 **Active Predictions:**\n\n';
-  const components = [];
-
-  // Discord allows a maximum of 5 action rows per message.
-  const MAX_PREDICTIONS_SHOWN = 5;
-  for (const pred of activePredictions.slice(0, MAX_PREDICTIONS_SHOWN)) {
-    const totalPot = pred.bets.reduce((sum, bet) => sum + bet.amount, 0);
-    const createdAt = formatTimestamp(pred.createdAt);
-    message +=
-      `**ID ${pred.id}:** ${pred.question}\n` +
-      `**Options:** ${pred.options.join(', ')}\n` +
-      `🕒 Created: ${createdAt}\n` +
-      `💰 Total pot: ${totalPot} credits | 🎲 ${pred.bets.length} bet(s)\n\n`;
-
-    components.push({
-      type: MessageComponentTypes.ACTION_ROW,
-      components: [{
-        type: MessageComponentTypes.BUTTON,
-        style: ButtonStyleTypes.PRIMARY,
-        label: `Bet on #${pred.id}`,
-        custom_id: encode('bet', pred.id),
-      }],
-    });
-  }
-
-  return public_(message, components);
+export async function handlePredictions(interaction) {
+  const { content, components } = await loadPredictionsPage(interaction.userId, 0, 'listPredictions');
+  return ephemeral(content, components);
 }
 
 export async function handleMyBets(interaction) {

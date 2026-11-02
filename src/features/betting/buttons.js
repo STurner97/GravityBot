@@ -1,7 +1,8 @@
 import { getPrediction, donateCredits } from '../../../betting.js';
-import { ephemeral, public_ } from '../../lib/response.js';
+import { ephemeral, public_, updateMessage } from '../../lib/response.js';
 import { decode } from '../../lib/customId.js';
 import { buildBetModal } from './modals.js';
+import { loadPredictionsPage } from './loadPredictionsPage.js';
 
 export async function handleDonateButton(interaction) {
   const { data, userId: donorId } = interaction;
@@ -34,4 +35,11 @@ export async function handleBetButton(interaction) {
   }
 
   return buildBetModal(predictionId, prediction.options);
+}
+
+export async function handlePredictionsPageButton(interaction) {
+  const { data, userId } = interaction;
+  const { parts } = decode(data.custom_id);
+  const { content, components } = await loadPredictionsPage(userId, parseInt(parts[0], 10), 'pagePredictions');
+  return updateMessage(content, components);
 }

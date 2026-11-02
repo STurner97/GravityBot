@@ -16,7 +16,8 @@ import {
   handleBetModal,
   handleResolveModal,
 } from './modals.js';
-import { handleBetButton, handleDonateButton } from './buttons.js';
+import { handleBetButton, handleDonateButton, handlePredictionsPageButton } from './buttons.js';
+import { PREDICTIONS_PAGE_NAMESPACE } from './predictionsList.js';
 
 registerCommand('balance',        handleBalance);
 registerCommand('balances',       handleBalances);
@@ -35,3 +36,4 @@ registerModal('resolve_modal', handleResolveModal);
 
 registerButton('bet',    handleBetButton);
 registerButton('donate', handleDonateButton);
+registerButton(PREDICTIONS_PAGE_NAMESPACE, handlePredictionsPageButton);
