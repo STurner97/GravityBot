@@ -1,16 +1,16 @@
 ---
 build: 01-predictions-list-all
 phase: 2-design
-status: awaiting-signoff
+status: signed-off
 size: standard
 format: 2
-signed_off: 1-requirements
-signed_off_by: 1-requirements=Ferby
+signed_off: 1-requirements, 2-design
+signed_off_by: 1-requirements=Ferby, 2-design=Ferby
 blocked_on: 
-gate: developer approves the design and feature plan, including any revised MoSCoW
-next: developer approves design (R4 in, all O closed)
 version: 1.1.0-alpha
 stage: alpha
+gate: developer approves the design and feature plan, including any revised MoSCoW
+next: start 3-development on sonnet: install Node 20+, add node --test, build F1 tests first
 updated: 2026-11-02
 ---
 
