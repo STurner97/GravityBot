@@ -1,14 +1,15 @@
 ---
 build: 01-predictions-list-all
-phase: 1-requirements
-status: signed-off
+phase: 2-design
+status: awaiting-signoff
 size: standard
 format: 2
 signed_off: 1-requirements
 signed_off_by: 1-requirements=Ferby
 blocked_on: 
-gate: developer agrees the MoSCoW list, Won't-have included
-next: advance to 2-design
+gate: developer approves the design and feature plan, including any revised MoSCoW
+next: developer runs research/active-predictions.sql (O1), answers O2-O3, agrees M7 + S1 amendment, approves design
+version: none
 updated: 2026-11-02
 ---
 
@@ -18,24 +19,32 @@ updated: 2026-11-02
 
 ## What this build is
 
-<!-- One paragraph. What is being built, in the developer's terms. -->
+`/predictions` today shows only the 5 newest active predictions, publicly. This build makes it
+a private, paged list of every active prediction, 5 to a page with Previous and Next buttons,
+each entry keeping its "Bet on #N" button. The list's page size and text layout move out of
+the handler into named settings and one layout file.
 
 ## Why it is this build
 
-<!-- What it unblocks, or why now. -->
+It is a visible defect that worsens as predictions build up through the year, it only reads
+data, and it is the smallest first build that also starts the configuration work the developer
+wants (builds 02 to 04).
 
 ## What changed during the build
 
-<!-- Decisions that moved the shape of the work, so a returning reader is not surprised by the
-     documents. One dated line each, pointing at where the detail lives (a requirement id, an
-     edit log, an O<n>); never retell it here. Added to as the build goes, not at the end. -->
+- **2026-11-02** — design proposed M7 (page length limit) and amended S1 (Discord limits
+  outside `src/config.js`); see the push-back in [2-design.md](2-design.md).
 
 ## Open questions
 
 | # | Question | Status |
 |---|---|---|
-<!-- | O1 | ... | Open | -->
+| O1 | R4: results of [research/active-predictions.sql](research/active-predictions.sql), the active count, the longest real text and the monthly growth | Open |
+| O2 | Unit tests need Node on this machine, which has none. Install Node 20 or later and adopt `node --test` as the project's `test` command, or check by hand only? | Open |
+| O3 | Version: none, because the project publishes nothing and goes live on Heroku deploy. Agree, or adopt version tags now? | Open |
 
 ## Notes for whoever picks this up
 
-<!-- Anything a returning reader would otherwise have to rediscover. -->
+- Node is not installed on the developer's machine, and `node_modules` is absent. The bot
+  runs on Heroku and is checked by hand in the Discord server.
+- Live data must not be written while accepting this build. Open the bet modal, then cancel it.

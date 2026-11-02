@@ -7,12 +7,12 @@ prose below the fence, not the table.
 
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
-| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 1-requirements | signed off | — | advance to 2-design |
+| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 2-design | awaiting sign-off | — | developer runs research/active-predictions.sql (O1), answers O2-O3, agrees M7 + S1 amendment, approves design |
 
 **By phase**
 
 - Requirements — [01](01-predictions-list-all/1-requirements.md) ✓
-- Design — none yet
+- Design — [01](01-predictions-list-all/2-design.md)
 - Development — none yet
 - Review — none yet
 - Publish — none yet

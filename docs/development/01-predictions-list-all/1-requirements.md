@@ -2,7 +2,7 @@
 
 <!-- pipeline:nav -->
 > **Build 01 — List all active predictions** · Phase 1 of 5 · signed off
-> [State](0-build.md) · Design → · [All builds](../README.md)
+> [State](0-build.md) · [Design →](2-design.md) · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
 ## The problem
@@ -40,12 +40,13 @@ work (configuration, build 02 onward) does not depend on it.
 | M4 | The list is visible only to the user who ran `/predictions` | Run it as one user; another user sees no list | 2026-11-02 |
 | M5 | The entry layout stays as today (ID, question, options, created time, bet count), newest first, without the total pot line | Compare a page with today's output | 2026-11-02 |
 | M6 | With 5 or fewer active predictions there is one page and no paging buttons | Run it with 5 or fewer active predictions | 2026-11-02 |
+| M7 | Every page fits Discord's 2000-character message limit; an entry too long for its share of the page is shortened with `…` instead of the list failing | A unit test with the longest question and options the modals allow; a live page holding the longest real prediction shows in full | proposed |
 
 ### Should have
 
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
-| S1 | The hard-coded values the `/predictions` list depends on (page size, and any other limit it uses) are defined as named settings in the config module (`src/config.js`), not inline in the handler | Read `src/config.js`: each value is there with a name; the handler holds no bare numbers | 2026-11-02 |
+| S1 | The values the `/predictions` list depends on are named, not inline: the page size, which may be changed, is a setting in `src/config.js`; Discord's fixed limits are named constants in `src/lib/discordLimits.js` (amended 2026-11-02) | Read both files: each value is there with a name; the list code holds no bare numbers | proposed |
 
 ### Could have
 
@@ -94,3 +95,4 @@ work (configuration, build 02 onward) does not depend on it.
 - **2026-11-02** — first draft from developer conversation; all rows proposed.
 - **2026-11-02** — developer moved W1 to Should (S1) and W2 to Could (C1); both narrowed to the `/predictions` list so they are testable. W1, W2 retired; their wider versions are W6, W7. Other W ids unchanged. All proposed until re-agreed.
 - **2026-11-02** — developer agreed M1-M6, S1, C1; M4 ephemeral and M5 pot-only confirmed.
+- **2026-11-02** — design push-back: M7 added (R3, worst-case page 3635 chars > 2000). S1 amended, was "page size, and any other limit it uses ... in `src/config.js`"; Discord fixed limits now in `src/lib/discordLimits.js`, so the settings file holds only what may change. Both proposed.
