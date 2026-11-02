@@ -7,7 +7,7 @@ format: 2
 signed_off: 
 blocked_on: 
 gate: developer agrees the MoSCoW list, Won't-have included
-next: Developer answers the open questions and agrees the M1-M6 rows
+next: Run design: research R1-R4 and design the paged list
 updated: 2026-11-02
 ---
 

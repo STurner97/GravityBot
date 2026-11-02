@@ -34,24 +34,24 @@ work (configuration, build 02 onward) does not depend on it.
 
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
-| M1 | `/predictions` lets the user reach every active prediction, not only the newest 5 | With more than 5 active predictions, every one can be reached from the list | proposed |
-| M2 | The list is paged, 5 predictions per page, with Previous and Next buttons that update the same message | Click through every page; the first page has no Previous and the last has no Next | proposed |
-| M3 | Every prediction on every page keeps its "Bet on #N" button, and it opens the bet modal | Click the button on a prediction from page 2 or later | proposed |
-| M4 | The list is visible only to the user who ran `/predictions` | Run it as one user; another user sees no list | proposed |
-| M5 | The entry layout stays as today (ID, question, options, created time, bet count), newest first, without the total pot line | Compare a page with today's output | proposed |
-| M6 | With 5 or fewer active predictions there is one page and no paging buttons | Run it with 5 or fewer active predictions | proposed |
+| M1 | `/predictions` lets the user reach every active prediction, not only the newest 5 | With more than 5 active predictions, every one can be reached from the list | 2026-11-02 |
+| M2 | The list is paged, 5 predictions per page, with Previous and Next buttons that update the same message | Click through every page; the first page has no Previous and the last has no Next | 2026-11-02 |
+| M3 | Every prediction on every page keeps its "Bet on #N" button, and it opens the bet modal | Click the button on a prediction from page 2 or later | 2026-11-02 |
+| M4 | The list is visible only to the user who ran `/predictions` | Run it as one user; another user sees no list | 2026-11-02 |
+| M5 | The entry layout stays as today (ID, question, options, created time, bet count), newest first, without the total pot line | Compare a page with today's output | 2026-11-02 |
+| M6 | With 5 or fewer active predictions there is one page and no paging buttons | Run it with 5 or fewer active predictions | 2026-11-02 |
 
 ### Should have
 
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
-| S1 | The hard-coded values the `/predictions` list depends on (page size, and any other limit it uses) are defined as named settings in the config module (`src/config.js`), not inline in the handler | Read `src/config.js`: each value is there with a name; the handler holds no bare numbers | proposed |
+| S1 | The hard-coded values the `/predictions` list depends on (page size, and any other limit it uses) are defined as named settings in the config module (`src/config.js`), not inline in the handler | Read `src/config.js`: each value is there with a name; the handler holds no bare numbers | 2026-11-02 |
 
 ### Could have
 
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
-| C1 | The text layout of a `/predictions` entry is defined in one place that can be changed without touching the handler logic | Change the layout in that one place and see the list change | proposed |
+| C1 | The text layout of a `/predictions` entry is defined in one place that can be changed without touching the handler logic | Change the layout in that one place and see the list change | 2026-11-02 |
 
 ### Won't have — in this build
 
@@ -70,8 +70,10 @@ work (configuration, build 02 onward) does not depend on it.
 ## Decisions taken in this phase
 
 - Paging is chosen over multiple messages or a list without buttons.
-- The list is shown to the invoking user only (reading of "client-sided only"; to confirm).
-- The total pot line is removed from the list; the rest of the layout stays.
+- The list is shown to the invoking user only (ephemeral).
+- The total pot line is removed from the list; the bet count and the rest of the layout stay.
+- Page size is 5 for now. The developer's SQL results on active-prediction counts come back in
+  design (R4) and may revisit it.
 
 ## Research for the design phase
 
@@ -91,3 +93,4 @@ work (configuration, build 02 onward) does not depend on it.
      check requires at least one dated entry before sign-off. -->
 - **2026-11-02** — first draft from developer conversation; all rows proposed.
 - **2026-11-02** — developer moved W1 to Should (S1) and W2 to Could (C1); both narrowed to the `/predictions` list so they are testable. W1, W2 retired; their wider versions are W6, W7. Other W ids unchanged. All proposed until re-agreed.
+- **2026-11-02** — developer agreed M1-M6, S1, C1; M4 ephemeral and M5 pot-only confirmed.

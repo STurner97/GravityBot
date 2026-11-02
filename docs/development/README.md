@@ -7,7 +7,7 @@ prose below the fence, not the table.
 
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
-| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 1-requirements | in progress | — | Developer answers the open questions and agrees the M1-M6 rows |
+| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 1-requirements | in progress | — | Run design: research R1-R4 and design the paged list |
 
 **By phase**
 
