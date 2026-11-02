@@ -38,7 +38,7 @@ work (configuration, build 02 onward) does not depend on it.
 | M2 | The list is paged, 5 predictions per page, with Previous and Next buttons that update the same message | Click through every page; the first page has no Previous and the last has no Next | 2026-11-02 |
 | M3 | Every prediction on every page keeps its "Bet on #N" button, and it opens the bet modal | Click the button on a prediction from page 2 or later | 2026-11-02 |
 | M4 | The list is visible only to the user who ran `/predictions` | Run it as one user; another user sees no list | 2026-11-02 |
-| M5 | The entry layout stays as today (ID, question, options, created time, bet count), newest first, with the pot line relabelled `💰 Total: N credits` (amended 2026-11-02) | Compare a page with today's output; the pot line reads "Total" | proposed |
+| M5 | The entry layout stays as today (ID, question, options, created time, bet count), newest first, with the pot line relabelled `💰 Total: N credits` (amended 2026-11-02) | Compare a page with today's output; the pot line reads "Total" | 2026-11-02 |
 | M6 | With 5 or fewer active predictions there is one page and no paging buttons | Run it with 5 or fewer active predictions | 2026-11-02 |
 | M7 | Every page fits Discord's 2000-character message limit; an entry too long for its share of the page is shortened with `…` instead of the list failing | A unit test with the longest question and options the modals allow; a live page holding the longest real prediction shows in full | 2026-11-02 |
 
@@ -97,4 +97,4 @@ work (configuration, build 02 onward) does not depend on it.
 - **2026-11-02** — developer agreed M1-M6, S1, C1; M4 ephemeral and M5 pot-only confirmed.
 - **2026-11-02** — design push-back: M7 added (R3, worst-case page 3635 chars > 2000). S1 amended, was "page size, and any other limit it uses ... in `src/config.js`"; Discord fixed limits now in `src/lib/discordLimits.js`, so the settings file holds only what may change. Both proposed.
 - **2026-11-02** — developer agreed M7 and S1 amendment.
-- **2026-11-02** — dev acceptance: developer asked for the pot line back, renamed "Total". M5 was "...without the total pot line", agreed 2026-11-02; now `💰 Total: N credits`. W5 reworded. M5 proposed until re-agreed.
+- **2026-11-02** — dev acceptance: developer asked for the pot line back, renamed "Total". M5 was "...without the total pot line", agreed 2026-11-02; now `💰 Total: N credits`. W5 reworded. Developer re-agreed M5.

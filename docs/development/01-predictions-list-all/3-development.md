@@ -97,6 +97,6 @@ log the page actually shown without repeating the clamp.
 
 - **2026-11-02** — dev started. Node installed, `node --test`, version 1.1.0-alpha stamped. F1 built test-first (17 tests).
 - **2026-11-02** — F1 live acceptance on deploy 79f1850: M1-M3, S1 pass; M4, M6 pass with a limit. Developer skipped the second-account check.
-- **2026-11-02** — F2 built (27 tests). Pot line restored as "Total" per developer; M5 amended, awaiting re-agree.
+- **2026-11-02** — F2 built (27 tests). Pot line restored as "Total" per developer; M5 amended, developer re-agreed.
 
 ## Evidence
