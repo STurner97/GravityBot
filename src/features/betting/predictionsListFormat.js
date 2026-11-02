@@ -10,11 +10,39 @@ export const formatPageLine = (pageIndex, pageCount) => `Page ${pageIndex + 1} o
 
 export const formatBetButtonLabel = (predictionId) => `Bet on #${predictionId}`;
 
-export function formatPredictionEntry(prediction) {
+const ELLIPSIS = '…';
+// Keeps a cut question from eating the options entirely.
+const OPTIONS_FLOOR_LENGTH = 20;
+
+// Cuts to `maxLength` UTF-16 units, the unit Discord's limit is measured in.
+function truncate(text, maxLength) {
+  if (text.length <= maxLength) return text;
+  if (maxLength <= 0) return '';
+  let kept = text.slice(0, maxLength - ELLIPSIS.length);
+  const lastUnit = kept.charCodeAt(kept.length - 1);
+  const splitsEmoji = lastUnit >= 0xd800 && lastUnit <= 0xdbff;
+  if (splitsEmoji) kept = kept.slice(0, -1);
+  return kept + ELLIPSIS;
+}
+
+function layoutEntry(prediction, question, optionsText) {
   return (
-    `**ID ${prediction.id}:** ${prediction.question}\n` +
-    `**Options:** ${prediction.options.join(', ')}\n` +
+    `**ID ${prediction.id}:** ${question}\n` +
+    `**Options:** ${optionsText}\n` +
     `🕒 Created: ${formatTimestamp(prediction.createdAt)}\n` +
     `🎲 ${prediction.bets.length} bet(s)\n\n`
   );
+}
+
+// An entry over maxLength gives up options text first, then question text.
+export function formatPredictionEntry(prediction, maxLength = Infinity) {
+  const optionsText = prediction.options.join(', ');
+  const full = layoutEntry(prediction, prediction.question, optionsText);
+  if (full.length <= maxLength) return full;
+
+  const room = maxLength - layoutEntry(prediction, '', '').length;
+  const optionsRoom = Math.min(Math.max(room - prediction.question.length, OPTIONS_FLOOR_LENGTH), room);
+  const shortOptions = truncate(optionsText, optionsRoom);
+  const shortQuestion = truncate(prediction.question, Math.max(0, room - shortOptions.length));
+  return layoutEntry(prediction, shortQuestion, shortOptions);
 }

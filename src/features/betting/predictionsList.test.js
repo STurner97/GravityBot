@@ -1,8 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildPredictionsListPage } from './predictionsList.js';
-import { NO_PREDICTIONS_TEXT } from './predictionsListFormat.js';
-import { MAX_ACTION_ROWS, BUTTONS_PER_ROW } from '../../lib/discordLimits.js';
+import {
+  NO_PREDICTIONS_TEXT,
+  PREDICTIONS_HEADER,
+  formatPredictionEntry,
+} from './predictionsListFormat.js';
+import { MAX_ACTION_ROWS, BUTTONS_PER_ROW, MESSAGE_CONTENT_MAX_LENGTH } from '../../lib/discordLimits.js';
 
 const PAGE_SIZE = 5;
 
@@ -121,4 +125,45 @@ test('every page respects Discord row and button limits and has unique custom_id
       assert.equal(new Set(ids).size, ids.length, label);
     }
   }
+});
+
+// What the modals allow: 200-character question; 300 characters of one-character options,
+// which are re-joined with ', ' into 449.
+function makeLongestPossiblePredictions(count) {
+  return makePredictions(count).map(p => ({
+    ...p,
+    id: 90000 + p.id,
+    question: 'q'.repeat(200),
+    options: Array.from({ length: 150 }, () => 'o'),
+  }));
+}
+
+test('a page of the longest possible predictions fits the message limit', () => {
+  for (const pageSize of [1, 2, 5, 20]) {
+    const predictions = makeLongestPossiblePredictions(pageSize * 2);
+    for (let page = 0; page < 2; page++) {
+      const { content } = buildPredictionsListPage(predictions, page, pageSize);
+      assert.ok(content.length <= MESSAGE_CONTENT_MAX_LENGTH, `size ${pageSize} page ${page}: ${content.length}`);
+    }
+  }
+});
+
+test('a shortened entry in a full page still has its ID line', () => {
+  const { content } = buildPredictionsListPage(makeLongestPossiblePredictions(10), 0, PAGE_SIZE);
+  for (const id of [90010, 90009, 90008, 90007, 90006]) {
+    assert.match(content, new RegExp(`\\*\\*ID ${id}:\\*\\*`));
+  }
+  assert.match(content, /…/);
+});
+
+test('a page within budget is the header and the entries unchanged', () => {
+  const predictions = makePredictions(3);
+  const { content } = buildPredictionsListPage(predictions, 0, PAGE_SIZE);
+  assert.equal(content, PREDICTIONS_HEADER + predictions.map(p => formatPredictionEntry(p)).join(''));
+});
+
+test('entries are listed in the order given, newest first', () => {
+  const { content } = buildPredictionsListPage(makePredictions(4), 0, PAGE_SIZE);
+  const order = [...content.matchAll(/\*\*ID (\d+):/g)].map(m => Number(m[1]));
+  assert.deepEqual(order, [4, 3, 2, 1]);
 });

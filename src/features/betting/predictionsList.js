@@ -2,7 +2,7 @@
 // The page size is passed in so tests need no environment and can use small pages.
 import { MessageComponentTypes, ButtonStyleTypes } from 'discord-interactions';
 import { encode } from '../../lib/customId.js';
-import { BUTTONS_PER_ROW } from '../../lib/discordLimits.js';
+import { BUTTONS_PER_ROW, MESSAGE_CONTENT_MAX_LENGTH } from '../../lib/discordLimits.js';
 import {
   PREDICTIONS_HEADER,
   NO_PREDICTIONS_TEXT,
@@ -24,6 +24,13 @@ export function countPages(predictionCount, pageSize) {
 function clampPage(requestedPage, pageCount) {
   if (!Number.isInteger(requestedPage)) return 0;
   return Math.min(Math.max(requestedPage, 0), pageCount - 1);
+}
+
+// Each slot on the page gets an equal share of what the header and page line leave.
+function entryBudget(pageSize, pageIndex, pageCount) {
+  const pageLine = pageCount > 1 ? formatPageLine(pageIndex, pageCount) : '';
+  const spare = MESSAGE_CONTENT_MAX_LENGTH - PREDICTIONS_HEADER.length - pageLine.length;
+  return Math.floor(spare / pageSize);
 }
 
 const actionRow = (components) => ({ type: MessageComponentTypes.ACTION_ROW, components });
@@ -64,7 +71,8 @@ export function buildPredictionsListPage(predictions, requestedPage, pageSize) {
   const pageIndex = clampPage(requestedPage, pageCount);
   const onPage = predictions.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
 
-  let content = PREDICTIONS_HEADER + onPage.map(formatPredictionEntry).join('');
+  const budget = entryBudget(pageSize, pageIndex, pageCount);
+  let content = PREDICTIONS_HEADER + onPage.map(p => formatPredictionEntry(p, budget)).join('');
   const components = buildBetRows(onPage);
 
   if (pageCount > 1) {
