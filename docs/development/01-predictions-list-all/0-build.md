@@ -1,7 +1,7 @@
 ---
 build: 01-predictions-list-all
 phase: 3-development
-status: in-progress
+status: awaiting-signoff
 size: standard
 format: 2
 signed_off: 1-requirements, 2-design

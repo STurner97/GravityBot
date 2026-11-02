@@ -102,5 +102,6 @@ log the page actually shown without repeating the clamp.
 - **2026-11-02** — F1 live acceptance on deploy 79f1850: M1-M3, S1 pass; M4, M6 pass with a limit. Developer skipped the second-account check.
 - **2026-11-02** — F2 built (27 tests). Pot line restored as "Total" per developer; M5 amended, developer re-agreed.
 - **2026-11-02** — F2 live: temp deploy (page size 10, header marker) passed M5, M6, C1; reverted with git revert of the temp commit. M6 now Pass.
+- **2026-11-02** — temp changes reverted and redeployed; developer accepted the build.
 
 ## Evidence
