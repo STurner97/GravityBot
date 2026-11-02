@@ -45,11 +45,13 @@ work (configuration, build 02 onward) does not depend on it.
 
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
+| S1 | The hard-coded values the `/predictions` list depends on (page size, and any other limit it uses) are defined as named settings in the config module (`src/config.js`), not inline in the handler | Read `src/config.js`: each value is there with a name; the handler holds no bare numbers | proposed |
 
 ### Could have
 
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
+| C1 | The text layout of a `/predictions` entry is defined in one place that can be changed without touching the handler logic | Change the layout in that one place and see the list change | proposed |
 
 ### Won't have — in this build
 
@@ -59,11 +61,11 @@ work (configuration, build 02 onward) does not depend on it.
 
 | # | Deferred | Where it goes |
 |---|---|---|
-| W1 | Moving hard-coded values (page size, limits) into configuration | Build 02 |
-| W2 | Message formatting editable without code | Build 03 |
 | W3 | Any change to how SQL is configured or run | Build 04, needs its own conversation |
 | W4 | A way to see resolved predictions | Not planned; raise as a new build if wanted |
 | W5 | Showing the total pot anywhere else | Dropped for this list, per the developer |
+| W6 | Hard-coded values elsewhere in the bot (beg limits, pin settings, other commands) | Build 02 |
+| W7 | Message formatting of commands other than `/predictions`, editable without code | Build 03 |
 
 ## Decisions taken in this phase
 
@@ -88,3 +90,4 @@ work (configuration, build 02 onward) does not depend on it.
      - **YYYY-MM-DD** — what changed, why if not obvious.
      check requires at least one dated entry before sign-off. -->
 - **2026-11-02** — first draft from developer conversation; all rows proposed.
+- **2026-11-02** — developer moved W1 to Should (S1) and W2 to Could (C1); both narrowed to the `/predictions` list so they are testable. W1, W2 retired; their wider versions are W6, W7. Other W ids unchanged. All proposed until re-agreed.
