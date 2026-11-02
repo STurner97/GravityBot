@@ -8,7 +8,7 @@ signed_off: 1-requirements
 signed_off_by: 1-requirements=Ferby
 blocked_on: 
 gate: developer approves the design and feature plan, including any revised MoSCoW
-next: developer runs research/active-predictions.sql as Heroku Dataclips (O1), pastes results, approves design
+next: developer approves design (R4 in, all O closed)
 version: 1.1.0-alpha
 stage: alpha
 updated: 2026-11-02
@@ -43,7 +43,7 @@ wants (builds 02 to 04).
 
 | # | Question | Status |
 |---|---|---|
-| O1 | R4: results of [research/active-predictions.sql](research/active-predictions.sql), the active count, the longest real text and the monthly growth | Open |
+| O1 | R4: results of [research/active-predictions.sql](research/active-predictions.sql), the active count, the longest real text and the monthly growth | Resolved 2026-11-02: 7 active, about 2 a month, longest entry 105 chars; page size stays 5 |
 | O2 | Unit tests need Node on this machine, which has none. Install Node 20 or later and adopt `node --test` as the project's `test` command, or check by hand only? | Resolved 2026-11-02: install Node, `node --test` |
 | O3 | Version: none, or adopt version tags now? | Resolved 2026-11-02: tags, build 01 is 1.1.0-alpha; publish = Heroku deploy + tag |
 | O4 | The exact Heroku deploy command, for the `deploy` and `publish` facts in `docs/project.md` | Resolved 2026-11-02: Heroku auto-deploys `main`, so `git push origin main` |

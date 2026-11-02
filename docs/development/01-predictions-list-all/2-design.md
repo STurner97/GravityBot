@@ -57,14 +57,26 @@ row (up to 5 buttons) and the paging buttons in a second row.
 
 ### R4 — Active prediction count and growth
 
-**Waiting on the developer's query results (O1).** The read-only queries are in
-[research/active-predictions.sql](research/active-predictions.sql). They report the active
-count, the longest real question and options text, and predictions created per month this year.
+**Paging at 5 per page is enough; the page size stays 5.** The developer ran the read-only
+queries in [research/active-predictions.sql](research/active-predictions.sql) as Heroku
+Dataclips on 2026-11-02. The results are saved in [research/](research/) and quoted in the
+Evidence section.
 
-What the answer can change: the page size, which is a single setting (S1), and whether the
-length safeguard ever triggers on real data. Paging itself does not depend on the count. Even
-100 active predictions is 20 pages, and the page number has no practical limit in a
-`custom_id`.
+| Measure | Value |
+|---|---|
+| Active predictions now | 7, which is 2 pages, so the defect hides 2 of them today |
+| Created this year (February to October) | 18, about 2 a month |
+| Longest question / options text / both | 62 / 48 / 105 characters |
+
+At about 2 a month, the end-of-year peak is likely 10 to 15 active predictions, which is 2 or 3
+pages. Even 100 active predictions would be only 20 pages, and the page number has no
+practical limit in a `custom_id`.
+
+The longest real entry is 105 characters of text, about 175 with the layout around it, well
+inside each entry's share of about 390. The length safeguard (M7) protects against input
+the modals allow but nobody has used yet. It will not shorten any current prediction.
+
+With 7 active predictions, paging can be accepted on the live server with no setup.
 
 ## Part 2 — The design
 
@@ -258,6 +270,7 @@ Discord's limit of 5, so the 5 Bet buttons sit together in one row under the ent
 
 - **2026-11-02** — first draft: R1-R3 researched w/ evidence, R4 waits on developer SQL (O1). M7 + S1 amendment proposed in push-back. Bet buttons one row (5-row limit).
 - **2026-11-02** — developer agreed M7 + S1; chose `node --test` (O2), version 1.1.0-alpha w/ Heroku deploy + tag as publish (O3).
+- **2026-11-02** — R4 answered from developer Dataclips: 7 active, ~2/month, longest entry 105 chars. Page size stays 5.
 
 ## Evidence
 
@@ -298,4 +311,11 @@ $ grep -n -E 'max_length: (200|300)|custom_id: .(question|options)_input' src/fe
 $ python3 -I docs/development/01-predictions-list-all/research/worst-case-page.py
 max question, max options: entry=719 page_of_5=3635 limit=2000 fits=False
 max question, typical options: entry=305 page_of_5=1565 limit=2000 fits=True
+```
+
+```console
+$ cat docs/development/01-predictions-list-all/research/r4-active-now.json; echo; cat docs/development/01-predictions-list-all/research/r4-by-month.json
+{"title":"Active predictions now","values":[[7,62,48,105]],"fields":["active_predictions","longest_question","longest_options_text","longest_entry_text"],"types":[20,23,23,23],"type_names":["integer","integer","integer","integer"],"started_at":"2026-11-02 19:53:30 +0000","finished_at":"2026-11-02 19:53:31 +0000","checksum":"3ed6662f52a69b5245bb3f619301ee77"}
+
+{"title":"Active predictions now","values":[["2026-02-01",6,1],["2026-04-01",2,0],["2026-05-01",2,1],["2026-06-01",2,2],["2026-07-01",2,0],["2026-09-01",1,1],["2026-10-01",3,2]],"fields":["month","created","still_active"],"types":[1082,20,20],"type_names":["date","integer","integer"],"started_at":"2026-11-02 19:56:24 +0000","finished_at":"2026-11-02 19:56:25 +0000","checksum":"148df5c1a294afff336c80a40a192f77"}
 ```

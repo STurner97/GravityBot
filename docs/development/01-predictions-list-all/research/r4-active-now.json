@@ -1,0 +1,1 @@
+{"title":"Active predictions now","values":[[7,62,48,105]],"fields":["active_predictions","longest_question","longest_options_text","longest_entry_text"],"types":[20,23,23,23],"type_names":["integer","integer","integer","integer"],"started_at":"2026-11-02 19:53:30 +0000","finished_at":"2026-11-02 19:53:31 +0000","checksum":"3ed6662f52a69b5245bb3f619301ee77"}
