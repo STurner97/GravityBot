@@ -1,7 +1,7 @@
 // Every string the /predictions list shows lives here, so the layout changes in one place.
 import { formatTimestamp } from '../../lib/format.js';
 
-export const PREDICTIONS_HEADER = '📋 **Active Predictions:**\n\n';
+export const PREDICTIONS_HEADER = '📋 **Active Predictions (TEMP CHECK):**\n\n';
 export const NO_PREDICTIONS_TEXT = '📋 No active predictions. Create one with `/predict`!';
 export const PREVIOUS_LABEL = '◀ Previous';
 export const NEXT_LABEL = 'Next ▶';

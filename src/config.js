@@ -24,5 +24,5 @@ export const ALLOWED_CHANNEL_IDS = (process.env.ALLOWED_CHANNEL_IDS || '')
 export const STARTING_BALANCE = 1000;
 
 // Predictions per /predictions page; fails at startup if Discord's row limit can't hold it.
-export const PREDICTIONS_PAGE_SIZE = 5;
+export const PREDICTIONS_PAGE_SIZE = 10;
 assertPageSizeFitsRows(PREDICTIONS_PAGE_SIZE);
