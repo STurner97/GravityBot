@@ -7,13 +7,13 @@ prose below the fence, not the table.
 
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
-| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 2-design | signed off | — | start 3-development on sonnet: install Node 20+, add node --test, build F1 tests first |
+| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 3-development | in progress | — | write the development document |
 
 **By phase**
 
 - Requirements — [01](01-predictions-list-all/1-requirements.md) ✓
 - Design — [01](01-predictions-list-all/2-design.md) ✓
-- Development — none yet
+- Development — [01](01-predictions-list-all/3-development.md)
 - Review — none yet
 - Publish — none yet
 
