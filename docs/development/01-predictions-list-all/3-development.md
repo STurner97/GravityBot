@@ -24,8 +24,8 @@ Node v26.13.0 (LTS) was installed from the official tarball into `~/.local/opt`,
 
 | Feature | Requirements | Status |
 |---|---|---|
-| F1 — Private paged list with working buttons | M1, M2, M3, M4, M6, S1 | in acceptance: live walk-through done; M6 live check and the limits above remain |
-| F2 — Entry layout and length safeguard | M5, M7, C1 | planned |
+| F1 — Private paged list with working buttons | M1, M2, M3, M4, M6, S1 | accepted, except the second-account check the developer skipped |
+| F2 — Entry layout and length safeguard | M5, M7, C1 | accepted |
 
 
 ## Acceptance — requirement by requirement
@@ -41,7 +41,10 @@ Node v26.13.0 (LTS) was installed from the official tarball into `~/.local/opt`,
 | M2 | 5 a page, Previous/Next edit the same message | Unit tests (paging buttons per page); live walk-through 2026-11-02: Next then Previous edit in place, no Previous on page 1, no Next on page 2 | Pass |
 | M3 | Bet button on every entry opens the bet modal | Unit tests (a bet button per entry); live: Bet button on page 2 opened the modal for the right prediction, cancelled, list unchanged | Pass |
 | M4 | List visible only to the invoker | Live: "Only you can see this" shown on `/predictions`; second account not exercised, developer skipped it | Pass with a limit |
-| M6 | One page, no paging buttons at 5 or fewer | Unit tests (1 and 5 predictions); live check with a raised page size not yet run | Pass with a limit |
+| M5 | Entry layout as today, newest first, pot line relabelled "Total" | Unit tests (exact layout, order); live with deploy of the temp commit: entries as expected and totals match the old pots | Pass |
+| M6 | One page, no paging buttons at 5 or fewer | Unit tests (1 and 5 predictions); live with page size temporarily 10: all 7 on one page, no Previous/Next, no page line | Pass |
+| M7 | Every page fits 2000 characters; long entries shortened with `…` | Unit tests: longest possible question and options at page sizes 1, 2, 5 and 20 stay within 2000, shortened entries keep their ID line, no split emoji. Live: the 7 real entries showed whole; no real entry is long enough to be shortened | Pass |
+| C1 | Layout defined in one place | Live: one header string changed in `predictionsListFormat.js`, deployed, list header changed; reverted afterwards | Pass |
 | S1 | Page size in `config.js`, Discord limits in `discordLimits.js` | Both files read; startup check tested (`discordLimits.test.js`) | Pass |
 
 ## Manual checks
@@ -98,5 +101,6 @@ log the page actually shown without repeating the clamp.
 - **2026-11-02** — dev started. Node installed, `node --test`, version 1.1.0-alpha stamped. F1 built test-first (17 tests).
 - **2026-11-02** — F1 live acceptance on deploy 79f1850: M1-M3, S1 pass; M4, M6 pass with a limit. Developer skipped the second-account check.
 - **2026-11-02** — F2 built (27 tests). Pot line restored as "Total" per developer; M5 amended, developer re-agreed.
+- **2026-11-02** — F2 live: temp deploy (page size 10, header marker) passed M5, M6, C1; reverted with git revert of the temp commit. M6 now Pass.
 
 ## Evidence
