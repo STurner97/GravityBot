@@ -17,7 +17,7 @@ branch until it is meant to be deployed. Publishing a version is that deploy plu
 | Fact | Value |
 |---|---|
 | stack | Node.js (ES modules), discord.js v14, Express, PostgreSQL (pg) |
-| test | — |
+| test | npm test |
 | build | — |
 | lint | — |
 | deploy | git push origin main |
@@ -33,7 +33,8 @@ branch until it is meant to be deployed. Publishing a version is that deploy plu
 - New slash commands, modals and buttons are added as files under `src/features/`, registered
   in the dispatch maps, never as new branches in the core handler.
 - `commands.js` is the single source of truth for slash command definitions.
-- There is no automated test suite yet; changes are checked by hand in the Discord server.
+- Pure logic has unit tests (`npm test`, Node's built-in runner, `*.test.js` beside the code).
+  Handlers and Discord responses are checked by hand in the Discord server.
 
 ## Where the documentation is
 
