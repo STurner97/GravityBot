@@ -31,8 +31,8 @@ function layoutEntry(prediction, question, optionsText) {
   return (
     `**ID ${prediction.id}:** ${question}\n` +
     `**Options:** ${optionsText}\n` +
-    `🕒 Created: ${formatTimestamp(prediction.createdAt)}\n` +
-    `💰 Total: ${totalOfBets(prediction.bets)} credits | 🎲 ${prediction.bets.length} bet(s)\n\n`
+    // `🕒 Created: ${formatTimestamp(prediction.createdAt)}\n` +
+    `${prediction.bets.length} 🎲 bet(s), totalling ${totalOfBets(prediction.bets)} 💰 credits | \n\n`
   );
 }
 
