@@ -11,6 +11,7 @@ import {
   voidPrediction,
 } from '../../../betting.js';
 import { ephemeral, public_ } from '../../lib/response.js';
+import { messageText } from '../../lib/messages/index.js';
 import { isAdmin } from '../../lib/auth.js';
 import { encode } from '../../lib/customId.js';
 import { buildPredictModal, buildBetModal, buildResolveModal } from './modals.js';
@@ -23,29 +24,22 @@ export async function handleBalance(interaction) {
   if (userOption) {
     const userIdMatch = userOption.match(/^<@!?(\d+)>$/);
     if (!userIdMatch) {
-      return ephemeral('❌ Invalid user format. Please tag a user or use "_all".');
+      return ephemeral(messageText('balance.invalidUser'));
     }
     const targetUserId = userIdMatch[1];
     const balance = await getUserBalance(targetUserId);
-    return public_(`💰 <@${targetUserId}> has **${balance}** credits.`);
+    return public_(messageText('balance.other', { userId: targetUserId, balance }));
   }
 
   const balance = await getUserBalance(userId);
-  return ephemeral(`💰 You have **${balance}** credits.`);
+  return ephemeral(messageText('balance.own', { balance }));
 }
 
 export async function handleBalances(interaction) {
   const balances = await getAllBalances();
 
-  if (balances.length === 0) {
-    return ephemeral('💰 Everyone has the default balance (1000 credits).');
-  }
-
-  let message = '💰 **All Balances:**\n\n';
-  for (const row of balances) {
-    message += `<@${row.user_id}>: **${row.balance}** credits\n`;
-  }
-  return ephemeral(message);
+  const items = balances.map(row => ({ userId: row.user_id, balance: row.balance }));
+  return ephemeral(messageText('balances', { items }));
 }
 
 export function handlePredict() {

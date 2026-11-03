@@ -1,0 +1,28 @@
+{
+  "_howToEdit": [
+    "Change the wording, keep the names. Run npm test before you push.",
+    "{name} shows a value; \"uses\" lists the values a message may use.",
+    "Text can be one string, or a list of lines joined with line breaks.",
+    "An empty line \"\" at the end adds a line break after the text.",
+    "Write {{ or }} for a brace. Write \\\" for a quote mark."
+  ],
+  "balance": {
+    "own": {
+      "uses": "{balance}",
+      "text": "💰 You have **{balance}** credits."
+    },
+    "other": {
+      "uses": "{userId} {balance}",
+      "text": "💰 <@{userId}> has **{balance}** credits."
+    },
+    "invalidUser": "❌ Invalid user format. Please tag a user or use \"_all\"."
+  },
+  "balances": {
+    "header": ["💰 **All Balances:**", "", ""],
+    "item": {
+      "uses": "{userId} {balance}",
+      "text": ["<@{userId}>: **{balance}** credits", ""]
+    },
+    "empty": "💰 Everyone has the default balance (1000 credits)."
+  }
+}
