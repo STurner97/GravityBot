@@ -7,7 +7,7 @@ prose below the fence, not the table.
 
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
-| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 4-review | in progress | — | developer re-agrees M5, pushes main, runs final acceptance checks 1-5 in 4-review.md |
+| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 4-review | in progress | — | developer runs final acceptance checks 1-5 in 4-review.md on deploy of 1135e21 |
 
 **By phase**
 

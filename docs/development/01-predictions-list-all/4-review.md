@@ -15,7 +15,8 @@ code-only.
 |---|---|---|
 | Accepted commit `5cb255c` and the docs sign-off `d087672` | Heroku `web` dyno, via `main` | Deployed 2026-11-02 |
 | Developer's layout change `7c74d0b` (after sign-off) | Heroku, via `main` | Deployed: live before review began |
-| `b29e82a` (capitals), review fix `cbc49ea` and review documents | `main` | Deployed for final acceptance |
+| `b29e82a` (capitals), review fix `cbc49ea`, review documents `1bc04c2` | Heroku, via `main` | Deployed 2026-11-03 |
+| Developer's final bets line `1135e21`: `N bet(s), totalling 💰 N Credits` | Heroku, via `main` | Deployed 2026-11-03; the code under final acceptance |
 
 **Rolling back.** The build's first code commit is `d1a0781`. To return the bot to the old
 public, capped `/predictions` while keeping the build's documents:
@@ -69,7 +70,7 @@ deploy is already the acceptance environment.
 |---|---|---|---|
 | I1 — Code changed after the accepted commit, and the live bot no longer met M5 as agreed | `git diff d087672 HEAD`: `7c74d0b` and `b29e82a` commented out the `🕒 Created` line and reworded the bets line. `7c74d0b` was already live | Small: a requirement change, no design question | Developer chose to keep the new layout. M5 amended to match |
 | I2 — 3 of 27 unit tests failing on `main` | `npm test`: "entry shows the bets total and count on one line", "an entry over its limit shortens the options first…", "an entry with no bets shows a total of 0" | Small | Fixed test-first in `cbc49ea`. Only one test now spells out the layout, so the next layout change breaks one test, not three |
-| I3 — Bets line ended in a dangling separator: `… 💰 Credits | ` | The expected-layout test failed on the trailing ` | ` once updated | Small | Developer: remove it. Fixed in `cbc49ea` |
+| I3 — Bets line ended in a dangling separator: `… 💰 Credits | ` | The expected-layout test failed on the trailing ` | ` once updated | Small | Developer: remove it. Fixed in `cbc49ea`. The developer then set the final wording in `1135e21`, which broke only the one layout test, as intended; that test was updated to match |
 | I4 — Dead code: commented-out line, unused import, and `src/lib/format.js` with no caller left | `grep -rn formatTimestamp src`: only the comment and `src/features/debug/handlers.js`'s own copy | Small | Deleted in `cbc49ea` |
 
 No issue sends the build back to development or out to a new build: the build does what was
@@ -79,7 +80,7 @@ agreed, on the amended M5.
 
 | # | Check | How | Result |
 |---|---|---|---|
-| 1 | Review fix: each entry is three lines — ID and question, options, `N 🎲 Bet(s), totalling N 💰 Credits` — with no Created line and no trailing `|` | Developer ran `/predictions` after deploying the reviewed commit | Not yet run |
+| 1 | Review fix and final layout: each entry is three lines — ID and question, options, `N bet(s), totalling 💰 N Credits` — with no Created line and no trailing `|` | Developer ran `/predictions` on the deploy of `1135e21` | Not yet run |
 | 2 | Bets count and total are right | Developer compared one entry's count and total against what they know of its bets | Not yet run |
 | 3 | Smoke: private list, Next and Previous edit in place, Bet button on page 2 opens the modal, then cancel | Developer, same session | Not yet run |
 | 4 | Log line for the slash command (`action=listPredictions`), never seen in development | Developer pasted the Heroku log line | Not yet run |
@@ -126,5 +127,6 @@ W4 (a view of resolved predictions) stays unplanned until the developer raises i
 ## Edit log
 
 - **2026-11-03** — review started. Found post-sign-off layout commits, 3 failing tests (I1-I4); developer kept layout, dropped trailing pipe; fixed in cbc49ea. Docs brought to current state.
+- **2026-11-03** — developer agreed M5, pushed final bets line (1135e21); layout test + docs updated to match.
 
 ## Evidence

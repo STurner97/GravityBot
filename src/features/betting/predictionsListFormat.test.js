@@ -17,7 +17,7 @@ test('entry shows the bets count and total on one line', () => {
     formatPredictionEntry(prediction()),
     '**ID 41:** Will it snow in London before February?\n' +
     '**Options:** Yes, No\n' +
-    '3 🎲 Bet(s), totalling 350 💰 Credits\n\n'
+    '3 bet(s), totalling 💰 350 Credits\n\n'
   );
 });
 

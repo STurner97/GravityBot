@@ -153,7 +153,7 @@ The Discord message, page 2 of 3:
 
 **ID 41:** Will it snow in London before February?
 **Options:** Yes, No
-3 🎲 Bet(s), totalling 350 💰 Credits
+3 bet(s), totalling 💰 350 Credits
 
 … four more entries …
 

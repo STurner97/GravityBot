@@ -38,7 +38,7 @@ work (configuration, build 02 onward) does not depend on it.
 | M2 | The list is paged, 5 predictions per page, with Previous and Next buttons that update the same message | Click through every page; the first page has no Previous and the last has no Next | 2026-11-02 |
 | M3 | Every prediction on every page keeps its "Bet on #N" button, and it opens the bet modal | Click the button on a prediction from page 2 or later | 2026-11-02 |
 | M4 | The list is visible only to the user who ran `/predictions` | Run it as one user; another user sees no list | 2026-11-02 |
-| M5 | Each entry shows the ID, question and options, then one bets line `N 🎲 Bet(s), totalling N 💰 Credits`, newest first; no created time (amended 2026-11-03) | Look at a page: each entry has those three lines and nothing else | proposed |
+| M5 | Each entry shows the ID, question and options, then one bets line `N bet(s), totalling 💰 N Credits`, newest first; no created time (amended 2026-11-03) | Look at a page: each entry has those three lines and nothing else | 2026-11-03 |
 | M6 | With 5 or fewer active predictions there is one page and no paging buttons | Run it with 5 or fewer active predictions | 2026-11-02 |
 | M7 | Every page fits Discord's 2000-character message limit; an entry too long for its share of the page is shortened with `…` instead of the list failing | A unit test with the longest question and options the modals allow; a live page holding the longest real prediction shows in full | 2026-11-02 |
 
@@ -99,3 +99,4 @@ work (configuration, build 02 onward) does not depend on it.
 - **2026-11-02** — developer agreed M7 and S1 amendment.
 - **2026-11-02** — dev acceptance: developer asked for the pot line back, renamed "Total". M5 was "...without the total pot line", agreed 2026-11-02; now `💰 Total: N credits`. W5 reworded. Developer re-agreed M5.
 - **2026-11-03** — review: developer changed layout via C1 after dev sign-off. M5 was "layout stays as today (ID, question, options, created time, bet count) ... pot line relabelled `💰 Total: N credits`"; now no created time, bets line `N 🎲 Bet(s), totalling N 💰 Credits`. W5 reworded. Proposed.
+- **2026-11-03** — developer agreed M5, then pushed final bets line `N bet(s), totalling 💰 N Credits` (1135e21); M5 text updated to it. Agreed.
