@@ -1,7 +1,7 @@
 # Build 02 — Phase 2: Design
 
 <!-- pipeline:nav -->
-> **Build 02 — Betting messages from a template file** · Phase 2 of 5 · blocked
+> **Build 02 — Betting messages from a template file** · Phase 2 of 5 · signed off
 > [← Requirements](1-requirements.md) · [State](0-build.md) · Development → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
@@ -356,6 +356,7 @@ Three amendments, each to be re-agreed by the developer:
 
 - **2026-11-03** — research R1–R9 with evidence; developer chose JSON, and that a broken
   message fails only its command. First full draft; P1–P3 push-back.
+- **2026-11-03** — developer approved design via /pipeline-signoff; P1–P3 re-agreed. Second account for C1 not yet named; asked at F3.
 
 ## Evidence
 
