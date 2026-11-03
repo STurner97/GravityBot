@@ -7,14 +7,14 @@ prose below the fence, not the table.
 
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
-| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 3-development | signed off | — | start 4-review on opus: deploy is already live; update README /predictions row, final acceptance, next steps |
+| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 4-review | in progress | — | developer re-agrees M5, pushes main, runs final acceptance checks 1-5 in 4-review.md |
 
 **By phase**
 
 - Requirements — [01](01-predictions-list-all/1-requirements.md) ✓
 - Design — [01](01-predictions-list-all/2-design.md) ✓
 - Development — [01](01-predictions-list-all/3-development.md) ✓
-- Review — none yet
+- Review — [01](01-predictions-list-all/4-review.md)
 - Publish — none yet
 
 ✓ marks a phase the developer has signed off.

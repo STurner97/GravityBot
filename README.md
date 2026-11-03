@@ -25,11 +25,12 @@ GravityBot runs as two Heroku processes:
 ├── utils.js                  # DiscordRequest HTTP helper, InstallGlobalCommands
 │
 └── src/
-    ├── config.js             # All env-var reads + startup validation
+    ├── config.js             # All env-var reads, settings (PREDICTIONS_PAGE_SIZE) + startup validation
     │
     ├── lib/
-    │   ├── response.js       # Discord response builders (ephemeral, public_, modal, pong)
+    │   ├── response.js       # Discord response builders (ephemeral, public_, updateMessage, modal, pong)
     │   ├── customId.js       # encode/decode for modal and button custom_id values
+    │   ├── discordLimits.js  # Discord's fixed limits (2000 chars, 5 rows, 5 buttons a row)
     │   └── auth.js           # isAdmin() guard
     │
     ├── interactions/
@@ -41,7 +42,10 @@ GravityBot runs as two Heroku processes:
         │   ├── commands.js   # BETTING_COMMANDS array (slash command definitions)
         │   ├── handlers.js   # One function per slash command
         │   ├── modals.js     # Modal builders + modal submit handlers
-        │   ├── buttons.js    # Button click handlers (bet button, donate button)
+        │   ├── buttons.js    # Button click handlers (bet, donate, /predictions paging)
+        │   ├── loadPredictionsPage.js   # Fetches, builds and logs one /predictions page
+        │   ├── predictionsList.js       # Pure: one page of the /predictions list
+        │   ├── predictionsListFormat.js # Every string the /predictions list shows
         │   └── index.js      # Registers all betting handlers into the registry
         │
         ├── debug/
@@ -314,6 +318,15 @@ ngrok http 3000
 
 Set the forwarding URL + `/interactions` as the **Interactions Endpoint URL** in your Discord app's Developer Portal.
 
+### Tests
+
+```sh
+npm test
+```
+
+Node's built-in runner (Node 20 or later) runs every `*.test.js` beside the code. Pure logic is
+unit tested; handlers and Discord responses are checked by hand on the server.
+
 ---
 
 ## Commands reference
@@ -323,7 +336,7 @@ Set the forwarding URL + `/interactions` as the **Interactions Endpoint URL** in
 | Command | Who | Description |
 |---------|-----|-------------|
 | `/predict` | Anyone | Create a new prediction (opens a form) |
-| `/predictions` | Anyone | List active predictions with bet buttons |
+| `/predictions` | Anyone | List every active prediction, privately, 5 to a page with Previous/Next and bet buttons |
 | `/bet <id>` | Anyone | Place a bet on a prediction (opens a form) |
 | `/mybets` | Anyone | View your active bets |
 | `/balance [user]` | Anyone | Check credit balance |

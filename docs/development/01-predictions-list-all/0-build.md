@@ -1,7 +1,7 @@
 ---
 build: 01-predictions-list-all
-phase: 3-development
-status: signed-off
+phase: 4-review
+status: in-progress
 size: standard
 format: 2
 signed_off: 1-requirements, 2-design, 3-development
@@ -10,9 +10,9 @@ blocked_on:
 accepted: 5cb255cff5060ba2f7e071e082cf16d357c1d4db
 version: 1.1.0-alpha
 stage: alpha
-gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: start 4-review on opus: deploy is already live; update README /predictions row, final acceptance, next steps
-updated: 2026-11-02
+gate: documents match reality, final acceptance passed, next steps written
+next: developer re-agrees M5, pushes main, runs final acceptance checks 1-5 in 4-review.md
+updated: 2026-11-03
 ---
 
 # Build 01 — List all active predictions
@@ -39,6 +39,9 @@ wants (builds 02 to 04).
   agreed both.
 - **2026-11-02** — developer adopted unit tests (O2) and version tags from 1.1.0-alpha (O3);
   see Technical integration and Version in [2-design.md](2-design.md).
+- **2026-11-03** — after development sign-off the developer changed the entry layout through
+  C1; review amended M5 to match and fixed what it broke. See Issues in
+  [4-review.md](4-review.md).
 
 ## Open questions
 

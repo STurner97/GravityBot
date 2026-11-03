@@ -97,11 +97,9 @@ example the last page after a prediction resolved, shows the nearest page that d
 
 The stack is already decided and binding: Node.js with ES modules, the `discord-interactions`
 package for the REST interaction responses, PostgreSQL through `pg`. This build adds no
-dependency. Tests use Node's built-in test runner (`node --test`), as the developer chose (O2).
-Development starts by installing Node 20 or later on the developer's machine, adding
-`"test": "node --test"` to `package.json`, and recording `npm test` as the `test` fact in
-`docs/project.md`. That fact is recorded only once Node is installed, because `check`
-verifies that the command resolves.
+dependency. Tests use Node's built-in test runner (`node --test`, Node 20 or later), as the
+developer chose (O2): `"test": "node --test"` in `package.json`, recorded as the `test` fact in
+`docs/project.md`.
 
 The pattern follows the existing feature structure. The decisions sit in pure functions that
 take data and return a Discord response. The handlers are thin adapters that fetch, call, log
@@ -109,14 +107,14 @@ and return.
 
 | Module | Responsibility |
 |---|---|
-| `src/features/betting/predictionsList.js` (new) | Pure. `buildPredictionsListPage(predictions, requestedPage, pageSize)` returns `{ content, components }`: picks the page, clamps the page number, fits entries into the length budget, builds the bet-button rows (5 buttons to a row, so one row at today's page size) and the paging row |
-| `src/features/betting/predictionsListFormat.js` (new) | Pure. The text layout, in one place (C1): the header, the empty-list text, the page line, and `formatPredictionEntry` |
-| `src/lib/discordLimits.js` (new) | Discord's fixed limits as named constants: message length 2000, 5 action rows, 5 buttons per row |
-| `src/lib/format.js` (new) | `formatTimestamp`, moved out of `handlers.js` so the formatter can use it without importing a handler module. Existing callers import it from here |
+| `src/features/betting/predictionsList.js` (new) | Pure. `buildPredictionsListPage(predictions, requestedPage, pageSize)` returns `{ content, components, pageIndex, pageCount }`: picks the page, clamps the page number, fits entries into the length budget, builds the bet-button rows (5 buttons to a row, so one row at today's page size) and the paging row. It reports the page it built so the log needs no second clamp |
+| `src/features/betting/predictionsListFormat.js` (new) | Pure. The text layout, in one place (C1): the header, the empty-list text, the page line, the button labels, and `formatPredictionEntry` |
+| `src/features/betting/loadPredictionsPage.js` (new) | The one adapter both entry points call: fetches the active predictions, builds the requested page, logs it |
+| `src/lib/discordLimits.js` (new) | Discord's fixed limits as named constants: message length 2000, 5 action rows, 5 buttons per row, and `assertPageSizeFitsRows` |
 | `src/config.js` | Adds `PREDICTIONS_PAGE_SIZE = 5`, checked at startup: it must be 1 to 20, because 4 rows of 5 Bet buttons plus the paging row is Discord's 5-row maximum. Any other value stops the process with a clear error |
 | `src/lib/response.js` | `ephemeral(content, components)` gains optional components. New `updateMessage(content, components)` for type 7 |
-| `src/features/betting/handlers.js` | `handlePredictions` fetches, builds page 0, logs, returns `ephemeral` |
-| `src/features/betting/buttons.js` | New `handlePredictionsPageButton`: decodes the page, fetches, builds, logs, returns `updateMessage` |
+| `src/features/betting/handlers.js` | `handlePredictions` returns `ephemeral` of page 0 from `loadPredictionsPage` |
+| `src/features/betting/buttons.js` | New `handlePredictionsPageButton`: decodes the page, returns `updateMessage` of it from `loadPredictionsPage` |
 | `src/features/betting/index.js` | `registerButton('predictions_page', handlePredictionsPageButton)` |
 
 Why the builder takes `pageSize` as an argument instead of importing it: `src/config.js`
@@ -155,8 +153,7 @@ The Discord message, page 2 of 3:
 
 **ID 41:** Will it snow in London before February?
 **Options:** Yes, No
-🕒 Created: <t:…:F>
-🎲 3 bet(s)
+3 🎲 Bet(s), totalling 350 💰 Credits
 
 … four more entries …
 
@@ -187,7 +184,7 @@ written.
 | M2 | Page slicing at `PREDICTIONS_PAGE_SIZE` in `buildPredictionsListPage`; paging row with `predictions_page:<n>` buttons; `handlePredictionsPageButton` answers with `updateMessage` (type 7), editing the same message |
 | M3 | Bet buttons for every entry on the page, using the existing `bet:<id>` custom_id, answered by the existing `handleBetButton` |
 | M4 | `handlePredictions` responds with `ephemeral(content, components)`; page clicks edit that ephemeral message, which stays ephemeral |
-| M5 | `formatPredictionEntry` in `predictionsListFormat.js`: today's layout minus the pot line; order kept from `getActivePredictions()` (`created_at DESC`) |
+| M5 | `formatPredictionEntry` in `predictionsListFormat.js`: ID, question, options, then the bets count and total on one line; order kept from `getActivePredictions()` (`created_at DESC`) |
 | M6 | `buildPredictionsListPage` omits the paging row and page line when there is one page |
 | M7 | Length budget in `buildPredictionsListPage` using `MESSAGE_CONTENT_MAX_LENGTH` from `discordLimits.js` |
 | S1 | `PREDICTIONS_PAGE_SIZE` in `src/config.js`; Discord's limits in `src/lib/discordLimits.js` |
@@ -201,7 +198,7 @@ place and open a modal. Feature 2 is text and safety, which unit tests see well.
 | Feature | Requirements | Tests first | Accepted by |
 |---|---|---|---|
 | F1 — Private paged list with working buttons | M1, M2, M3, M4, M6, S1 | `buildPredictionsListPage`: page 0 of 12 holds the newest 5; last page holds the remainder; no Previous on page 0, no Next on the last page, both in between; paging buttons carry the right target pages; a page number past the end clamps to the last page, and a negative or non-numeric one to page 0; 5 or fewer predictions give no paging row; an empty list gives the empty text; every page uses at most 5 rows and 5 buttons a row; all custom_ids on a page are unique; startup check rejects a page size of 0 or one too large for the rows | Developer deploys, runs `/predictions`, sees "Only you can see this", clicks through every page (message edits in place, first has no Previous, last has no Next), opens the bet modal from page 2 or later and **cancels it** (no bet placed), and a second account confirms it sees nothing |
-| F2 — Entry layout and length safeguard | M5, M7, C1 | `formatPredictionEntry` gives today's layout without the pot line; entries stay newest first; a page built from the longest question and options the modals allow is at most 2000 characters; a shortened entry ends in `…` and keeps its ID line whole; an entry within budget is not changed | Developer compares a page with a screenshot of today's output; edits one string in `predictionsListFormat.js`, deploys and sees the list change, then reverts it |
+| F2 — Entry layout and length safeguard | M5, M7, C1 | `formatPredictionEntry` gives the M5 layout (one test spells it out, the rest test behaviour); entries stay newest first; a page built from the longest question and options the modals allow is at most 2000 characters; a shortened entry ends in `…` and keeps its ID line whole; an entry within budget is not changed | Developer compares a page with a screenshot of today's output; edits one string in `predictionsListFormat.js`, deploys and sees the list change, then reverts it |
 
 M6 cannot be shown on the live server without resolving predictions, which touches live data.
 It is accepted through F1's unit tests, plus one live check: with `PREDICTIONS_PAGE_SIZE`
@@ -225,9 +222,9 @@ helpers. They hold no branching of their own. Checked by hand on the real server
 
 - `MAX_PREDICTIONS_SHOWN` and its comment in `handlePredictions`: the cap it imposed is the
   defect.
-- The total-pot sum in `handlePredictions` (M5).
+- The total-pot sum in `handlePredictions`; the sum now lives in `predictionsListFormat.js` (M5).
 - The public `/predictions` reply (`public_` there), replaced by the ephemeral one.
-- `formatTimestamp` in `handlers.js`, moved to `src/lib/format.js` rather than copied.
+- `formatTimestamp` in `handlers.js`: the list no longer shows a created time (M5).
 - README's `/predictions` row ("List active predictions with bet buttons") is rewritten in
   review to say the list is private and paged.
 
@@ -240,10 +237,9 @@ helpers. They hold no branching of their own. Checked by hand on the real server
 | Previous version | 1.0.0, untagged: the number in `package.json`, inherited from Discord's example app |
 | Why this number | The developer chose to keep the 1.x numbering already in `package.json` and treat today's bot as 1.0.0 (O3). This build adds a body of scope, so MINOR goes up. It is alpha because builds 02 to 04 are planned |
 
-The version lives in `package.json` and is stamped there in development. Publishing means the
-developer deploys the accepted commit to Heroku by hand. The commit is then tagged
-`v1.1.0-alpha`. The deploy command is recorded in `docs/project.md` once the developer gives
-it (O4).
+The version lives in `package.json` and is stamped there in development. Heroku deploys `main`
+automatically, so publishing is `git push origin main` (O4, recorded in `docs/project.md`),
+then tagging the reviewed commit `v1.1.0-alpha`.
 
 ## Push-back on the requirements
 
@@ -271,6 +267,7 @@ Discord's limit of 5, so the 5 Bet buttons sit together in one row under the ent
 - **2026-11-02** — first draft: R1-R3 researched w/ evidence, R4 waits on developer SQL (O1). M7 + S1 amendment proposed in push-back. Bet buttons one row (5-row limit).
 - **2026-11-02** — developer agreed M7 + S1; chose `node --test` (O2), version 1.1.0-alpha w/ Heroku deploy + tag as publish (O3).
 - **2026-11-02** — R4 answered from developer Dataclips: 7 active, ~2/month, longest entry 105 chars. Page size stays 5.
+- **2026-11-03** — review: brought to built state. Module table adds `loadPredictionsPage.js`, drops `src/lib/format.js` (deleted, no created time); mockup, M5, F2, retires, version updated.
 
 ## Evidence
 

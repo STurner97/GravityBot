@@ -2,7 +2,7 @@
 
 <!-- pipeline:nav -->
 > **Build 01 — List all active predictions** · Phase 3 of 5 · signed off
-> [← Design](2-design.md) · [State](0-build.md) · Review → · [All builds](../README.md)
+> [← Design](2-design.md) · [State](0-build.md) · [Review →](4-review.md) · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
 <!-- This document describes the build AS IT IS NOW. Rewrite sections when they change; do not
@@ -41,7 +41,7 @@ Node v26.13.0 (LTS) was installed from the official tarball into `~/.local/opt`,
 | M2 | 5 a page, Previous/Next edit the same message | Unit tests (paging buttons per page); live walk-through 2026-11-02: Next then Previous edit in place, no Previous on page 1, no Next on page 2 | Pass |
 | M3 | Bet button on every entry opens the bet modal | Unit tests (a bet button per entry); live: Bet button on page 2 opened the modal for the right prediction, cancelled, list unchanged | Pass |
 | M4 | List visible only to the invoker | Live: "Only you can see this" shown on `/predictions`; second account not exercised, developer skipped it | Pass with a limit |
-| M5 | Entry layout as today, newest first, pot line relabelled "Total" | Unit tests (exact layout, order); live with deploy of the temp commit: entries as expected and totals match the old pots | Pass |
+| M5 | ID, question, options, bets count and total; newest first | Unit tests (exact layout, order); live with deploy of the temp commit: entries as expected and totals match the old pots. Layout changed in review (see [4-review.md](4-review.md)) | Pass |
 | M6 | One page, no paging buttons at 5 or fewer | Unit tests (1 and 5 predictions); live with page size temporarily 10: all 7 on one page, no Previous/Next, no page line | Pass |
 | M7 | Every page fits 2000 characters; long entries shortened with `…` | Unit tests: longest possible question and options at page sizes 1, 2, 5 and 20 stay within 2000, shortened entries keep their ID line, no split emoji. Live: the 7 real entries showed whole; no real entry is long enough to be shortened | Pass |
 | C1 | Layout defined in one place | Live: one header string changed in `predictionsListFormat.js`, deployed, list header changed; reverted afterwards | Pass |
@@ -74,6 +74,7 @@ Node v26.13.0 (LTS) was installed from the official tarball into `~/.local/opt`,
 | Feedback | Decision | Where |
 |---|---|---|
 | Pot line back, renamed "Total" | Change a requirement: M5 amended, set to proposed, W5 reworded. Built test-first | [1-requirements.md](1-requirements.md), `predictionsListFormat.js` |
+| After sign-off: no created time, bets line reworded | Change a requirement, handled in review: M5 amended again | [4-review.md](4-review.md) |
 
 ## How it works
 
@@ -91,9 +92,11 @@ Start at [predictionsList.js](../../../src/features/betting/predictionsList.js).
 - Bet buttons share one row, up to 5. A page size over 20 would need a sixth row, so
   `assertPageSizeFitsRows` stops startup if `PREDICTIONS_PAGE_SIZE` is changed that far.
 
-Departures from the design: the entry shows `💰 Total: N credits | 🎲 N bet(s)` (M5 amended
-2026-11-02, so the pot sum is not retired), and the builder also returns `pageIndex` and `pageCount`, so the handler can
-log the page actually shown without repeating the clamp.
+- An entry's length budget is measured from the layout itself (`layoutEntry` with an empty
+  question and options), so editing the layout in `predictionsListFormat.js` keeps M7 safe
+  with no other change.
+- Only one test, "entry shows the bets count and total on one line", spells out the layout.
+  A layout change edits that test and nothing else.
 
 
 ## Edit log
@@ -103,5 +106,6 @@ log the page actually shown without repeating the clamp.
 - **2026-11-02** — F2 built (27 tests). Pot line restored as "Total" per developer; M5 amended, developer re-agreed.
 - **2026-11-02** — F2 live: temp deploy (page size 10, header marker) passed M5, M6, C1; reverted with git revert of the temp commit. M6 now Pass.
 - **2026-11-02** — temp changes reverted and redeployed; developer accepted the build.
+- **2026-11-03** — review: current-state pass. Departures paragraph folded into design; How it works adds length budget + single layout test.
 
 ## Evidence
