@@ -13,7 +13,7 @@
     },
     "other": {
       "uses": "{userId} {balance}",
-      "text": "💰 <@{userId}> has **{balance}** credits."
+      "text": "<@{userId}> has 💰 **{balance}** Credits."
     },
     "invalidUser": "❌ Invalid user format. Please tag a user or use \"_all\"."
   },
