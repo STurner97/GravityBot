@@ -9,7 +9,7 @@
   "balance": {
     "own": {
       "uses": "{balance}",
-      "text": "💰 You have **{balance}** credits."
+      "text": "You have **{balance}** 💰 Credit(s)."
     },
     "other": {
       "uses": "{userId} {balance}",
