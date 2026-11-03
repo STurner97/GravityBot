@@ -1,17 +1,17 @@
 ---
 build: 01-predictions-list-all
 phase: 5-publish
-status: awaiting-signoff
+status: signed-off
 size: standard
 format: 2
-signed_off: 1-requirements, 2-design, 3-development, 4-review
-signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby, 4-review=Ferby
+signed_off: 1-requirements, 2-design, 3-development, 4-review, 5-publish
+signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby, 4-review=Ferby, 5-publish=Ferby
 blocked_on: 
 accepted: 5cb255cff5060ba2f7e071e082cf16d357c1d4db
 version: 1.1.0-alpha
 stage: alpha
 gate: developer confirms the distributable installs and runs; version and stage recorded, or nothing to publish
-next: developer reviews 5-publish.md (push still pending, rows 2-3 pass with a limit) and runs /pipeline-signoff to tag build/01 + v1.1.0-alpha
+next: build complete
 updated: 2026-11-03
 ---
 

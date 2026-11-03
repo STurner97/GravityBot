@@ -7,7 +7,7 @@ the prose below the fence, not the table.
 
 | Version | Stage | Builds | Tag | Status | Date |
 |---|---|---|---|---|---|
-| 1.1.0-alpha | alpha | [01](01-predictions-list-all/0-build.md) | — | planned | — |
+| 1.1.0-alpha | alpha | [01](01-predictions-list-all/0-build.md) | v1.1.0-alpha | published | 2026-11-03 |
 
 <!-- /pipeline:versions -->
 

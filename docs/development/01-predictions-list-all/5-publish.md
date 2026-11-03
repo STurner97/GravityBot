@@ -1,7 +1,7 @@
 # Build 01 — Phase 5: Publish
 
 <!-- pipeline:nav -->
-> **Build 01 — List all active predictions** · Phase 5 of 5 · in progress
+> **Build 01 — List all active predictions** · Phase 5 of 5 · signed off
 > [← Review](4-review.md) · [State](0-build.md) · [All builds](../README.md)
 <!-- /pipeline:nav -->
 

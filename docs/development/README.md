@@ -7,7 +7,7 @@ prose below the fence, not the table.
 
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
-| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | in progress | — | developer reviews 5-publish.md (push still pending, rows 2-3 pass with a limit) and runs /pipeline-signoff to tag build/01 + v1.1.0-alpha |
+| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
 
 **By phase**
 
@@ -15,7 +15,7 @@ prose below the fence, not the table.
 - Design — [01](01-predictions-list-all/2-design.md) ✓
 - Development — [01](01-predictions-list-all/3-development.md) ✓
 - Review — [01](01-predictions-list-all/4-review.md) ✓
-- Publish — [01](01-predictions-list-all/5-publish.md)
+- Publish — [01](01-predictions-list-all/5-publish.md) ✓
 
 ✓ marks a phase the developer has signed off.
 
