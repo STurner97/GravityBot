@@ -10,7 +10,7 @@ blocked_on:
 version: 1.2.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: Developer pushes main (F2 live), then runs /mybets and /beg (as a rich user) and reports; agent checks log for problems=0, messages=17
+next: Developer pushes main (F2 live), then runs /mybets and /beg (as a rich user) and reports; agent checks log for problems=0, messages=16
 updated: 2026-11-03
 ---
 
