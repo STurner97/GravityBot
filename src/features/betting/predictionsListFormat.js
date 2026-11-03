@@ -30,7 +30,7 @@ function layoutEntry(prediction, question, optionsText) {
   return (
     `**ID ${prediction.id}:** ${question}\n` +
     `**Options:** ${optionsText}\n` +
-    `${prediction.bets.length} 🎲 Bet(s), totalling ${totalOfBets(prediction.bets)} 💰 Credits\n\n`
+    `${prediction.bets.length} bet(s), totalling 💰 ${totalOfBets(prediction.bets)} Credits\n\n`
   );
 }
 
