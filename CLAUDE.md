@@ -62,3 +62,4 @@ GravityBot is a Discord prediction-betting bot built with Discord.js v14, Expres
 - Use `withTransaction(pool, async (client) => { … })` from `db.js` for any operation that touches multiple tables.
 - Discord interactions must receive a response within 3 seconds. Defer with `DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE` immediately if the handler needs to do async work, then follow up.
 - Keep `commands.js` as the single source of truth for slash command definitions.
+- Keep `messages.json` as the single source of truth for the betting feature's user-visible text. Handlers call `messageText(name, values)`, never a string literal. A new message goes into `src/lib/messages/catalog.js`, `messages.json` and the reference `src/lib/messages/fixtures/wording-cb1f8a5.json`, with a wording test. Log lines and slash command definitions stay in code. Debug and pinboard text stays in code until it is moved (build 02's W11).

@@ -1,7 +1,7 @@
 ---
 build: 02-message-templates
-phase: 3-development
-status: signed-off
+phase: 4-review
+status: in-progress
 size: standard
 format: 2
 signed_off: 1-requirements, 2-design, 3-development
@@ -10,8 +10,8 @@ blocked_on:
 accepted: 133bbb934aa69ebd87457c864faba835aa970549
 version: 1.2.0-alpha
 stage: alpha
-gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: advance to 4-review
+gate: documents match reality, final acceptance passed, next steps written
+next: Developer pushes main, then runs final acceptance 1 and 2 in 4-review.md; agent records results
 updated: 2026-11-03
 ---
 
@@ -40,6 +40,10 @@ It is the change the developer wants most, build 01 proved the one-place pattern
 - **2026-11-03** — design: developer chose JSON (no new dependency), and that a broken message
   fails only its command while the bot keeps running. See R1 and R7 in [2-design.md](2-design.md).
 - **2026-11-03** — design proposed amendments to M2, M5 and C2 (push-back P1-P3).
+- **2026-11-03** — development: C1 narrowed to the Next check; second-account check dropped
+  (W10). C2 not built, deferred as W11. See the edit log of [1-requirements.md](1-requirements.md).
+- **2026-11-03** — developer reworded `balance.own` (M6) and then `balance.other` (`29be1cf`).
+- **2026-11-03** — review: issues I1-I4; W12 and W13 added. See [4-review.md](4-review.md).
 
 ## Open questions
 
@@ -50,6 +54,8 @@ It is the change the developer wants most, build 01 proved the one-place pattern
 ## Notes for whoever picks this up
 
 - Every push to `main` deploys to the live bot. The developer pushes.
-- Live data must not be written while accepting this build. The resolve and void messages can
-  only be seen on a throwaway prediction, and creating one takes a stake from a real balance;
-  design plans that (R8) and the stake is said aloud before it is placed.
+- Live data must not be written while accepting this build. The R8 plan in
+  [2-design.md](2-design.md) shows how the resolve and void messages were seen on throwaway
+  predictions.
+- `messages.json` now differs from the reference file on purpose: the developer has reworded
+  messages, and will keep doing so.

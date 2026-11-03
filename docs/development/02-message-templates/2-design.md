@@ -85,7 +85,8 @@ and `betting.js`:
 | `betting.js` | 9 codes | above |
 | Options lists | 1 | `optionList`, used by 5 sites |
 
-About 60 messages in all. Today's three forms of "not found"
+62 messages in all, once development added the bulleted options of the "prediction created"
+reply (`bulletedOptionList`), which this inventory missed. Today's three forms of "not found"
 stay three messages, because M2 keeps the wording identical; a later rewording can make them
 one (W3).
 
@@ -182,6 +183,7 @@ The modules, in `src/lib/messages/` (shared, because C2 reuses them in other fea
 | `renderMessage.js` | Pure: one message and its values in, text out. Placeholders, `{{ }}`, plurals, lists, text written as lines | `renderMessage.test.js` |
 | `createMessages.js` | Pure: binds the two, giving `text(name, values)`, which throws for an unavailable or unknown message | `createMessages.test.js` |
 | `index.js` | Thin adapter: reads `messages.json` once, logs each problem, exports `messageText` | Manual check 1 |
+| `fixtures/referenceMessages.js` | The reference file `wording-cb1f8a5.json`, checked and bound like the real one, as `referenceText` | Used by the wording tests |
 
 `catalog.js` is the code's half of the contract. The file is checked against it: every
 message the catalog names is present and has the right shape; no message is there that the
@@ -193,9 +195,11 @@ How the features use it:
 
 - **Handlers stay adapters.** `ephemeral(messageText('balance.own', { balance }))`. The
   handler chooses which message to show and gives the values; the file holds every word.
-- **Pure list code takes its messages as a parameter.** `buildPredictionsListPage(predictions,
-  page, pageSize, messages)` and `formatPredictionEntry(prediction, maxLength, messages)`, so
-  their tests run on a fixed file and need no environment, as in build 01.
+- **Pure code takes the text function as a parameter.** `buildPredictionsListPage(predictions,
+  page, pageSize, text)`, `formatPredictionEntry(prediction, maxLength, text)` and the modal
+  builders in `src/features/betting/buildModals.js` (default: `messageText`), so their tests
+  run on the reference file and need no environment, as in build 01. Options are joined in one
+  place, `formatOptionList(options, text)`.
 - **`betting.js` returns codes** (R4). `bettingErrorReply(error)` in
   `src/features/betting/bettingErrorReply.js` turns one into its ephemeral reply, replacing
   the six `` `❌ ${result.error}` `` sites.
@@ -280,8 +284,8 @@ code rolls back the wording with it. Its shape is described above. The reference
 | M8 | Error codes in `betting.js` (R4), `bettingErrorReply.js`, `bettingErrors` in the file; live errors on a throwaway (R8) |
 | S1 | Modal titles, labels and placeholders in the file under `predictModal`, `betModal`, `resolveModal`, with the options placeholder's `Enter an option` and `...` cut marker |
 | S2 | `uses` on every message that takes values, checked against the catalog |
-| C1 | R8 steps: Next on a list left open across a resolve; F3: a second account (or a friend) sees no list |
-| C2 | F6: pinboard, debug and router messages in the same file, same catalog and checks |
+| C1 | R8 steps: Next on a list left open across a resolve (C1 as amended; the second-account check is W10, dropped) |
+| C2 | F6: pinboard, debug and router messages in the same file, same catalog and checks. Not built: deferred as W11 |
 
 ### Feature plan
 
@@ -293,10 +297,10 @@ that guard every later push.
 |---|---|---|---|
 | F1 — The file, its checks, and `/balance` and `/balances` through it | M3, M5, part of M1, M2, M4 | `checkMessages`: parse error with line/column, missing message, unknown placeholder, unknown message, `uses` mismatch, `{{ }}`; `renderMessage`: placeholders, lines, list, empty list; `createMessages`: an unavailable message throws, the rest work; wording tests for the 6 balance messages; contract test on the real file | The agent breaks the file three ways and shows `npm test` naming each; restores it. The developer pushes, then runs `/balance`, `/balance user:@friend`, `/balances`: unchanged. The Heroku log shows the `[Messages]` startup line with `problems=0` |
 | F2 — `/mybets`, `/beg`, donate, `/changebalance`, the shared denial and not-found | M1, M2, M4 | Plurals (`one`/`other` by count); wording tests for each message, including donate amounts 1 and 50 and each changebalance action | `/mybets` unchanged; `/beg` shows "too rich" for the developer. Donate and changebalance seen live in F4, or noted as unit-tested only |
-| F3 — `/predictions` and the three modals from the file | M7, S1, part of C1 | Build 01's list tests on the reference file; worst-case budget on the real file; final 2000 cut; modal wording tests | `/predictions`: pages, Next and Previous, Bet on page 2 opens the modal, cancel. Open `/predict` and `/resolve`, cancel each. A second account runs `/predictions` and sees nothing of the developer's list (C1) |
+| F3 — `/predictions` and the three modals from the file | M7, S1 | Build 01's list tests on the reference file; worst-case budget on the real file; final 2000 cut; modal wording tests | `/predictions`: pages, Next and Previous, Bet on page 2 opens the modal, cancel. Open `/predict` and `/resolve`, cancel each. The second-account check planned here was dropped (W10) |
 | F4 — Confirmations, announcements and `betting.js` errors | M8, M1, M2, C1 | Wording tests for created, placed, resolve (winners and none), void (refunds and none), each of the nine codes | The R8 throwaway session, step by step, each write said aloud first; the developer's balance ends where it began. `git diff` of `betting.js` shows only `return` lines |
 | F5 — Identity proven, then one reword live | M2, M6 | — | The agent records `cmp messages.json wording-cb1f8a5.json` (identical). The developer edits one message in `messages.json` alone, runs `npm test`, pushes, and sees the new wording live |
-| F6 — C2: pinboard, debug and router messages (Could; only once F1–F5 are accepted) | C2 | Wording tests for each; pinboard embed plural | A pin and a `/debug stats` read as before. Root `pinboard.js` deleted |
+| F6 — C2: pinboard, debug and router messages (Could; only once F1–F5 are accepted). Not built: W11 | C2 | Wording tests for each; pinboard embed plural | A pin and a `/debug stats` read as before. Root `pinboard.js` deleted |
 
 ### Manual checks
 
@@ -304,8 +308,8 @@ The seam is where the code meets Heroku and Discord. The adapters (`index.js`, t
 hold no logic worth testing; everything they call is pure and unit tested.
 
 1. **The deployed bot finds and reads the file.** After each push, the Heroku log shows
-   `[Messages] file=messages.json messages=N problems=0` from the web dyno (and the worker
-   after F6).
+   `[Messages] file=messages.json messages=N problems=0` from the web dyno. The worker reads
+   the file only once F6 is built (W11).
 2. **Discord shows each message as before.** Each feature's acceptance runs its commands.
    Bold, mentions, backticks and emoji render as they did.
 3. **The broken-file behaviour** is proven by unit tests only (`createMessages.test.js`).
@@ -323,7 +327,8 @@ hold no logic worth testing; everything they call is pure and unit tested.
 - Six `` `❌ ${result.error}` `` sites, replaced by `bettingErrorReply`.
 - Five `join(', ')` calls for options, replaced by `optionList`.
 - `/changebalance`'s `actionText` branching, replaced by three whole messages.
-- With C2: the root `pinboard.js`, unused, and the inline text in debug and pinboard.
+- With C2, not built (W11): the root `pinboard.js`, unused, and the inline text in debug and
+  pinboard.
 
 ### Version
 
@@ -357,6 +362,7 @@ Three amendments, each to be re-agreed by the developer:
 - **2026-11-03** — research R1–R9 with evidence; developer chose JSON, and that a broken
   message fails only its command. First full draft; P1–P3 push-back.
 - **2026-11-03** — developer approved design via /pipeline-signoff; P1–P3 re-agreed. Second account for C1 not yet named; asked at F3.
+- **2026-11-03** — review: matched to build. Module table + reference helper, `text` param, buildModals, 62 messages, C1 row, F6/C2 not built.
 
 ## Evidence
 

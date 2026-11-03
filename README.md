@@ -23,6 +23,7 @@ GravityBot runs as two Heroku processes:
 ├── db.js                     # PostgreSQL pool + query/withTransaction helpers
 ├── migrate.js                # Database schema creation + migrations
 ├── utils.js                  # DiscordRequest HTTP helper, InstallGlobalCommands
+├── messages.json             # The wording of every betting message (see Changing the wording)
 │
 └── src/
     ├── config.js             # All env-var reads, settings (PREDICTIONS_PAGE_SIZE) + startup validation
@@ -31,7 +32,14 @@ GravityBot runs as two Heroku processes:
     │   ├── response.js       # Discord response builders (ephemeral, public_, updateMessage, modal, pong)
     │   ├── customId.js       # encode/decode for modal and button custom_id values
     │   ├── discordLimits.js  # Discord's fixed limits (2000 chars, 5 rows, 5 buttons a row)
-    │   └── auth.js           # isAdmin() guard
+    │   ├── auth.js           # isAdmin() guard
+    │   └── messages/
+    │       ├── index.js          # Reads messages.json once at startup, exports messageText()
+    │       ├── catalog.js        # Every message the code needs and the values it gives each
+    │       ├── checkMessages.js  # The one checker, used by npm test and by the bot
+    │       ├── createMessages.js # A broken message fails only the command that needs it
+    │       ├── renderMessage.js  # Placeholders, plurals and lists into text
+    │       └── fixtures/         # wording-cb1f8a5.json: frozen wording the tests compare against
     │
     ├── interactions/
     │   ├── registry.js       # Handler Maps + registerCommand/Modal/Button functions
@@ -41,11 +49,14 @@ GravityBot runs as two Heroku processes:
         ├── betting/
         │   ├── commands.js   # BETTING_COMMANDS array (slash command definitions)
         │   ├── handlers.js   # One function per slash command
-        │   ├── modals.js     # Modal builders + modal submit handlers
+        │   ├── modals.js     # Modal submit handlers
+        │   ├── buildModals.js           # Pure: the predict, bet and resolve modal layouts
         │   ├── buttons.js    # Button click handlers (bet, donate, /predictions paging)
+        │   ├── bettingErrorReply.js     # Turns a betting.js error code into its message
+        │   ├── formatOptionList.js      # Joins options through the optionList message
         │   ├── loadPredictionsPage.js   # Fetches, builds and logs one /predictions page
         │   ├── predictionsList.js       # Pure: one page of the /predictions list
-        │   ├── predictionsListFormat.js # Every string the /predictions list shows
+        │   ├── predictionsListFormat.js # Shortens /predictions entries to fit the page
         │   └── index.js      # Registers all betting handlers into the registry
         │
         ├── debug/
@@ -171,6 +182,9 @@ The router uses the namespace to look up the handler in the registry map.
 
 No changes needed to `router.js`, `registry.js`, or any other feature's files.
 
+The example writes its text inline, as the debug and pinboard features still do. Text the
+betting feature shows goes in `messages.json` instead: see [Changing the wording](#changing-the-wording).
+
 ### Adding a modal to an existing feature
 
 1. Define the modal builder and handler in the feature's `modals.js`:
@@ -239,6 +253,34 @@ The router will route any `MODAL_SUBMIT` with a `custom_id` starting with `my_mo
 
    registerButton('my_action', handleMyButton);
    ```
+
+---
+
+## Changing the wording
+
+Every message the betting feature shows comes from `messages.json`, in the top folder: replies,
+errors, announcements, button labels, modal text and the `/predictions` list. To reword one,
+edit the file, run `npm test`, commit and push. No JavaScript changes. The note `_howToEdit`
+at the top of the file gives the basics. In full:
+
+- `{amount}` shows a value. `"uses"` beside a message lists the values it may use; they can
+  be moved or left out. Write `{{` or `}}` for a literal brace.
+- Text is one string, or a list of lines joined with line breaks.
+- A plural has `one` and `other` forms. A list has a `header`, an `item` repeated for each
+  entry, a `separator` and an `empty` text.
+
+`npm test` fails, naming the line and column or the message, if the file does not parse, a
+message is missing, or a message uses a value it is not given. It also fails if the
+`/predictions` layout outgrows Discord's 2000-character limit. It does not yet check Discord's
+shorter limits: 45 characters for a modal title or field label, 80 for a button label.
+
+If a broken file is pushed anyway, the bot logs each problem at startup
+(`[Messages] message=… problem=…`). Only the commands that need a broken message fail.
+
+**Adding a message** (a code change): add it to `src/lib/messages/catalog.js`, to
+`messages.json`, and to the frozen reference `src/lib/messages/fixtures/wording-cb1f8a5.json`,
+with a wording test in `src/features/betting/wording.test.js`. The tests read the reference
+file, never `messages.json`, so rewording never breaks them.
 
 ---
 

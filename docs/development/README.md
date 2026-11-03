@@ -8,14 +8,14 @@ prose below the fence, not the table.
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
 | [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
-| [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 3-development | signed off | — | advance to 4-review |
+| [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 4-review | in progress | — | Developer pushes main, then runs final acceptance 1 and 2 in 4-review.md; agent records results |
 
 **By phase**
 
 - Requirements — [01](01-predictions-list-all/1-requirements.md) ✓ · [02](02-message-templates/1-requirements.md) ✓
 - Design — [01](01-predictions-list-all/2-design.md) ✓ · [02](02-message-templates/2-design.md) ✓
 - Development — [01](01-predictions-list-all/3-development.md) ✓ · [02](02-message-templates/3-development.md) ✓
-- Review — [01](01-predictions-list-all/4-review.md) ✓
+- Review — [01](01-predictions-list-all/4-review.md) ✓ · [02](02-message-templates/4-review.md)
 - Publish — [01](01-predictions-list-all/5-publish.md) ✓
 
 ✓ marks a phase the developer has signed off.

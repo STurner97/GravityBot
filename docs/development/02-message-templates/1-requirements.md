@@ -73,6 +73,8 @@ one place: values like the default credits will then show up in the file as plac
 | W9 | A way to see resolved predictions | Not planned (build 01's W4) |
 | W10 | Checking that a second account sees no `/predictions` list of the developer's (build 01's other unexercised check, was half of C1) | Dropped: hard to test; the list is a private reply to whoever runs the command |
 | W11 | C2: pinboard, debug and router channel-denial messages in the template file, and deleting the unused root `pinboard.js` | A future build; developer deferred it at development sign-off |
+| W12 | `npm test` checks Discord's length limits on modal titles, labels and placeholders and on button labels (review issue I1) | The build that does W11, recommended as build 03 |
+| W13 | `/debug reset` replies with a generic error instead of the database's own message (review issue I4) | The build that does W11 |
 
 ## Decisions taken in this phase
 
@@ -112,3 +114,4 @@ one place: values like the default credits will then show up in the file as plac
 - **2026-11-03** — developer re-agreed amended M2, M5, C2 via /pipeline-signoff of design.
 - **2026-11-03** — development: developer dropped the second-account check. C1 was: both build 01 checks (second account sees no list; Next after a resolve); now only the Next check. Second-account check is W10, dropped. C1 proposed until re-agreed.
 - **2026-11-03** — development sign-off: developer re-agreed amended C1; C2 not built, deferred as W11 (row C2 stays in Could, verdict Not built).
+- **2026-11-03** — review: W12 (length-limit check, I1) and W13 (generic debug reset error, I4) added, destination with W11.
