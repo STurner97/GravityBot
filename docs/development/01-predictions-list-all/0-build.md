@@ -1,17 +1,17 @@
 ---
 build: 01-predictions-list-all
 phase: 4-review
-status: awaiting-signoff
+status: signed-off
 size: standard
 format: 2
-signed_off: 1-requirements, 2-design, 3-development
-signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby
+signed_off: 1-requirements, 2-design, 3-development, 4-review
+signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby, 4-review=Ferby
 blocked_on: 
 accepted: 5cb255cff5060ba2f7e071e082cf16d357c1d4db
 version: 1.1.0-alpha
 stage: alpha
 gate: documents match reality, final acceptance passed, next steps written
-next: developer signs off review; then publish on sonnet: push, tag v1.1.0-alpha
+next: advance to 5-publish
 updated: 2026-11-03
 ---
 

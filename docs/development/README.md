@@ -7,14 +7,14 @@ prose below the fence, not the table.
 
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
-| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 4-review | awaiting sign-off | — | developer signs off review; then publish on sonnet: push, tag v1.1.0-alpha |
+| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 4-review | signed off | — | advance to 5-publish |
 
 **By phase**
 
 - Requirements — [01](01-predictions-list-all/1-requirements.md) ✓
 - Design — [01](01-predictions-list-all/2-design.md) ✓
 - Development — [01](01-predictions-list-all/3-development.md) ✓
-- Review — [01](01-predictions-list-all/4-review.md)
+- Review — [01](01-predictions-list-all/4-review.md) ✓
 - Publish — none yet
 
 ✓ marks a phase the developer has signed off.
