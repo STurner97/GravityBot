@@ -8,7 +8,7 @@ prose below the fence, not the table.
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
 | [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
-| [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 3-development | in progress | — | write the development document |
+| [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 3-development | in progress | — | Developer pushes main (F1 deploys live), then runs /balance, /balance user:@friend, /balances and reports; agent checks Heroku log for problems=0 |
 
 **By phase**
 
