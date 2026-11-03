@@ -27,8 +27,8 @@ broken message file must be caught before it is pushed, not by the people using 
 
 The developer wants it most, it is understood best (build 01 proved the one-place pattern on
 `/predictions`), and it changes only text, not how data is read or written. The config work
-(build 03) and the SQL work (build 04) do not depend on it, but both will be easier to check
-once every message comes from one place.
+(build 03) does not depend on it, but will be easier to check once every message comes from
+one place: values like the default credits will then show up in the file as placeholders.
 
 ## Scope
 
@@ -57,26 +57,26 @@ once every message comes from one place.
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
 | C1 | Build 01's two unexercised checks, run during this build's live acceptance: a second account sees no `/predictions` list, and Next works on a list left open after a throwaway prediction is resolved | Both seen live and recorded | proposed |
+| C2 | The pinboard and debug messages, including those the pinboard worker posts, also come from the template file, on the same terms as M1 to M5: identical output, placeholders, checked by `npm test` | Read the file: pinboard and debug messages are there; a pin and a debug command in Discord read as before | proposed |
 
 ### Won't have — in this build
 
 | # | Deferred | Where it goes |
 |---|---|---|
-| W1 | Pinboard and debug messages from the template file | A later build, raised when wanted; this build's file format is made to take them |
 | W2 | Changing wording without a deploy (templates in the database, or edited from Discord by an admin) | Dropped: the developer chose edit, commit and push |
 | W3 | Rewording any message | After this build, through the file. M6's single edit is the only rewording here |
 | W4 | Values inside messages becoming settings (the 1000 default credits, the beg limit, the donate amounts) | Build 03, configuration (build 01's W6) |
 | W5 | Slash command names and descriptions | Stay in `commands.js`, the recorded single source of truth |
 | W6 | Log lines | Stay in code: read by the developer in Heroku logs, not by users |
 | W7 | Translations or more than one language | Dropped: one server of friends |
-| W8 | Any change to how SQL is configured or run | Build 04 (build 01's W3) |
+| W8 | Any change to how SQL is configured or run (build 01's W3) | Not planned; raise as a new build if wanted |
 | W9 | A way to see resolved predictions | Not planned (build 01's W4) |
 
 ## Decisions taken in this phase
 
-- Size is standard. The build is numbered 02. The config work is renumbered build 03 and the
-  SQL work build 04. Build 01's signed-off notes keep their old numbers; W4 and W8 above
-  record the new ones.
+- Size is standard. The build is numbered 02, and the config work is renumbered build 03. The
+  SQL work is no longer planned (W8). Build 01's signed-off notes keep their old numbers; W4
+  and W8 above record the current destinations.
 - "Editable" means editable without JavaScript, through a template file. One JavaScript
   module per feature, and admin editing from Discord, were both turned down.
 - The file lives in the repo, so a wording change is a commit and a push, and git keeps its
@@ -99,7 +99,9 @@ once every message comes from one place.
 | R6 | How build 01's page budget is measured when the entry layout comes from the file, so a longer template cannot silently break the 2000-character limit | Whether M7 holds after the developer edits the layout |
 | R7 | Whether the file is read once at startup or per message, what the running bot does with a broken file that got past the tests, and how tests read the same file as the bot | The runtime fallback left open in the decisions, and that M5's tests test the real file |
 | R8 | How the resolve and void announcements (and C1) are seen live without touching real bets: creating a prediction takes a bet from the creator's real balance, so name the throwaway prediction, its stake, and how the balance comes back | A safe acceptance plan that keeps to the live-data ground rule |
+| R9 | For C2: how the pinboard worker, a separate Heroku process, loads the same file, and which pinboard and debug messages exist | Whether C2 fits the same design, or is cheap enough to build after the Musts |
 
 ## Edit log
 
 - **2026-11-03** — first draft from developer conversation; all rows proposed.
+- **2026-11-03** — developer moved W1 (pinboard, debug messages; was "a later build") to Could as C2; W1 retired. W8 SQL work: was build 04, now not planned. R9 added for C2.

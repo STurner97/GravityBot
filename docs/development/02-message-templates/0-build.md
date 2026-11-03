@@ -31,7 +31,8 @@ It is the change the developer wants most, build 01 proved the one-place pattern
 ## What changed during the build
 
 - **2026-11-03** — numbered 02, not the "build 03" of build 01's notes. Config work is now
-  build 03 and SQL work build 04; see Decisions in [1-requirements.md](1-requirements.md).
+  build 03; SQL work not planned. See Decisions in [1-requirements.md](1-requirements.md).
+- **2026-11-03** — pinboard and debug messages moved from Won't to Could (C2).
 
 ## Open questions
 
