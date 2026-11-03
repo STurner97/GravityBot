@@ -1,5 +1,4 @@
 // Every string the /predictions list shows lives here, so the layout changes in one place.
-import { formatTimestamp } from '../../lib/format.js';
 
 export const PREDICTIONS_HEADER = '📋 **Active Predictions:**\n\n';
 export const NO_PREDICTIONS_TEXT = '📋 No active predictions. Create one with `/predict`!';
@@ -31,8 +30,7 @@ function layoutEntry(prediction, question, optionsText) {
   return (
     `**ID ${prediction.id}:** ${question}\n` +
     `**Options:** ${optionsText}\n` +
-    // `🕒 Created: ${formatTimestamp(prediction.createdAt)}\n` +
-    `${prediction.bets.length} 🎲 Bet(s), totalling ${totalOfBets(prediction.bets)} 💰 Credits | \n\n`
+    `${prediction.bets.length} 🎲 Bet(s), totalling ${totalOfBets(prediction.bets)} 💰 Credits\n\n`
   );
 }
 
