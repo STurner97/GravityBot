@@ -8,7 +8,7 @@ prose below the fence, not the table.
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
 | [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
-| [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 2-design | awaiting sign-off | — | developer reviews the design and re-agrees amended M2, M5, C2 (P1-P3) |
+| [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 2-design | blocked | O1 | developer answers O1 (re-agree M2, M5, C2), then approves the design |
 
 **By phase**
 

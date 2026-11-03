@@ -1,7 +1,7 @@
 # Build 02 — Phase 2: Design
 
 <!-- pipeline:nav -->
-> **Build 02 — Betting messages from a template file** · Phase 2 of 5 · awaiting sign-off
+> **Build 02 — Betting messages from a template file** · Phase 2 of 5 · blocked
 > [← Requirements](1-requirements.md) · [State](0-build.md) · Development → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 

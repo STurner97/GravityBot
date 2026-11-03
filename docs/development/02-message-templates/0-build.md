@@ -1,16 +1,16 @@
 ---
 build: 02-message-templates
 phase: 2-design
-status: awaiting-signoff
+status: blocked
 size: standard
 format: 2
 signed_off: 1-requirements
 signed_off_by: 1-requirements=Ferby
-blocked_on: 
+blocked_on: O1
 version: 1.2.0-alpha
 stage: alpha
 gate: developer approves the design and feature plan, including any revised MoSCoW
-next: developer reviews the design and re-agrees amended M2, M5, C2 (P1-P3)
+next: developer answers O1 (re-agree M2, M5, C2), then approves the design
 updated: 2026-11-03
 ---
 
@@ -44,6 +44,7 @@ It is the change the developer wants most, build 01 proved the one-place pattern
 
 | # | Question | Status |
 |---|---|---|
+| O1 | Design push-back P1-P3: does the developer re-agree amended M2 (wording tests on a reference copy), M5 (parse error names line and column) and C2 (adds the router's channel denial)? See [2-design.md](2-design.md) | Open |
 
 ## Notes for whoever picks this up
 
