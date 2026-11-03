@@ -23,7 +23,7 @@ discord.js v14, Express, PostgreSQL. No new dependency in this build.
 |---|---|---|
 | F1 — The file, its checks, `/balance`, `/balances` | M3, M5, M4, part of M1, M2 | accepted 2026-11-03 |
 | F2 — `/mybets`, `/beg`, donate, `/changebalance`, shared denial and not-found | M1, M2, M4 | accepted 2026-11-03 |
-| F3 — `/predictions` and the three modals | M7, S1, part of C1 | accepted 2026-11-03 |
+| F3 — `/predictions` and the three modals | M7, S1 | accepted 2026-11-03 |
 | F4 — Confirmations, announcements, `betting.js` errors | M8, M1, M2, C1 | built, tests green; waiting on the push and the throwaway session (R8) |
 | F5 — Identity proven, one reword live | M2, M6 | planned |
 | F6 — Pinboard, debug and router messages (Could) | C2 | planned |
