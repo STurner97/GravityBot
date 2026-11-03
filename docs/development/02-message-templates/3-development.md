@@ -26,7 +26,7 @@ discord.js v14, Express, PostgreSQL. No new dependency in this build.
 | F3 — `/predictions` and the three modals | M7, S1 | accepted 2026-11-03 |
 | F4 — Confirmations, announcements, `betting.js` errors | M8, M1, M2, C1 | accepted 2026-11-03 (C1 Next check not exercisable) |
 | F5 — Identity proven, one reword live | M2, M6 | accepted 2026-11-03 |
-| F6 — Pinboard, debug and router messages (Could) | C2 | planned |
+| F6 — Pinboard, debug and router messages (Could) | C2 | not built: deferred (W11) |
 
 ## Acceptance — requirement by requirement
 
@@ -40,12 +40,15 @@ Rows are added as each feature is accepted. F1 so far:
 | M2 | Output identical to `cb1f8a5` | Wording tests on the reference for the 5 balance messages; `/balance`, `/balance user:@friend`, `/balances` read as before in Discord | Pass for the F1 messages |
 
 | M1, M2 | F2 messages (mybets, beg, donate, changebalance, denial, not-found) from the file, identical to `cb1f8a5` | Wording tests on the reference for all 12; `/mybets` and `/beg` read as before in Discord | Pass for `/mybets` and the beg request. Pass with a limit for the rest: "too rich", donate, changebalance, denial and not-found are unit-tested only here; donate and changebalance are seen live in F4 |
-| M7, S1 | `/predictions` and the three modals from the file; layout, paging, 2000 limit kept | Build 01's list tests on the reference; worst-case page on the real file without a cut; modal wording tests; developer ran `/predictions` (and Next/Previous), the Bet modal, `/predict` and `/resolve` modals, each cancelled | Pass |
+| M7 | `/predictions` keeps build 01's behaviour and 2000-character limit with its layout from the file | Build 01's list tests on the reference; worst-case page on the real file without a cut; modal wording tests; developer ran `/predictions` (and Next/Previous), the Bet modal, `/predict` and `/resolve` modals, each cancelled | Pass |
 | M8 | `betting.js` errors come from the file, no SQL or transaction change | `git diff -U0 betting.js`: only `return` lines and the 3 unused `message:` fields; wording tests for all 9 codes; live on throwaway 432: invalid option, bet on all options, insufficient credits, each as expected and writing nothing | Pass |
 | M1 | No message text left in the betting code | Search of `handlers.js`, `modals.js`, `buttons.js`, `buildModals.js`, the list modules: no quoted user text left; two messages missed by the inventory found this way and added | Pass for the betting feature |
 | M2 | F4 messages identical to `cb1f8a5` | Wording tests on the reference; live: created, bet placed, void (refunds), resolve (winners) and changebalance remove read as expected | Pass. No-winners, no-refunds, duplicate options, negative balance, too few options, choice-not-an-option, and changebalance set and add are unit-tested only |
 | M2 | `messages.json` byte-identical to the reference before any reword | `cmp` exit 0; both files sha256 `ee70614704a6f64b4dbaf0f72aa71568a11f5abf20a94843138446c12564f641` at commit `cb162f8` | Pass |
 | M6 | A wording change is an edit to the file alone, committed and pushed | Developer reworded `balance.own` in `messages.json`; `git diff --stat 7901018 HEAD` shows that one file, one line, no JavaScript; `npm test` 118 pass; pushed; log `messages=62 problems=0` at 23:29:04; `/balance` showed the new wording | Pass |
+| S1 | Modal titles, labels, placeholders from the file | F3 modal wording tests; developer opened each modal and cancelled | Pass |
+| S2 | The file says beside each message which placeholders it may use | `uses` on every message with values, checked against the catalog by `npm test`; developer edited `balance.own` using only what the file says | Pass |
+| C2 | Pinboard, debug and router messages in the file | Not built | Not built: deferred as W11 |
 | C1 | Next works on a list left open across a resolve | Only prediction 433 was active, so the list had no Next button | Not exercised: needs more than 5 active predictions; the developer dropped the other half (W10) |
 
 ## Manual checks
@@ -103,6 +106,7 @@ Design: [2-design.md](2-design.md). Start reading at `src/lib/messages/index.js`
 
 ## Edit log
 
+- **2026-11-03** — F6 / C2 not built, deferred as W11; C1 re-agreed with the sign-off.
 - **2026-11-03** — F5 accepted: M6 reword live (`balance.own`, commits `fa43958`, `8d1ed5f`). `messages.json` now deliberately differs from the reference.
 - **2026-11-03** — F4 accepted live (R8 session); C1 Next check not exercisable. F5 started: `cmp` shows `messages.json` identical to the reference.
 - **2026-11-03** — C1 narrowed to the Next check; second-account check dropped (W10). Rows 7 above updated.
