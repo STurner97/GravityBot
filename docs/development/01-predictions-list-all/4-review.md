@@ -1,7 +1,7 @@
 # Build 01 — Phase 4: Review
 
 <!-- pipeline:nav -->
-> **Build 01 — List all active predictions** · Phase 4 of 5 · in progress
+> **Build 01 — List all active predictions** · Phase 4 of 5 · awaiting sign-off
 > [← Development](3-development.md) · [State](0-build.md) · Publish → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
@@ -80,11 +80,11 @@ agreed, on the amended M5.
 
 | # | Check | How | Result |
 |---|---|---|---|
-| 1 | Review fix and final layout: each entry is three lines — ID and question, options, `N bet(s), totalling 💰 N Credits` — with no Created line and no trailing `|` | Developer ran `/predictions` on the deploy of `1135e21` | Not yet run |
-| 2 | Bets count and total are right | Developer compared one entry's count and total against what they know of its bets | Not yet run |
-| 3 | Smoke: private list, Next and Previous edit in place, Bet button on page 2 opens the modal, then cancel | Developer, same session | Not yet run |
-| 4 | Log line for the slash command (`action=listPredictions`), never seen in development | Developer pasted the Heroku log line | Not yet run |
-| 5 | An old public `/predictions` message's Bet button still opens the modal (development manual check 7) | Developer clicked one, if one is still in a channel, then cancelled | Not yet run |
+| 1 | Review fix and final layout: each entry is three lines — ID and question, options, `N bet(s), totalling 💰 N Credits` — with no Created line and no trailing `|` | Developer ran `/predictions` on the deploy of `1135e21` | Pass |
+| 2 | Bets count and total are right | Developer compared one entry's count and total against what they know of its bets | Pass |
+| 3 | Smoke: private list, Next and Previous edit in place, Bet button on page 2 opens the modal, then cancel | Developer, same session: "Only you can see this", Next/Previous edited in place, Bet on page 2 opened the modal, cancelled | Pass |
+| 4 | Log line for the slash command (`action=listPredictions`), never seen in development | Developer pasted: `[Betting] userId=218448193661173761 action=listPredictions page=1 pages=2 active=7` (page is one-based, as shown to the user) | Pass |
+| 5 | An old public `/predictions` message's Bet button still opens the modal (development manual check 7) | Developer clicked Bet on an old public message; the modal opened and worked | Pass |
 
 ## What this build retired
 
@@ -128,5 +128,6 @@ W4 (a view of resolved predictions) stays unplanned until the developer raises i
 
 - **2026-11-03** — review started. Found post-sign-off layout commits, 3 failing tests (I1-I4); developer kept layout, dropped trailing pipe; fixed in cbc49ea. Docs brought to current state.
 - **2026-11-03** — developer agreed M5, pushed final bets line (1135e21); layout test + docs updated to match.
+- **2026-11-03** — final acceptance 1-5 pass on deploy of 1135e21. Awaiting sign-off.
 
 ## Evidence

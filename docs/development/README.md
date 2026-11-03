@@ -7,7 +7,7 @@ prose below the fence, not the table.
 
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
-| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 4-review | in progress | — | developer runs final acceptance checks 1-5 in 4-review.md on deploy of 1135e21 |
+| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 4-review | awaiting sign-off | — | developer signs off review; then publish on sonnet: push, tag v1.1.0-alpha |
 
 **By phase**
 
