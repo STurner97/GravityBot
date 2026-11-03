@@ -11,7 +11,7 @@ accepted: 5cb255cff5060ba2f7e071e082cf16d357c1d4db
 version: 1.1.0-alpha
 stage: alpha
 gate: documents match reality, final acceptance passed, next steps written
-next: advance to 5-publish
+next: start 5-publish on sonnet: developer pushes main, install test on live bot, tag build/01 + v1.1.0-alpha
 updated: 2026-11-03
 ---
 

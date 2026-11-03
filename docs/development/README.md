@@ -7,7 +7,7 @@ prose below the fence, not the table.
 
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
-| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 4-review | signed off | — | advance to 5-publish |
+| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 4-review | signed off | — | start 5-publish on sonnet: developer pushes main, install test on live bot, tag build/01 + v1.1.0-alpha |
 
 **By phase**
 
