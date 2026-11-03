@@ -1,13 +1,14 @@
 ---
 build: 02-message-templates
 phase: 1-requirements
-status: in-progress
+status: signed-off
 size: standard
 format: 2
-signed_off: 
+signed_off: 1-requirements
+signed_off_by: 1-requirements=Ferby
 blocked_on: 
 gate: developer agrees the MoSCoW list, Won't-have included
-next: developer agrees or amends the proposed MoSCoW rows, M8 and S1 above all
+next: advance to 2-design
 updated: 2026-11-03
 ---
 

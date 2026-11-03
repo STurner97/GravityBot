@@ -1,7 +1,7 @@
 # Build 02 — Phase 1: Requirements
 
 <!-- pipeline:nav -->
-> **Build 02 — Betting messages from a template file** · Phase 1 of 5 · in progress
+> **Build 02 — Betting messages from a template file** · Phase 1 of 5 · signed off
 > [State](0-build.md) · Design → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
@@ -36,28 +36,28 @@ one place: values like the default credits will then show up in the file as plac
 
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
-| M1 | Every message the betting feature sends (slash command replies, modal and button replies, error replies, button labels, and the `/predictions` list) takes its text from one template file in the repo | Read the file: every betting message is there. Search the betting code: no message text is left in JavaScript | proposed |
-| M2 | Every message reads exactly as it does on `cb1f8a5`, character for character | A unit test per message compares the templated output with today's text; a smoke run in Discord shows no visible change | proposed |
-| M3 | A message shows its values through named placeholders, such as `{amount}` or `{predictionId}`, which can be moved or removed in the file | Read the file: each message names the values it uses | proposed |
-| M4 | Lists (active bets, winners, refunds, balances, predictions) are written in the file as a header, a line per item, and a message for when the list is empty, each editable on its own | Change the item line of `/mybets` in the file and see every bet in the list change | proposed |
-| M5 | `npm test` fails, naming the message, when the file does not parse, a message the bot needs is missing, or a message uses a placeholder it is not given | Break the file each of those three ways in turn; `npm test` fails each time and names the message; restore it | proposed |
-| M6 | A wording change is made by editing only the template file, committing and pushing; no JavaScript changes | The developer rewords one message in the file alone, pushes, and sees the new wording live | proposed |
-| M7 | `/predictions` keeps build 01's behaviour, including the 2000-character page limit and shortening long entries, now with its layout taken from the file | Build 01's list tests still pass; a longer entry line in the file still yields pages within the limit | proposed |
-| M8 | The error text `betting.js` returns to users (insufficient credits, invalid option, already resolved, and the rest) also comes from the file, without changing how `betting.js` reads or writes data | Read the diff of `betting.js`: only returned text changes, no SQL or transaction code; trigger one such error live that writes nothing, chosen in design (R8) | proposed |
+| M1 | Every message the betting feature sends (slash command replies, modal and button replies, error replies, button labels, and the `/predictions` list) takes its text from one template file in the repo | Read the file: every betting message is there. Search the betting code: no message text is left in JavaScript | 2026-11-03 |
+| M2 | Every message reads exactly as it does on `cb1f8a5`, character for character | A unit test per message compares the templated output with today's text; a smoke run in Discord shows no visible change | 2026-11-03 |
+| M3 | A message shows its values through named placeholders, such as `{amount}` or `{predictionId}`, which can be moved or removed in the file | Read the file: each message names the values it uses | 2026-11-03 |
+| M4 | Lists (active bets, winners, refunds, balances, predictions) are written in the file as a header, a line per item, and a message for when the list is empty, each editable on its own | Change the item line of `/mybets` in the file and see every bet in the list change | 2026-11-03 |
+| M5 | `npm test` fails, naming the message, when the file does not parse, a message the bot needs is missing, or a message uses a placeholder it is not given | Break the file each of those three ways in turn; `npm test` fails each time and names the message; restore it | 2026-11-03 |
+| M6 | A wording change is made by editing only the template file, committing and pushing; no JavaScript changes | The developer rewords one message in the file alone, pushes, and sees the new wording live | 2026-11-03 |
+| M7 | `/predictions` keeps build 01's behaviour, including the 2000-character page limit and shortening long entries, now with its layout taken from the file | Build 01's list tests still pass; a longer entry line in the file still yields pages within the limit | 2026-11-03 |
+| M8 | The error text `betting.js` returns to users (insufficient credits, invalid option, already resolved, and the rest) also comes from the file, without changing how `betting.js` reads or writes data | Read the diff of `betting.js`: only returned text changes, no SQL or transaction code; trigger one such error live that writes nothing, chosen in design (R8) | 2026-11-03 |
 
 ### Should have
 
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
-| S1 | The modals' titles, field labels and placeholders (Create a Prediction, Bet on Prediction #N, Resolve Prediction #N) also come from the file | Open each modal and cancel it: text unchanged; each one is in the file | proposed |
-| S2 | The file says, beside each message, which placeholders it may use, so the developer can edit it without reading code | The developer edits a message using only what the file says | proposed |
+| S1 | The modals' titles, field labels and placeholders (Create a Prediction, Bet on Prediction #N, Resolve Prediction #N) also come from the file | Open each modal and cancel it: text unchanged; each one is in the file | 2026-11-03 |
+| S2 | The file says, beside each message, which placeholders it may use, so the developer can edit it without reading code | The developer edits a message using only what the file says | 2026-11-03 |
 
 ### Could have
 
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
-| C1 | Build 01's two unexercised checks, run during this build's live acceptance: a second account sees no `/predictions` list, and Next works on a list left open after a throwaway prediction is resolved | Both seen live and recorded | proposed |
-| C2 | The pinboard and debug messages, including those the pinboard worker posts, also come from the template file, on the same terms as M1 to M5: identical output, placeholders, checked by `npm test` | Read the file: pinboard and debug messages are there; a pin and a debug command in Discord read as before | proposed |
+| C1 | Build 01's two unexercised checks, run during this build's live acceptance: a second account sees no `/predictions` list, and Next works on a list left open after a throwaway prediction is resolved | Both seen live and recorded | 2026-11-03 |
+| C2 | The pinboard and debug messages, including those the pinboard worker posts, also come from the template file, on the same terms as M1 to M5: identical output, placeholders, checked by `npm test` | Read the file: pinboard and debug messages are there; a pin and a debug command in Discord read as before | 2026-11-03 |
 
 ### Won't have — in this build
 
@@ -105,3 +105,4 @@ one place: values like the default credits will then show up in the file as plac
 
 - **2026-11-03** — first draft from developer conversation; all rows proposed.
 - **2026-11-03** — developer moved W1 (pinboard, debug messages; was "a later build") to Could as C2; W1 retired. W8 SQL work: was build 04, now not planned. R9 added for C2.
+- **2026-11-03** — developer agreed all rows via /pipeline-signoff; M8 Must, S1 Should as drafted.
