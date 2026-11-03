@@ -108,7 +108,7 @@ export async function donateCredits(donorId, recipientId, amount) {
         const donorBalance = donorResult.rows[0].balance;
 
         if (donorBalance < amount) {
-            return { success: false, error: `Insufficient credits. You have ${donorBalance} credits.` };
+            return { success: false, error: { code: 'insufficientCredits', balance: donorBalance } };
         }
 
         await client.query(
@@ -139,7 +139,7 @@ export async function changeBalance(userId, amount) {
         const newBalance = currentBalance + amount;
 
         if (newBalance < 0) {
-            return { success: false, error: `Cannot set negative balance. User has ${currentBalance} credits.` };
+            return { success: false, error: { code: 'negativeBalance', balance: currentBalance } };
         }
 
         await client.query(
@@ -164,19 +164,19 @@ export async function createPrediction(creatorId, question, options, creatorChoi
         for (const opt of normalizedOptions) {
             const key = opt.toLowerCase();
             if (seenOptions.has(key)) {
-                return { success: false, error: 'Options must be unique (duplicates found).' };
+                return { success: false, error: { code: 'duplicateOptions' } };
             }
             seenOptions.add(key);
         }
 
         if (normalizedOptions.length < 2) {
-            return { success: false, error: 'You must provide at least 2 options.' };
+            return { success: false, error: { code: 'tooFewOptions' } };
         }
 
         const normalizedChoice = String(creatorChoice).trim();
         const validChoice = normalizedOptions.find(opt => opt.toLowerCase() === normalizedChoice.toLowerCase());
         if (!validChoice) {
-            return { success: false, error: `Your choice must match one of the options: ${normalizedOptions.join(', ')}` };
+            return { success: false, error: { code: 'choiceNotAnOption', options: normalizedOptions } };
         }
 
         await ensureUser(creatorId, client);
@@ -187,7 +187,7 @@ export async function createPrediction(creatorId, question, options, creatorChoi
         );
         const balance = balanceResult.rows[0].balance;
         if (balance < creatorAmount) {
-            return { success: false, error: `Insufficient credits. You have ${balance} credits.` };
+            return { success: false, error: { code: 'insufficientCredits', balance } };
         }
 
         const predictionResult = await client.query(
@@ -221,17 +221,17 @@ export async function placeBet(predictionId, userId, prediction, amount) {
         );
 
         if (predResult.rowCount === 0) {
-            return { success: false, error: 'Prediction not found' };
+            return { success: false, error: { code: 'predictionNotFound' } };
         }
 
         const pred = predResult.rows[0];
         if (pred.resolved) {
-            return { success: false, error: 'This prediction is already resolved' };
+            return { success: false, error: { code: 'alreadyResolved' } };
         }
 
         const validOption = pred.options.find(opt => opt.toLowerCase() === prediction.toLowerCase());
         if (!validOption) {
-            return { success: false, error: `Invalid option. Choose from: ${pred.options.join(', ')}` };
+            return { success: false, error: { code: 'invalidOption', options: pred.options } };
         }
 
         // Check if user is trying to bet on all options
@@ -247,7 +247,7 @@ export async function placeBet(predictionId, userId, prediction, amount) {
 
         // If user already has bets on maxOptionsAllowed different options, and is trying to bet on a new one
         if (!optionsUserHasBetOn.includes(validOption.toLowerCase()) && optionsUserHasBetOn.length >= maxOptionsAllowed) {
-            return { success: false, error: `You cannot bet on all ${totalOptions} options. Maximum allowed: ${maxOptionsAllowed} options.` };
+            return { success: false, error: { code: 'cannotBetOnAllOptions', optionCount: totalOptions, maxOptions: maxOptionsAllowed } };
         }
 
         await ensureUser(userId, client);
@@ -257,7 +257,7 @@ export async function placeBet(predictionId, userId, prediction, amount) {
         );
         const balance = balanceResult.rows[0].balance;
         if (balance < amount) {
-            return { success: false, error: `Insufficient credits. You have ${balance} credits.` };
+            return { success: false, error: { code: 'insufficientCredits', balance } };
         }
 
         await client.query(
@@ -285,12 +285,12 @@ export async function resolvePrediction(predictionId, outcome) {
         );
 
         if (predResult.rowCount === 0) {
-            return { success: false, error: 'Prediction not found' };
+            return { success: false, error: { code: 'predictionNotFound' } };
         }
 
         const pred = predResult.rows[0];
         if (pred.resolved) {
-            return { success: false, error: 'This prediction is already resolved' };
+            return { success: false, error: { code: 'alreadyResolved' } };
         }
 
         const betsResult = await client.query(
@@ -320,7 +320,6 @@ export async function resolvePrediction(predictionId, outcome) {
         if (winningBets.length === 0) {
             return {
                 success: true,
-                message: 'No winners. All bets lost.',
                 winners: [],
                 totalPot: totalPot,
             };
@@ -344,7 +343,6 @@ export async function resolvePrediction(predictionId, outcome) {
 
         return {
             success: true,
-            message: 'Prediction resolved',
             winners: winners,
             totalPot: totalPot,
         };
@@ -362,12 +360,12 @@ export async function voidPrediction(predictionId) {
         );
 
         if (predResult.rowCount === 0) {
-            return { success: false, error: 'Prediction not found' };
+            return { success: false, error: { code: 'predictionNotFound' } };
         }
 
         const pred = predResult.rows[0];
         if (pred.resolved) {
-            return { success: false, error: 'This prediction is already resolved' };
+            return { success: false, error: { code: 'alreadyResolved' } };
         }
 
         const betsResult = await client.query(
@@ -399,7 +397,6 @@ export async function voidPrediction(predictionId) {
 
         return {
             success: true,
-            message: 'Prediction voided',
             refunds: refunds,
             totalPot: totalPot,
         };

@@ -2,6 +2,7 @@ import { getPrediction, donateCredits } from '../../../betting.js';
 import { messageText } from '../../lib/messages/index.js';
 import { ephemeral, public_, updateMessage } from '../../lib/response.js';
 import { decode } from '../../lib/customId.js';
+import { bettingErrorReply } from './bettingErrorReply.js';
 import { buildBetModal } from './buildModals.js';
 import { loadPredictionsPage } from './loadPredictionsPage.js';
 
@@ -18,7 +19,7 @@ export async function handleDonateButton(interaction) {
   const result = await donateCredits(donorId, targetUserId, amount);
 
   if (!result.success) {
-    return ephemeral(`❌ ${result.error}`);
+    return bettingErrorReply(result.error);
   }
 
   console.log(`[Betting] donorId=${donorId} recipientId=${targetUserId} amount=${amount} action=donate`);

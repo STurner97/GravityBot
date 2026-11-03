@@ -24,7 +24,7 @@ discord.js v14, Express, PostgreSQL. No new dependency in this build.
 | F1 — The file, its checks, `/balance`, `/balances` | M3, M5, M4, part of M1, M2 | accepted 2026-11-03 |
 | F2 — `/mybets`, `/beg`, donate, `/changebalance`, shared denial and not-found | M1, M2, M4 | accepted 2026-11-03 |
 | F3 — `/predictions` and the three modals | M7, S1, part of C1 | accepted 2026-11-03; C1 second-account check still open |
-| F4 — Confirmations, announcements, `betting.js` errors | M8, M1, M2, C1 | planned |
+| F4 — Confirmations, announcements, `betting.js` errors | M8, M1, M2, C1 | built, tests green; waiting on the push and the throwaway session (R8) |
 | F5 — Identity proven, one reword live | M2, M6 | planned |
 | F6 — Pinboard, debug and router messages (Could) | C2 | planned |
 
@@ -77,6 +77,13 @@ Design: [2-design.md](2-design.md). Start reading at `src/lib/messages/index.js`
   `{ items: [...] }` beside any values its header or empty text uses.
 - Handlers call `messageText(name, values)` and choose which message to show; they hold no
   wording.
+- `betting.js` returns `error: { code, ...values }`; `bettingErrorReply` maps the code to
+  `bettingErrors.<code>` in the file, joining an `options` array through `optionList`. Only
+  `return` lines changed (`git diff -U0 betting.js`). `resetDatabase` still returns a plain
+  string error: it belongs to the debug feature (C2) and is not shown through this path.
+- Departures from the design's inventory, both found by searching the code for leftover text:
+  the bulleted options in the "prediction created" reply (`bulletedOptionList`) and `/bet` on a
+  resolved prediction (`bet.alreadyResolved`).
 - `src/features/betting/wording.test.js` reads the frozen reference, not `messages.json`, so
   rewording the real file never breaks it.
 
@@ -86,6 +93,7 @@ Design: [2-design.md](2-design.md). Start reading at `src/lib/messages/index.js`
 
 ## Edit log
 
+- **2026-11-03** — F4 built: errors as codes, announcements and confirmations from the file; two messages found beyond the inventory.
 - **2026-11-03** — F3 accepted live; C1 second-account check not exercised.
 - **2026-11-03** — F3 built: `/predictions` layout, option list and the three modals from the file; pure modal builders moved to `buildModals.js` so tests need no database; list builder reports `cut`.
 - **2026-11-03** — F2 accepted live (with the limit in the acceptance table).

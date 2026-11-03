@@ -10,7 +10,7 @@ blocked_on:
 version: 1.2.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: Developer pushes main (F3 live), then runs the F3 Discord checks; agent checks log for messages=42 problems=0
+next: Developer takes a DB backup, pushes main (F4 live); then the R8 throwaway session, each write said aloud first
 updated: 2026-11-03
 ---
 

@@ -7,6 +7,8 @@ import {
 import { ephemeral, public_ } from '../../lib/response.js';
 import { messageText } from '../../lib/messages/index.js';
 import { decode } from '../../lib/customId.js';
+import { bettingErrorReply } from './bettingErrorReply.js';
+import { formatOptionList } from './formatOptionList.js';
 
 export async function handlePredictModal(interaction) {
   const { data, userId } = interaction;
@@ -18,33 +20,33 @@ export async function handlePredictModal(interaction) {
   const amount     = parseInt(amountStr);
 
   if (isNaN(amount) || amount < 1) {
-    return ephemeral('❌ Amount must be a positive number.');
+    return ephemeral(messageText('invalidAmount'));
   }
 
   const predefinedOptions = optionsStr.split(',').map(opt => opt.trim()).filter(opt => opt.length > 0);
   if (predefinedOptions.length < 2) {
-    return ephemeral('❌ You must provide at least 2 options (comma-separated).');
+    return ephemeral(messageText('predict.tooFewOptions'));
   }
 
   const validChoice = predefinedOptions.find(opt => opt.toLowerCase() === yourChoice.toLowerCase());
   if (!validChoice) {
-    return ephemeral(`❌ Your choice must match one of the options exactly.\nOptions: ${predefinedOptions.join(', ')}`);
+    return ephemeral(messageText('predict.choiceNotAnOption', { options: formatOptionList(predefinedOptions, messageText) }));
   }
 
   const result = await createPrediction(userId, question, predefinedOptions, validChoice, amount);
   if (!result.success) {
-    return ephemeral(`❌ ${result.error}`);
+    return bettingErrorReply(result.error);
   }
 
-  const successMessage =
-    `✅ Prediction created!\n\n` +
-    `**ID:** ${result.predictionId}\n` +
-    `**Question:** ${question}\n` +
-    `**Options:**\n${predefinedOptions.map(opt => `• ${opt}`).join('\n')}\n\n` +
-    `<@${userId}> bet **${amount}** credits on: **${validChoice}**\n\n` +
-    `Others can bet using \`/bet ${result.predictionId}\` or \`/predictions\`!`;
-
-  return public_(successMessage);
+  const options = messageText('bulletedOptionList', { items: predefinedOptions.map(option => ({ option })) });
+  return public_(messageText('predict.created', {
+    predictionId: result.predictionId,
+    question,
+    options,
+    userId,
+    amount,
+    choice: validChoice,
+  }));
 }
 
 export async function handleBetModal(interaction) {
@@ -56,7 +58,7 @@ export async function handleBetModal(interaction) {
   const amount         = parseInt(amountStr);
 
   if (isNaN(amount) || amount < 1) {
-    return ephemeral('❌ Amount must be a positive number.');
+    return ephemeral(messageText('invalidAmount'));
   }
 
   const prediction = await getPrediction(predictionId);
@@ -66,10 +68,16 @@ export async function handleBetModal(interaction) {
 
   const result = await placeBet(predictionId, userId, selectedOption, amount);
   if (!result.success) {
-    return ephemeral(`❌ ${result.error}`);
+    return bettingErrorReply(result.error);
   }
 
-  return public_(`✅ Bet placed!\n\n**Prediction #${predictionId}:** ${prediction.question}\n<@${userId}> bet **${amount}** credits on: **${selectedOption}**`);
+  return public_(messageText('bet.placed', {
+    predictionId,
+    question: prediction.question,
+    userId,
+    amount,
+    option: selectedOption,
+  }));
 }
 
 export async function handleResolveModal(interaction) {
@@ -85,24 +93,16 @@ export async function handleResolveModal(interaction) {
 
   const result = await resolvePrediction(predictionId, outcome);
   if (!result.success) {
-    return ephemeral(`❌ ${result.error}`);
+    return bettingErrorReply(result.error);
   }
 
-  let message =
-    `✅ **Prediction #${predictionId} Resolved!**\n\n` +
-    `**Question:** ${prediction.question}\n` +
-    `**Outcome:** ${outcome}\n` +
-    `**Total Pot:** ${result.totalPot} credits\n\n`;
-
-  if (result.winners.length === 0) {
-    message += '❌ No winners. All bets lost.';
-  } else {
-    message += '🎉 **Winners:**\n';
-    for (const winner of result.winners) {
-      message += `<@${winner.userId}> won **${winner.winnings}** credits (profit: **${winner.profit}**)\n`;
-    }
-  }
-
-  return public_(message);
+  const results = messageText('resolve.winners', { items: result.winners });
+  return public_(messageText('resolve.announcement', {
+    predictionId,
+    question: prediction.question,
+    outcome,
+    totalPot: result.totalPot,
+    results,
+  }));
 }
 

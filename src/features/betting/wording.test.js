@@ -165,3 +165,104 @@ test('an options placeholder over 100 characters is cut with three dots', () => 
   assert.equal(placeholder.length <= 100, true);
   assert.equal(placeholder.endsWith('...'), true);
 });
+
+test('an amount that is not a positive number', () => {
+  assert.equal(text('invalidAmount'), '❌ Amount must be a positive number.');
+});
+
+test('/predict with too few options', () => {
+  assert.equal(text('predict.tooFewOptions'), '❌ You must provide at least 2 options (comma-separated).');
+});
+
+test('/predict with a choice that is not an option', () => {
+  assert.equal(
+    text('predict.choiceNotAnOption', { options: 'Yes, No' }),
+    '❌ Your choice must match one of the options exactly.\nOptions: Yes, No'
+  );
+});
+
+test('options can be listed with bullets', () => {
+  const items = ['Yes', 'No'].map(option => ({ option }));
+  assert.equal(text('bulletedOptionList', { items }), '• Yes\n• No');
+});
+
+test('a prediction created', () => {
+  assert.equal(
+    text('predict.created', {
+      predictionId: 12, question: 'Snow?', options: '• Yes\n• No', userId: '5', amount: 10, choice: 'Yes',
+    }),
+    '✅ Prediction created!\n\n' +
+    '**ID:** 12\n' +
+    '**Question:** Snow?\n' +
+    '**Options:**\n• Yes\n• No\n\n' +
+    '<@5> bet **10** credits on: **Yes**\n\n' +
+    'Others can bet using `/bet 12` or `/predictions`!'
+  );
+});
+
+test('a bet placed', () => {
+  assert.equal(
+    text('bet.placed', { predictionId: 12, question: 'Snow?', userId: '5', amount: 10, option: 'Yes' }),
+    '✅ Bet placed!\n\n**Prediction #12:** Snow?\n<@5> bet **10** credits on: **Yes**'
+  );
+});
+
+const resolved = { predictionId: 12, question: 'Snow?', outcome: 'Yes', totalPot: 80 };
+
+test('a prediction resolved with winners', () => {
+  const results = text('resolve.winners', {
+    items: [{ userId: '5', winnings: 80, profit: 70 }, { userId: '6', winnings: 20, profit: 10 }],
+  });
+  assert.equal(
+    text('resolve.announcement', { ...resolved, results }),
+    '✅ **Prediction #12 Resolved!**\n\n' +
+    '**Question:** Snow?\n' +
+    '**Outcome:** Yes\n' +
+    '**Total Pot:** 80 credits\n\n' +
+    '🎉 **Winners:**\n' +
+    '<@5> won **80** credits (profit: **70**)\n' +
+    '<@6> won **20** credits (profit: **10**)\n'
+  );
+});
+
+test('a prediction resolved with no winners', () => {
+  const results = text('resolve.winners', { items: [] });
+  assert.equal(
+    text('resolve.announcement', { ...resolved, results }),
+    '✅ **Prediction #12 Resolved!**\n\n' +
+    '**Question:** Snow?\n' +
+    '**Outcome:** Yes\n' +
+    '**Total Pot:** 80 credits\n\n' +
+    '❌ No winners. All bets lost.'
+  );
+});
+
+const voided = { predictionId: 12, question: 'Snow?', totalPot: 80 };
+
+test('a prediction voided with refunds', () => {
+  const refunds = text('void.refunds', { items: [{ userId: '5', amount: 50 }, { userId: '6', amount: 30 }] });
+  assert.equal(
+    text('void.announcement', { ...voided, refunds }),
+    '✅ **Prediction #12 Voided!**\n\n' +
+    '**Question:** Snow?\n' +
+    '**Total Pot Returned:** 80 credits\n\n' +
+    '💸 **Refunds:**\n' +
+    '<@5> received **50** credits back\n' +
+    '<@6> received **30** credits back\n'
+  );
+});
+
+test('a prediction voided with no bets', () => {
+  const refunds = text('void.refunds', { items: [] });
+  assert.equal(
+    text('void.announcement', { ...voided, totalPot: 0, refunds }),
+    '✅ **Prediction #12 Voided!**\n\n' +
+    '**Question:** Snow?\n' +
+    '**Total Pot Returned:** 0 credits\n\n' +
+    '💸 No bets to refund.'
+  );
+});
+
+test('/bet on a prediction that is already resolved', () => {
+  assert.equal(text('bet.alreadyResolved', { predictionId: 7 }), '❌ Prediction #7 is already resolved.');
+});

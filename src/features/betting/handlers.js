@@ -14,6 +14,7 @@ import { ephemeral, public_ } from '../../lib/response.js';
 import { messageText } from '../../lib/messages/index.js';
 import { isAdmin } from '../../lib/auth.js';
 import { encode } from '../../lib/customId.js';
+import { bettingErrorReply } from './bettingErrorReply.js';
 import { buildPredictModal, buildBetModal, buildResolveModal } from './buildModals.js';
 import { loadPredictionsPage } from './loadPredictionsPage.js';
 
@@ -56,7 +57,7 @@ export async function handleBet(interaction) {
   }
 
   if (prediction.resolved) {
-    return ephemeral(`❌ Prediction #${predictionId} is already resolved.`);
+    return ephemeral(messageText('bet.alreadyResolved', { predictionId }));
   }
 
   return buildBetModal(predictionId, prediction.options);
@@ -117,24 +118,16 @@ export async function handleVoidPrediction(interaction) {
 
   const result = await voidPrediction(predictionId);
   if (!result.success) {
-    return ephemeral(`❌ ${result.error}`);
+    return bettingErrorReply(result.error);
   }
 
-  let message =
-    `✅ **Prediction #${predictionId} Voided!**\n\n` +
-    `**Question:** ${prediction.question}\n` +
-    `**Total Pot Returned:** ${result.totalPot} credits\n\n`;
-
-  if (result.refunds.length === 0) {
-    message += '💸 No bets to refund.';
-  } else {
-    message += '💸 **Refunds:**\n';
-    for (const refund of result.refunds) {
-      message += `<@${refund.userId}> received **${refund.amount}** credits back\n`;
-    }
-  }
-
-  return public_(message);
+  const refunds = messageText('void.refunds', { items: result.refunds });
+  return public_(messageText('void.announcement', {
+    predictionId,
+    question: prediction.question,
+    totalPot: result.totalPot,
+    refunds,
+  }));
 }
 
 const BEG_BALANCE_LIMIT = 10;
@@ -186,7 +179,7 @@ export async function handleChangeBalance(interaction) {
 
   const result = await changeBalance(targetUser, changeAmount);
   if (!result.success) {
-    return ephemeral(`❌ ${result.error}`);
+    return bettingErrorReply(result.error);
   }
 
   return public_(messageText(`changeBalance.${action}`, {

@@ -35,6 +35,19 @@
     }
   },
   "bet": {
+    "placed": {
+      "uses": "{predictionId} {question} {userId} {amount} {option}",
+      "text": [
+        "✅ Bet placed!",
+        "",
+        "**Prediction #{predictionId}:** {question}",
+        "<@{userId}> bet **{amount}** credits on: **{option}**"
+      ]
+    },
+    "alreadyResolved": {
+      "uses": "{predictionId}",
+      "text": "❌ Prediction #{predictionId} is already resolved."
+    },
     "notFoundWithHint": {
       "uses": "{predictionId}",
       "text": "❌ Prediction #{predictionId} not found. Use `/predictions` to see active predictions."
@@ -161,5 +174,107 @@
       "text": "Resolve Prediction #{predictionId}"
     },
     "outcomeLabel": "Winning Outcome"
+  },
+  "invalidAmount": "❌ Amount must be a positive number.",
+  "bulletedOptionList": {
+    "item": {
+      "uses": "{option}",
+      "text": "• {option}"
+    },
+    "separator": "\n"
+  },
+  "predict": {
+    "tooFewOptions": "❌ You must provide at least 2 options (comma-separated).",
+    "choiceNotAnOption": {
+      "uses": "{options}",
+      "text": [
+        "❌ Your choice must match one of the options exactly.",
+        "Options: {options}"
+      ]
+    },
+    "created": {
+      "uses": "{predictionId} {question} {options} {userId} {amount} {choice}",
+      "text": [
+        "✅ Prediction created!",
+        "",
+        "**ID:** {predictionId}",
+        "**Question:** {question}",
+        "**Options:**",
+        "{options}",
+        "",
+        "<@{userId}> bet **{amount}** credits on: **{choice}**",
+        "",
+        "Others can bet using `/bet {predictionId}` or `/predictions`!"
+      ]
+    }
+  },
+  "resolve": {
+    "announcement": {
+      "uses": "{predictionId} {question} {outcome} {totalPot} {results}",
+      "text": [
+        "✅ **Prediction #{predictionId} Resolved!**",
+        "",
+        "**Question:** {question}",
+        "**Outcome:** {outcome}",
+        "**Total Pot:** {totalPot} credits",
+        "",
+        "{results}"
+      ]
+    },
+    "winners": {
+      "header": ["🎉 **Winners:**", ""],
+      "item": {
+        "uses": "{userId} {winnings} {profit}",
+        "text": ["<@{userId}> won **{winnings}** credits (profit: **{profit}**)", ""]
+      },
+      "empty": "❌ No winners. All bets lost."
+    }
+  },
+  "void": {
+    "announcement": {
+      "uses": "{predictionId} {question} {totalPot} {refunds}",
+      "text": [
+        "✅ **Prediction #{predictionId} Voided!**",
+        "",
+        "**Question:** {question}",
+        "**Total Pot Returned:** {totalPot} credits",
+        "",
+        "{refunds}"
+      ]
+    },
+    "refunds": {
+      "header": ["💸 **Refunds:**", ""],
+      "item": {
+        "uses": "{userId} {amount}",
+        "text": ["<@{userId}> received **{amount}** credits back", ""]
+      },
+      "empty": "💸 No bets to refund."
+    }
+  },
+  "bettingErrors": {
+    "insufficientCredits": {
+      "uses": "{balance}",
+      "text": "❌ Insufficient credits. You have {balance} credits."
+    },
+    "negativeBalance": {
+      "uses": "{balance}",
+      "text": "❌ Cannot set negative balance. User has {balance} credits."
+    },
+    "duplicateOptions": "❌ Options must be unique (duplicates found).",
+    "tooFewOptions": "❌ You must provide at least 2 options.",
+    "choiceNotAnOption": {
+      "uses": "{options}",
+      "text": "❌ Your choice must match one of the options: {options}"
+    },
+    "predictionNotFound": "❌ Prediction not found",
+    "alreadyResolved": "❌ This prediction is already resolved",
+    "invalidOption": {
+      "uses": "{options}",
+      "text": "❌ Invalid option. Choose from: {options}"
+    },
+    "cannotBetOnAllOptions": {
+      "uses": "{optionCount} {maxOptions}",
+      "text": "❌ You cannot bet on all {optionCount} options. Maximum allowed: {maxOptions} options."
+    }
   }
 }
