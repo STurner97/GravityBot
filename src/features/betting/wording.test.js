@@ -1,13 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { catalog } from '../../lib/messages/catalog.js';
-import { createMessages } from '../../lib/messages/createMessages.js';
-
-// Reads the frozen copy of cb1f8a5's wording, not messages.json, so rewording the real
-// file never breaks these. Each expected string is the literal text from cb1f8a5.
-const REFERENCE = new URL('../../lib/messages/fixtures/wording-cb1f8a5.json', import.meta.url);
-const { text, problems } = createMessages(readFileSync(REFERENCE, 'utf8'), catalog);
+import { buildPredictModal, buildBetModal, buildResolveModal } from './buildModals.js';
+import { referenceText as text, referenceProblems as problems } from '../../lib/messages/fixtures/referenceMessages.js';
 
 test('the reference file is itself valid', () => {
   assert.deepEqual(problems, []);
@@ -108,4 +102,66 @@ test('/changebalance add', () => {
 
 test('/changebalance remove', () => {
   assert.equal(text('changeBalance.remove', balanceChange), "✅ 25 credits removed from <@5>'s balance." + balanceLines);
+});
+
+test('/predictions pieces', () => {
+  assert.equal(text('predictions.header'), '📋 **Active Predictions:**\n\n');
+  assert.equal(text('predictions.empty'), '📋 No active predictions. Create one with `/predict`!');
+  assert.equal(text('predictions.previous'), '◀ Previous');
+  assert.equal(text('predictions.next'), 'Next ▶');
+  assert.equal(text('predictions.pageLine', { page: 2, pageCount: 3 }), 'Page 2 of 3');
+  assert.equal(text('predictions.betButton', { predictionId: 41 }), 'Bet on #41');
+  assert.equal(text('predictions.cutMarker'), '…');
+});
+
+test('a /predictions entry', () => {
+  const entry = { predictionId: 41, question: 'Snow?', options: 'Yes, No', betCount: 3, totalCredits: 350 };
+  assert.equal(
+    text('predictions.entry', entry),
+    '**ID 41:** Snow?\n**Options:** Yes, No\n3 bet(s), totalling 💰 350 Credits\n\n'
+  );
+});
+
+test('options are joined with a comma and a space', () => {
+  const items = ['Yes', 'No', 'Maybe'].map(option => ({ option }));
+  assert.equal(text('optionList', { items }), 'Yes, No, Maybe');
+});
+
+const fieldsOf = (modal) => modal.data.components.map(row => row.components[0]);
+const textsOf = (fields) => fields.map(({ label, placeholder }) => ({ label, placeholder }));
+
+test('the Create a Prediction modal', () => {
+  const modal = buildPredictModal(text);
+  assert.equal(modal.data.title, 'Create a Prediction');
+  assert.deepEqual(textsOf(fieldsOf(modal)), [
+    { label: 'Question', placeholder: 'e.g., How long will UK PM last?' },
+    { label: 'Options (comma-separated)', placeholder: '1 week, 2 weeks, 1 month, 3 months' },
+    { label: 'Your Choice', placeholder: 'Pick from your options above' },
+    { label: 'Bet Amount', placeholder: 'Credits to bet' },
+  ]);
+});
+
+test('the bet modal', () => {
+  const modal = buildBetModal(7, ['Yes', 'No'], text);
+  assert.equal(modal.data.title, 'Bet on Prediction #7');
+  assert.deepEqual(textsOf(fieldsOf(modal)), [
+    { label: 'Choose an option', placeholder: 'Yes, No' },
+    { label: 'Bet Amount', placeholder: 'Credits to bet' },
+  ]);
+});
+
+test('the resolve modal', () => {
+  const modal = buildResolveModal(7, ['Yes', 'No'], text);
+  assert.equal(modal.data.title, 'Resolve Prediction #7');
+  assert.deepEqual(textsOf(fieldsOf(modal)), [{ label: 'Winning Outcome', placeholder: 'Yes, No' }]);
+});
+
+test('an options placeholder with no options asks for one', () => {
+  assert.equal(fieldsOf(buildBetModal(7, [], text))[0].placeholder, 'Enter an option');
+});
+
+test('an options placeholder over 100 characters is cut with three dots', () => {
+  const placeholder = fieldsOf(buildBetModal(7, Array.from({ length: 60 }, (_, i) => `Option${i}`), text))[0].placeholder;
+  assert.equal(placeholder.length <= 100, true);
+  assert.equal(placeholder.endsWith('...'), true);
 });

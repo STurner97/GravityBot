@@ -1,124 +1,12 @@
 import {
-  MessageComponentTypes,
-  TextStyleTypes,
-} from 'discord-interactions';
-import {
   createPrediction,
   placeBet,
   resolvePrediction,
   getPrediction,
 } from '../../../betting.js';
-import { ephemeral, public_, modal } from '../../lib/response.js';
+import { ephemeral, public_ } from '../../lib/response.js';
 import { messageText } from '../../lib/messages/index.js';
-import { encode, decode } from '../../lib/customId.js';
-
-// Truncates the options list to fit Discord's 100-char placeholder limit.
-function buildOptionsPlaceholder(options, maxLength = 100) {
-  if (!Array.isArray(options) || options.length === 0) return 'Enter an option';
-  const text = options.join(', ');
-  if (text.length <= maxLength) return text;
-  if (maxLength <= 3) return text.slice(0, maxLength);
-  return `${text.slice(0, maxLength - 3).trimEnd()}...`;
-}
-
-export function buildPredictModal() {
-  return modal('predict_modal', 'Create a Prediction', [
-    {
-      type: MessageComponentTypes.ACTION_ROW,
-      components: [{
-        type: MessageComponentTypes.INPUT_TEXT,
-        custom_id: 'question_input',
-        label: 'Question',
-        style: TextStyleTypes.SHORT,
-        placeholder: 'e.g., How long will UK PM last?',
-        required: true,
-        max_length: 200,
-      }],
-    },
-    {
-      type: MessageComponentTypes.ACTION_ROW,
-      components: [{
-        type: MessageComponentTypes.INPUT_TEXT,
-        custom_id: 'options_input',
-        label: 'Options (comma-separated)',
-        style: TextStyleTypes.SHORT,
-        placeholder: '1 week, 2 weeks, 1 month, 3 months',
-        required: true,
-        max_length: 300,
-      }],
-    },
-    {
-      type: MessageComponentTypes.ACTION_ROW,
-      components: [{
-        type: MessageComponentTypes.INPUT_TEXT,
-        custom_id: 'choice_input',
-        label: 'Your Choice',
-        style: TextStyleTypes.SHORT,
-        placeholder: 'Pick from your options above',
-        required: true,
-        max_length: 100,
-      }],
-    },
-    {
-      type: MessageComponentTypes.ACTION_ROW,
-      components: [{
-        type: MessageComponentTypes.INPUT_TEXT,
-        custom_id: 'amount_input',
-        label: 'Bet Amount',
-        style: TextStyleTypes.SHORT,
-        placeholder: 'Credits to bet',
-        required: true,
-        max_length: 10,
-      }],
-    },
-  ]);
-}
-
-export function buildBetModal(predictionId, options) {
-  return modal(encode('bet_modal', predictionId), `Bet on Prediction #${predictionId}`, [
-    {
-      type: MessageComponentTypes.ACTION_ROW,
-      components: [{
-        type: MessageComponentTypes.INPUT_TEXT,
-        custom_id: 'option_input',
-        label: 'Choose an option',
-        style: TextStyleTypes.SHORT,
-        placeholder: buildOptionsPlaceholder(options),
-        required: true,
-        max_length: 100,
-      }],
-    },
-    {
-      type: MessageComponentTypes.ACTION_ROW,
-      components: [{
-        type: MessageComponentTypes.INPUT_TEXT,
-        custom_id: 'bet_amount_input',
-        label: 'Bet Amount',
-        style: TextStyleTypes.SHORT,
-        placeholder: 'Credits to bet',
-        required: true,
-        max_length: 10,
-      }],
-    },
-  ]);
-}
-
-export function buildResolveModal(predictionId, options) {
-  return modal(encode('resolve_modal', predictionId), `Resolve Prediction #${predictionId}`, [
-    {
-      type: MessageComponentTypes.ACTION_ROW,
-      components: [{
-        type: MessageComponentTypes.INPUT_TEXT,
-        custom_id: 'outcome_input',
-        label: 'Winning Outcome',
-        style: TextStyleTypes.SHORT,
-        placeholder: buildOptionsPlaceholder(options),
-        required: true,
-        max_length: 100,
-      }],
-    },
-  ]);
-}
+import { decode } from '../../lib/customId.js';
 
 export async function handlePredictModal(interaction) {
   const { data, userId } = interaction;

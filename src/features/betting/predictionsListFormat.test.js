@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { formatPredictionEntry } from './predictionsListFormat.js';
+import { formatPredictionEntry as formatEntry } from './predictionsListFormat.js';
+import { referenceText } from '../../lib/messages/fixtures/referenceMessages.js';
+
+const formatPredictionEntry = (prediction, maxLength) => formatEntry(prediction, maxLength, referenceText);
 
 const prediction = (overrides = {}) => ({
   id: 41,

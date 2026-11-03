@@ -8,7 +8,7 @@ prose below the fence, not the table.
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
 | [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
-| [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 3-development | in progress | — | Developer pushes main (F2 live), then runs /mybets and /beg (as a rich user) and reports; agent checks log for problems=0, messages=16 |
+| [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 3-development | in progress | — | Developer pushes main (F3 live), then runs the F3 Discord checks; agent checks log for messages=42 problems=0 |
 
 **By phase**
 

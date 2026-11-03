@@ -1,14 +1,16 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildPredictionsListPage } from './predictionsList.js';
-import {
-  NO_PREDICTIONS_TEXT,
-  PREDICTIONS_HEADER,
-  formatPredictionEntry,
-} from './predictionsListFormat.js';
+import { buildPredictionsListPage as buildPage } from './predictionsList.js';
+import { formatPredictionEntry as formatEntry } from './predictionsListFormat.js';
+import { referenceText } from '../../lib/messages/fixtures/referenceMessages.js';
 import { MAX_ACTION_ROWS, BUTTONS_PER_ROW, MESSAGE_CONTENT_MAX_LENGTH } from '../../lib/discordLimits.js';
 
 const PAGE_SIZE = 5;
+
+const buildPredictionsListPage = (predictions, page, pageSize) => buildPage(predictions, page, pageSize, referenceText);
+const formatPredictionEntry = (prediction) => formatEntry(prediction, Infinity, referenceText);
+const NO_PREDICTIONS_TEXT = '📋 No active predictions. Create one with `/predict`!';
+const PREDICTIONS_HEADER = '📋 **Active Predictions:**\n\n';
 
 // Newest first, like getActivePredictions(): ids count down from `count`.
 function makePredictions(count) {
@@ -166,4 +168,20 @@ test('entries are listed in the order given, newest first', () => {
   const { content } = buildPredictionsListPage(makePredictions(4), 0, PAGE_SIZE);
   const order = [...content.matchAll(/\*\*ID (\d+):/g)].map(m => Number(m[1]));
   assert.deepEqual(order, [4, 3, 2, 1]);
+});
+
+test('a page within budget is not cut', () => {
+  assert.equal(buildPredictionsListPage(makePredictions(12), 0, PAGE_SIZE).cut, false);
+});
+
+test('a layout that overshoots its budget is cut to the message limit, with the cut marker', () => {
+  // {question} used twice makes the measured overhead too small, as an edit to the file might.
+  const doubled = (name, values) => (name === 'predictions.entry'
+    ? `${values.question}${values.question}${values.options}${'x'.repeat(values.betCount)}`
+    : referenceText(name, values));
+  const predictions = makeLongestPossiblePredictions(5);
+  const page = buildPage(predictions, 0, PAGE_SIZE, doubled);
+  assert.equal(page.cut, true);
+  assert.ok(page.content.length <= MESSAGE_CONTENT_MAX_LENGTH);
+  assert.ok(page.content.endsWith('…'));
 });

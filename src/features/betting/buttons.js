@@ -2,7 +2,7 @@ import { getPrediction, donateCredits } from '../../../betting.js';
 import { messageText } from '../../lib/messages/index.js';
 import { ephemeral, public_, updateMessage } from '../../lib/response.js';
 import { decode } from '../../lib/customId.js';
-import { buildBetModal } from './modals.js';
+import { buildBetModal } from './buildModals.js';
 import { loadPredictionsPage } from './loadPredictionsPage.js';
 
 export async function handleDonateButton(interaction) {

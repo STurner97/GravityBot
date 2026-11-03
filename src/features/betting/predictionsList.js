@@ -1,17 +1,10 @@
 // Pure: turns the active predictions into one page of the /predictions message.
-// The page size is passed in so tests need no environment and can use small pages.
+// The page size and the message text function are passed in so tests need no environment
+// and can use small pages and a fixed wording.
 import { MessageComponentTypes, ButtonStyleTypes } from 'discord-interactions';
 import { encode } from '../../lib/customId.js';
 import { BUTTONS_PER_ROW, MESSAGE_CONTENT_MAX_LENGTH } from '../../lib/discordLimits.js';
-import {
-  PREDICTIONS_HEADER,
-  NO_PREDICTIONS_TEXT,
-  PREVIOUS_LABEL,
-  NEXT_LABEL,
-  formatPageLine,
-  formatBetButtonLabel,
-  formatPredictionEntry,
-} from './predictionsListFormat.js';
+import { formatPredictionEntry, truncate } from './predictionsListFormat.js';
 
 export const PREDICTIONS_PAGE_NAMESPACE = 'predictions_page';
 const BET_NAMESPACE = 'bet';
@@ -27,11 +20,14 @@ function clampPage(requestedPage, pageCount) {
 }
 
 // Each slot on the page gets an equal share of what the header and page line leave.
-function entryBudget(pageSize, pageIndex, pageCount) {
-  const pageLine = pageCount > 1 ? formatPageLine(pageIndex, pageCount) : '';
-  const spare = MESSAGE_CONTENT_MAX_LENGTH - PREDICTIONS_HEADER.length - pageLine.length;
+function entryBudget(pageSize, pageIndex, pageCount, text) {
+  const pageLine = pageCount > 1 ? formatPageLine(pageIndex, pageCount, text) : '';
+  const spare = MESSAGE_CONTENT_MAX_LENGTH - text('predictions.header').length - pageLine.length;
   return Math.floor(spare / pageSize);
 }
+
+const formatPageLine = (pageIndex, pageCount, text) =>
+  text('predictions.pageLine', { page: pageIndex + 1, pageCount });
 
 const actionRow = (components) => ({ type: MessageComponentTypes.ACTION_ROW, components });
 
@@ -42,8 +38,9 @@ const button = (label, customId) => ({
   custom_id: customId,
 });
 
-function buildBetRows(predictions) {
-  const buttons = predictions.map(p => button(formatBetButtonLabel(p.id), encode(BET_NAMESPACE, p.id)));
+function buildBetRows(predictions, text) {
+  const buttons = predictions.map(p =>
+    button(text('predictions.betButton', { predictionId: p.id }), encode(BET_NAMESPACE, p.id)));
   const rows = [];
   for (let i = 0; i < buttons.length; i += BUTTONS_PER_ROW) {
     rows.push(actionRow(buttons.slice(i, i + BUTTONS_PER_ROW)));
@@ -51,33 +48,40 @@ function buildBetRows(predictions) {
   return rows;
 }
 
-function buildPagingRow(pageIndex, pageCount) {
+function buildPagingRow(pageIndex, pageCount, text) {
   const buttons = [];
   if (pageIndex > 0) {
-    buttons.push(button(PREVIOUS_LABEL, encode(PREDICTIONS_PAGE_NAMESPACE, pageIndex - 1)));
+    buttons.push(button(text('predictions.previous'), encode(PREDICTIONS_PAGE_NAMESPACE, pageIndex - 1)));
   }
   if (pageIndex < pageCount - 1) {
-    buttons.push(button(NEXT_LABEL, encode(PREDICTIONS_PAGE_NAMESPACE, pageIndex + 1)));
+    buttons.push(button(text('predictions.next'), encode(PREDICTIONS_PAGE_NAMESPACE, pageIndex + 1)));
   }
   return actionRow(buttons);
 }
 
-export function buildPredictionsListPage(predictions, requestedPage, pageSize) {
+// Discord rejects a message over its limit, so a layout that outgrows the budget is cut
+// rather than failing; `cut` lets a test catch that before it is pushed.
+function fitToMessageLimit(content, text) {
+  const cutContent = truncate(content, MESSAGE_CONTENT_MAX_LENGTH, text('predictions.cutMarker'));
+  return { content: cutContent, cut: cutContent !== content };
+}
+
+export function buildPredictionsListPage(predictions, requestedPage, pageSize, text) {
   if (predictions.length === 0) {
-    return { content: NO_PREDICTIONS_TEXT, components: [], pageIndex: 0, pageCount: 1 };
+    return { content: text('predictions.empty'), components: [], pageIndex: 0, pageCount: 1, cut: false };
   }
 
   const pageCount = countPages(predictions.length, pageSize);
   const pageIndex = clampPage(requestedPage, pageCount);
   const onPage = predictions.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize);
 
-  const budget = entryBudget(pageSize, pageIndex, pageCount);
-  let content = PREDICTIONS_HEADER + onPage.map(p => formatPredictionEntry(p, budget)).join('');
-  const components = buildBetRows(onPage);
+  const budget = entryBudget(pageSize, pageIndex, pageCount, text);
+  let content = text('predictions.header') + onPage.map(p => formatPredictionEntry(p, budget, text)).join('');
+  const components = buildBetRows(onPage, text);
 
   if (pageCount > 1) {
-    content += formatPageLine(pageIndex, pageCount);
-    components.push(buildPagingRow(pageIndex, pageCount));
+    content += formatPageLine(pageIndex, pageCount, text);
+    components.push(buildPagingRow(pageIndex, pageCount, text));
   }
-  return { content, components, pageIndex, pageCount };
+  return { ...fitToMessageLimit(content, text), components, pageIndex, pageCount };
 }

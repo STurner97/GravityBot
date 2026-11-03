@@ -98,5 +98,68 @@
         "**New balance:** {newBalance}"
       ]
     }
+  },
+  "optionList": {
+    "item": {
+      "uses": "{option}",
+      "text": "{option}"
+    },
+    "separator": ", "
+  },
+  "predictions": {
+    "header": ["📋 **Active Predictions:**", "", ""],
+    "entry": {
+      "uses": "{predictionId} {question} {options} {betCount} {totalCredits}",
+      "text": [
+        "**ID {predictionId}:** {question}",
+        "**Options:** {options}",
+        "{betCount} bet(s), totalling 💰 {totalCredits} Credits",
+        "",
+        ""
+      ]
+    },
+    "pageLine": {
+      "uses": "{page} {pageCount}",
+      "text": "Page {page} of {pageCount}"
+    },
+    "empty": "📋 No active predictions. Create one with `/predict`!",
+    "previous": "◀ Previous",
+    "next": "Next ▶",
+    "betButton": {
+      "uses": "{predictionId}",
+      "text": "Bet on #{predictionId}"
+    },
+    "cutMarker": "…"
+  },
+  "optionsPlaceholder": {
+    "none": "Enter an option",
+    "cutMarker": "..."
+  },
+  "predictModal": {
+    "title": "Create a Prediction",
+    "questionLabel": "Question",
+    "questionPlaceholder": "e.g., How long will UK PM last?",
+    "optionsLabel": "Options (comma-separated)",
+    "optionsPlaceholder": "1 week, 2 weeks, 1 month, 3 months",
+    "choiceLabel": "Your Choice",
+    "choicePlaceholder": "Pick from your options above",
+    "amountLabel": "Bet Amount",
+    "amountPlaceholder": "Credits to bet"
+  },
+  "betModal": {
+    "title": {
+      "uses": "{predictionId}",
+      "text": "Bet on Prediction #{predictionId}"
+    },
+    "optionLabel": "Choose an option",
+    "amountLabel": "Bet Amount",
+    "amountPlaceholder": "Credits to bet"
+  },
+  "resolveModal": {
+    "title": {
+      "uses": "{predictionId}",
+      "text": "Resolve Prediction #{predictionId}"
+    },
+    "outcomeLabel": "Winning Outcome"
   }
 }

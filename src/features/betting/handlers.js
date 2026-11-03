@@ -14,7 +14,7 @@ import { ephemeral, public_ } from '../../lib/response.js';
 import { messageText } from '../../lib/messages/index.js';
 import { isAdmin } from '../../lib/auth.js';
 import { encode } from '../../lib/customId.js';
-import { buildPredictModal, buildBetModal, buildResolveModal } from './modals.js';
+import { buildPredictModal, buildBetModal, buildResolveModal } from './buildModals.js';
 import { loadPredictionsPage } from './loadPredictionsPage.js';
 
 export async function handleBalance(interaction) {
