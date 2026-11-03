@@ -56,7 +56,7 @@ one place: values like the default credits will then show up in the file as plac
 
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
-| C1 | Build 01's two unexercised checks, run during this build's live acceptance: a second account sees no `/predictions` list, and Next works on a list left open after a throwaway prediction is resolved | Both seen live and recorded | 2026-11-03 |
+| C1 | One of build 01's unexercised checks, run during this build's live acceptance: Next works on a list left open after a throwaway prediction is resolved (amended 2026-11-03) | Seen live and recorded | proposed |
 | C2 | The pinboard and debug messages, including those the pinboard worker posts, and the router's channel denial, also come from the template file, on the same terms as M1 to M5: identical output, placeholders, checked by `npm test` (amended 2026-11-03) | Read the file: pinboard, debug and channel-denial messages are there; a pin and a debug command in Discord read as before | 2026-11-03 |
 
 ### Won't have — in this build
@@ -71,6 +71,7 @@ one place: values like the default credits will then show up in the file as plac
 | W7 | Translations or more than one language | Dropped: one server of friends |
 | W8 | Any change to how SQL is configured or run (build 01's W3) | Not planned; raise as a new build if wanted |
 | W9 | A way to see resolved predictions | Not planned (build 01's W4) |
+| W10 | Checking that a second account sees no `/predictions` list of the developer's (build 01's other unexercised check, was half of C1) | Dropped: hard to test; the list is a private reply to whoever runs the command |
 
 ## Decisions taken in this phase
 
@@ -108,3 +109,4 @@ one place: values like the default credits will then show up in the file as plac
 - **2026-11-03** — developer agreed all rows via /pipeline-signoff; M8 Must, S1 Should as drafted.
 - **2026-11-03** — design push-back P1-P3 (see [2-design.md](2-design.md)). M2 accepted-by was: unit test per message vs today's text + smoke run; now tests use reference copy, file identical before M6. M5 was: names the message in all three cases; parse error now names line/column. C2 now includes router channel denial. All three proposed.
 - **2026-11-03** — developer re-agreed amended M2, M5, C2 via /pipeline-signoff of design.
+- **2026-11-03** — development: developer dropped the second-account check. C1 was: both build 01 checks (second account sees no list; Next after a resolve); now only the Next check. Second-account check is W10, dropped. C1 proposed until re-agreed.

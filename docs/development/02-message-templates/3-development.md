@@ -23,7 +23,7 @@ discord.js v14, Express, PostgreSQL. No new dependency in this build.
 |---|---|---|
 | F1 — The file, its checks, `/balance`, `/balances` | M3, M5, M4, part of M1, M2 | accepted 2026-11-03 |
 | F2 — `/mybets`, `/beg`, donate, `/changebalance`, shared denial and not-found | M1, M2, M4 | accepted 2026-11-03 |
-| F3 — `/predictions` and the three modals | M7, S1, part of C1 | accepted 2026-11-03; C1 second-account check still open |
+| F3 — `/predictions` and the three modals | M7, S1, part of C1 | accepted 2026-11-03 |
 | F4 — Confirmations, announcements, `betting.js` errors | M8, M1, M2, C1 | built, tests green; waiting on the push and the throwaway session (R8) |
 | F5 — Identity proven, one reword live | M2, M6 | planned |
 | F6 — Pinboard, debug and router messages (Could) | C2 | planned |
@@ -52,7 +52,7 @@ Rows are added as each feature is accepted. F1 so far:
 | 4 | `/mybets`, `/beg` read as before | Developer ran both | Pass. `/beg` ran as the request (balance now 10 or less), so "too rich" was not seen |
 | 5 | Deployed log, F3 | Heroku dashboard | Pass: web.1 `messages=42 problems=0` at 23:00:58 |
 | 6 | F3 screens read as before | Developer ran each in Discord and cancelled the modals; no bet placed, nothing resolved | Pass |
-| 7 | C1: a second account sees no `/predictions` list | Needs a second account | Not exercised: no account named yet; asked again at F4 |
+| 7 | C1: a second account sees no `/predictions` list | Needs a second account | Dropped by the developer (W10); not exercised |
 
 ## Feedback and triage
 
@@ -93,6 +93,7 @@ Design: [2-design.md](2-design.md). Start reading at `src/lib/messages/index.js`
 
 ## Edit log
 
+- **2026-11-03** — C1 narrowed to the Next check; second-account check dropped (W10). Rows 7 above updated.
 - **2026-11-03** — F4 built: errors as codes, announcements and confirmations from the file; two messages found beyond the inventory.
 - **2026-11-03** — F3 accepted live; C1 second-account check not exercised.
 - **2026-11-03** — F3 built: `/predictions` layout, option list and the three modals from the file; pure modal builders moved to `buildModals.js` so tests need no database; list builder reports `cut`.
