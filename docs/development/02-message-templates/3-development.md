@@ -22,7 +22,7 @@ discord.js v14, Express, PostgreSQL. No new dependency in this build.
 | Feature | Requirements | Status |
 |---|---|---|
 | F1 — The file, its checks, `/balance`, `/balances` | M3, M5, M4, part of M1, M2 | accepted 2026-11-03 |
-| F2 — `/mybets`, `/beg`, donate, `/changebalance`, shared denial and not-found | M1, M2, M4 | in acceptance: tests green, waiting on the push and the live run |
+| F2 — `/mybets`, `/beg`, donate, `/changebalance`, shared denial and not-found | M1, M2, M4 | accepted 2026-11-03 |
 | F3 — `/predictions` and the three modals | M7, S1, part of C1 | planned |
 | F4 — Confirmations, announcements, `betting.js` errors | M8, M1, M2, C1 | planned |
 | F5 — Identity proven, one reword live | M2, M6 | planned |
@@ -39,12 +39,16 @@ Rows are added as each feature is accepted. F1 so far:
 | M4 | Lists are header, item, separator, empty, each editable | `balances` list: render tests and wording test for items and the empty case | Pass for `/balances`; other lists in F2 to F4 |
 | M2 | Output identical to `cb1f8a5` | Wording tests on the reference for the 5 balance messages; `/balance`, `/balance user:@friend`, `/balances` read as before in Discord | Pass for the F1 messages |
 
+| M1, M2 | F2 messages (mybets, beg, donate, changebalance, denial, not-found) from the file, identical to `cb1f8a5` | Wording tests on the reference for all 12; `/mybets` and `/beg` read as before in Discord | Pass for `/mybets` and the beg request. Pass with a limit for the rest: "too rich", donate, changebalance, denial and not-found are unit-tested only here; donate and changebalance are seen live in F4 |
+
 ## Manual checks
 
 | # | Check | How | Result |
 |---|---|---|---|
 | 1 | The deployed bot finds and reads the file | After the F1 push, Heroku log shows `[Messages] file=messages.json messages=4 problems=0` | Pass: web.1 logged `[Messages] file=messages.json messages=4 problems=0` at 22:49:28 |
 | 2 | Discord shows each balance message as before | `/balance`, `/balance user:@friend`, `/balances` | Pass: developer saw all three as normal. `/balances` empty case is unit-tested only |
+| 3 | Deployed log, F2 | Heroku dashboard | Pass: web.1 `[Messages] ... messages=16 problems=0` at 22:54:17 |
+| 4 | `/mybets`, `/beg` read as before | Developer ran both | Pass. `/beg` ran as the request (balance now 10 or less), so "too rich" was not seen |
 
 ## Feedback and triage
 
@@ -78,6 +82,7 @@ Design: [2-design.md](2-design.md). Start reading at `src/lib/messages/index.js`
 
 ## Edit log
 
+- **2026-11-03** — F2 accepted live (with the limit in the acceptance table).
 - **2026-11-03** — F2 built: 13 more messages, wording tests, handlers, buttons and modals' not-found switched.
 - **2026-11-03** — F1 accepted live; acceptance and manual checks filled in.
 - **2026-11-03** — F1 built: message modules, `messages.json` with the balance messages,
