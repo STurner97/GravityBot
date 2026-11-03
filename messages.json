@@ -24,5 +24,79 @@
       "text": ["<@{userId}>: **{balance}** credits", ""]
     },
     "empty": "💰 Everyone has the default balance (1000 credits)."
+  },
+  "denied": {
+    "admin": "❌ You do not have permission to use this command."
+  },
+  "prediction": {
+    "notFound": {
+      "uses": "{predictionId}",
+      "text": "❌ Prediction #{predictionId} not found."
+    }
+  },
+  "bet": {
+    "notFoundWithHint": {
+      "uses": "{predictionId}",
+      "text": "❌ Prediction #{predictionId} not found. Use `/predictions` to see active predictions."
+    }
+  },
+  "myBets": {
+    "header": ["🎲 **Your Active Bets:**", "", ""],
+    "item": {
+      "uses": "{predictionId} {question} {option} {amount}",
+      "text": [
+        "**ID {predictionId}:** {question}",
+        "Your bet: **{option}** ({amount} credits)",
+        "",
+        ""
+      ]
+    },
+    "empty": "🎲 You have no active bets."
+  },
+  "beg": {
+    "tooRich": "You are too rich to beg.",
+    "request": {
+      "uses": "{username}",
+      "text": "**{username}** is begging for credits. Click a button to donate or just laugh at them."
+    }
+  },
+  "donate": {
+    "button": {
+      "uses": "{amount}",
+      "one": "Donate {amount} Credit",
+      "other": "Donate {amount} Credits"
+    },
+    "donated": {
+      "uses": "{donorId} {amount} {recipientId}",
+      "one": "<@{donorId}> donated **{amount}** credit to <@{recipientId}>!",
+      "other": "<@{donorId}> donated **{amount}** credits to <@{recipientId}>!"
+    },
+    "self": "You cannot donate to yourself."
+  },
+  "changeBalance": {
+    "set": {
+      "uses": "{amount} {userId} {oldBalance} {newBalance}",
+      "text": [
+        "✅ set to {amount} credits for <@{userId}>'s balance.",
+        "**Old balance:** {oldBalance}",
+        "**New balance:** {newBalance}"
+      ]
+    },
+    "add": {
+      "uses": "{amount} {userId} {oldBalance} {newBalance}",
+      "text": [
+        "✅ {amount} credits added to <@{userId}>'s balance.",
+        "**Old balance:** {oldBalance}",
+        "**New balance:** {newBalance}"
+      ]
+    },
+    "remove": {
+      "uses": "{amount} {userId} {oldBalance} {newBalance}",
+      "text": [
+        "✅ {amount} credits removed from <@{userId}>'s balance.",
+        "**Old balance:** {oldBalance}",
+        "**New balance:** {newBalance}"
+      ]
+    }
   }
 }

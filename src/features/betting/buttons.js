@@ -1,4 +1,5 @@
 import { getPrediction, donateCredits } from '../../../betting.js';
+import { messageText } from '../../lib/messages/index.js';
 import { ephemeral, public_, updateMessage } from '../../lib/response.js';
 import { decode } from '../../lib/customId.js';
 import { buildBetModal } from './modals.js';
@@ -11,7 +12,7 @@ export async function handleDonateButton(interaction) {
   const amount = parseInt(parts[1]);
 
   if (donorId === targetUserId) {
-    return ephemeral('You cannot donate to yourself.');
+    return ephemeral(messageText('donate.self'));
   }
 
   const result = await donateCredits(donorId, targetUserId, amount);
@@ -21,7 +22,7 @@ export async function handleDonateButton(interaction) {
   }
 
   console.log(`[Betting] donorId=${donorId} recipientId=${targetUserId} amount=${amount} action=donate`);
-  return public_(`<@${donorId}> donated **${amount}** credit${amount === 1 ? '' : 's'} to <@${targetUserId}>!`);
+  return public_(messageText('donate.donated', { donorId, amount, recipientId: targetUserId }));
 }
 
 export async function handleBetButton(interaction) {
@@ -31,7 +32,7 @@ export async function handleBetButton(interaction) {
   const prediction = await getPrediction(predictionId);
 
   if (!prediction) {
-    return ephemeral(`❌ Prediction #${predictionId} not found.`);
+    return ephemeral(messageText('prediction.notFound', { predictionId }));
   }
 
   return buildBetModal(predictionId, prediction.options);

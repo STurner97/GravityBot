@@ -9,6 +9,7 @@ import {
   getPrediction,
 } from '../../../betting.js';
 import { ephemeral, public_, modal } from '../../lib/response.js';
+import { messageText } from '../../lib/messages/index.js';
 import { encode, decode } from '../../lib/customId.js';
 
 // Truncates the options list to fit Discord's 100-char placeholder limit.
@@ -172,7 +173,7 @@ export async function handleBetModal(interaction) {
 
   const prediction = await getPrediction(predictionId);
   if (!prediction) {
-    return ephemeral(`❌ Prediction #${predictionId} not found.`);
+    return ephemeral(messageText('prediction.notFound', { predictionId }));
   }
 
   const result = await placeBet(predictionId, userId, selectedOption, amount);
@@ -191,7 +192,7 @@ export async function handleResolveModal(interaction) {
 
   const prediction = await getPrediction(predictionId);
   if (!prediction) {
-    return ephemeral(`❌ Prediction #${predictionId} not found.`);
+    return ephemeral(messageText('prediction.notFound', { predictionId }));
   }
 
   const result = await resolvePrediction(predictionId, outcome);

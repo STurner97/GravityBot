@@ -52,7 +52,7 @@ export async function handleBet(interaction) {
   const prediction = await getPrediction(predictionId);
 
   if (!prediction) {
-    return ephemeral(`❌ Prediction #${predictionId} not found. Use \`/predictions\` to see active predictions.`);
+    return ephemeral(messageText('bet.notFoundWithHint', { predictionId }));
   }
 
   if (prediction.resolved) {
@@ -72,31 +72,30 @@ export async function handleMyBets(interaction) {
   const userBets = await getUserBets(userId);
 
   if (userBets.length === 0) {
-    return ephemeral('🎲 You have no active bets.');
+    return ephemeral(messageText('myBets', { items: [] }));
   }
 
-  let message = '🎲 **Your Active Bets:**\n\n';
-  for (const betInfo of userBets) {
-    message +=
-      `**ID ${betInfo.predictionId}:** ${betInfo.question}\n` +
-      `Your bet: **${betInfo.bet.prediction}** (${betInfo.bet.amount} credits)\n\n`;
-  }
-
-  return ephemeral(message);
+  const items = userBets.map(betInfo => ({
+    predictionId: betInfo.predictionId,
+    question: betInfo.question,
+    option: betInfo.bet.prediction,
+    amount: betInfo.bet.amount,
+  }));
+  return ephemeral(messageText('myBets', { items }));
 }
 
 export async function handleResolve(interaction) {
   const { data, userId } = interaction;
 
   if (!isAdmin(userId)) {
-    return ephemeral('❌ You do not have permission to use this command.');
+    return ephemeral(messageText('denied.admin'));
   }
 
   const predictionId = data.options.find(opt => opt.name === 'prediction_id').value;
   const prediction = await getPrediction(predictionId);
 
   if (!prediction) {
-    return ephemeral(`❌ Prediction #${predictionId} not found.`);
+    return ephemeral(messageText('prediction.notFound', { predictionId }));
   }
 
   return buildResolveModal(predictionId, prediction.options);
@@ -106,14 +105,14 @@ export async function handleVoidPrediction(interaction) {
   const { data, userId } = interaction;
 
   if (!isAdmin(userId)) {
-    return ephemeral('❌ You do not have permission to use this command.');
+    return ephemeral(messageText('denied.admin'));
   }
 
   const predictionId = data.options.find(opt => opt.name === 'prediction_id').value;
   const prediction = await getPrediction(predictionId);
 
   if (!prediction) {
-    return ephemeral(`❌ Prediction #${predictionId} not found.`);
+    return ephemeral(messageText('prediction.notFound', { predictionId }));
   }
 
   const result = await voidPrediction(predictionId);
@@ -147,7 +146,7 @@ function buildDonateButtons(targetUserId) {
     components: DONATE_AMOUNTS.map(amount => ({
       type: MessageComponentTypes.BUTTON,
       style: ButtonStyleTypes.PRIMARY,
-      label: `Donate ${amount} Credit${amount === 1 ? '' : 's'}`,
+      label: messageText('donate.button', { amount }),
       custom_id: encode('donate', targetUserId, amount),
     })),
   }];
@@ -158,19 +157,19 @@ export async function handleBeg(interaction) {
   const balance = await getUserBalance(userId);
 
   if (balance > BEG_BALANCE_LIMIT) {
-    return ephemeral('You are too rich to beg.');
+    return ephemeral(messageText('beg.tooRich'));
   }
 
   const username = member?.nick ?? member?.user?.username ?? user?.username ?? `<@${userId}>`;
   console.log(`[Betting] userId=${userId} balance=${balance} action=beg`);
-  return public_(`**${username}** is begging for credits. Click a button to donate or just laugh at them.`, buildDonateButtons(userId));
+  return public_(messageText('beg.request', { username }), buildDonateButtons(userId));
 }
 
 export async function handleChangeBalance(interaction) {
   const { data, userId } = interaction;
 
   if (!isAdmin(userId)) {
-    return ephemeral('❌ You do not have permission to use this command.');
+    return ephemeral(messageText('denied.admin'));
   }
 
   const targetUser = data.options.find(opt => opt.name === 'user').value;
@@ -190,14 +189,10 @@ export async function handleChangeBalance(interaction) {
     return ephemeral(`❌ ${result.error}`);
   }
 
-  let actionText;
-  if (action === 'set') {
-    actionText = `set to ${amount} credits for`;
-  } else {
-    actionText = action === 'add'
-      ? `${amount} credits added to`
-      : `${amount} credits removed from`;
-  }
-
-  return public_(`✅ ${actionText} <@${targetUser}>'s balance.\n**Old balance:** ${result.oldBalance}\n**New balance:** ${result.newBalance}`);
+  return public_(messageText(`changeBalance.${action}`, {
+    amount,
+    userId: targetUser,
+    oldBalance: result.oldBalance,
+    newBalance: result.newBalance,
+  }));
 }

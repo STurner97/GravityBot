@@ -22,7 +22,7 @@ discord.js v14, Express, PostgreSQL. No new dependency in this build.
 | Feature | Requirements | Status |
 |---|---|---|
 | F1 — The file, its checks, `/balance`, `/balances` | M3, M5, M4, part of M1, M2 | accepted 2026-11-03 |
-| F2 — `/mybets`, `/beg`, donate, `/changebalance`, shared denial and not-found | M1, M2, M4 | planned |
+| F2 — `/mybets`, `/beg`, donate, `/changebalance`, shared denial and not-found | M1, M2, M4 | in acceptance: tests green, waiting on the push and the live run |
 | F3 — `/predictions` and the three modals | M7, S1, part of C1 | planned |
 | F4 — Confirmations, announcements, `betting.js` errors | M8, M1, M2, C1 | planned |
 | F5 — Identity proven, one reword live | M2, M6 | planned |
@@ -78,6 +78,7 @@ Design: [2-design.md](2-design.md). Start reading at `src/lib/messages/index.js`
 
 ## Edit log
 
+- **2026-11-03** — F2 built: 13 more messages, wording tests, handlers, buttons and modals' not-found switched.
 - **2026-11-03** — F1 accepted live; acceptance and manual checks filled in.
 - **2026-11-03** — F1 built: message modules, `messages.json` with the balance messages,
   reference file, `/balance` and `/balances` through it; version stamped 1.2.0-alpha.
