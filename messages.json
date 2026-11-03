@@ -59,7 +59,7 @@
       "uses": "{predictionId} {question} {option} {amount}",
       "text": [
         "**ID {predictionId}:** {question}",
-        "Your bet: **{option}** ({amount} credits)",
+        "Your bet: **{option}** (💰 {amount} credits)",
         "",
         ""
       ]
