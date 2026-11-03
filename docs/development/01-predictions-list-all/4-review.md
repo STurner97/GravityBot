@@ -2,7 +2,7 @@
 
 <!-- pipeline:nav -->
 > **Build 01 — List all active predictions** · Phase 4 of 5 · signed off
-> [← Development](3-development.md) · [State](0-build.md) · Publish → · [All builds](../README.md)
+> [← Development](3-development.md) · [State](0-build.md) · [Publish →](5-publish.md) · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
 ## Deployment

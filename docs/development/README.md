@@ -7,7 +7,7 @@ prose below the fence, not the table.
 
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
-| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 4-review | signed off | — | start 5-publish on sonnet: developer pushes main, install test on live bot, tag build/01 + v1.1.0-alpha |
+| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | in progress | — | developer pushes main (git push origin main), then runs install test rows 1-3 in 5-publish.md and reports what they see |
 
 **By phase**
 
@@ -15,7 +15,7 @@ prose below the fence, not the table.
 - Design — [01](01-predictions-list-all/2-design.md) ✓
 - Development — [01](01-predictions-list-all/3-development.md) ✓
 - Review — [01](01-predictions-list-all/4-review.md) ✓
-- Publish — none yet
+- Publish — [01](01-predictions-list-all/5-publish.md)
 
 ✓ marks a phase the developer has signed off.
 

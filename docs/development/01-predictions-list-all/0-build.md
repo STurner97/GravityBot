@@ -1,7 +1,7 @@
 ---
 build: 01-predictions-list-all
-phase: 4-review
-status: signed-off
+phase: 5-publish
+status: in-progress
 size: standard
 format: 2
 signed_off: 1-requirements, 2-design, 3-development, 4-review
@@ -10,8 +10,8 @@ blocked_on:
 accepted: 5cb255cff5060ba2f7e071e082cf16d357c1d4db
 version: 1.1.0-alpha
 stage: alpha
-gate: documents match reality, final acceptance passed, next steps written
-next: start 5-publish on sonnet: developer pushes main, install test on live bot, tag build/01 + v1.1.0-alpha
+gate: developer confirms the distributable installs and runs; version and stage recorded, or nothing to publish
+next: developer pushes main (git push origin main), then runs install test rows 1-3 in 5-publish.md and reports what they see
 updated: 2026-11-03
 ---
 
