@@ -43,7 +43,8 @@ It is the change the developer wants most, build 01 proved the one-place pattern
 - **2026-11-03** — development: C1 narrowed to the Next check; second-account check dropped
   (W10). C2 not built, deferred as W11. See the edit log of [1-requirements.md](1-requirements.md).
 - **2026-11-03** — developer reworded `balance.own` (M6) and then `balance.other` (`29be1cf`).
-- **2026-11-03** — review: issues I1-I4; W12 and W13 added. See [4-review.md](4-review.md).
+- **2026-11-03** — review: issues I1-I4; W12 and W13 added. Developer chose build 03 = W11, W12,
+  W13; configuration (W4) moves to build 04. See [4-review.md](4-review.md).
 
 ## Open questions
 

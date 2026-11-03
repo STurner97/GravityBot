@@ -27,7 +27,7 @@ broken message file must be caught before it is pushed, not by the people using 
 
 The developer wants it most, it is understood best (build 01 proved the one-place pattern on
 `/predictions`), and it changes only text, not how data is read or written. The config work
-(build 03) does not depend on it, but will be easier to check once every message comes from
+(build 04) does not depend on it, but will be easier to check once every message comes from
 one place: values like the default credits will then show up in the file as placeholders.
 
 ## Scope
@@ -65,20 +65,21 @@ one place: values like the default credits will then show up in the file as plac
 |---|---|---|
 | W2 | Changing wording without a deploy (templates in the database, or edited from Discord by an admin) | Dropped: the developer chose edit, commit and push |
 | W3 | Rewording any message | After this build, through the file. M6's single edit is the only rewording here |
-| W4 | Values inside messages becoming settings (the 1000 default credits, the beg limit, the donate amounts) | Build 03, configuration (build 01's W6) |
+| W4 | Values inside messages becoming settings (the 1000 default credits, the beg limit, the donate amounts) | Build 04, configuration (build 01's W6); after the wording build, chosen in review |
 | W5 | Slash command names and descriptions | Stay in `commands.js`, the recorded single source of truth |
 | W6 | Log lines | Stay in code: read by the developer in Heroku logs, not by users |
 | W7 | Translations or more than one language | Dropped: one server of friends |
 | W8 | Any change to how SQL is configured or run (build 01's W3) | Not planned; raise as a new build if wanted |
 | W9 | A way to see resolved predictions | Not planned (build 01's W4) |
 | W10 | Checking that a second account sees no `/predictions` list of the developer's (build 01's other unexercised check, was half of C1) | Dropped: hard to test; the list is a private reply to whoever runs the command |
-| W11 | C2: pinboard, debug and router channel-denial messages in the template file, and deleting the unused root `pinboard.js` | A future build; developer deferred it at development sign-off |
-| W12 | `npm test` checks Discord's length limits on modal titles, labels and placeholders and on button labels (review issue I1) | The build that does W11, recommended as build 03 |
-| W13 | `/debug reset` replies with a generic error instead of the database's own message (review issue I4) | The build that does W11 |
+| W11 | C2: pinboard, debug and router channel-denial messages in the template file, and deleting the unused root `pinboard.js` | Build 03; developer deferred it at development sign-off, and chose its number in review |
+| W12 | `npm test` checks Discord's length limits on modal titles, labels and placeholders and on button labels (review issue I1) | Build 03, with W11 |
+| W13 | `/debug reset` replies with a generic error instead of the database's own message (review issue I4) | Build 03, with W11 |
 
 ## Decisions taken in this phase
 
-- Size is standard. The build is numbered 02, and the config work is renumbered build 03. The
+- Size is standard. The build is numbered 02, and the config work is renumbered build 03 (build
+  04 since review, when the developer put the rest of the wording first). The
   SQL work is no longer planned (W8). Build 01's signed-off notes keep their old numbers; W4
   and W8 above record the current destinations.
 - "Editable" means editable without JavaScript, through a template file. One JavaScript
@@ -114,4 +115,4 @@ one place: values like the default credits will then show up in the file as plac
 - **2026-11-03** — developer re-agreed amended M2, M5, C2 via /pipeline-signoff of design.
 - **2026-11-03** — development: developer dropped the second-account check. C1 was: both build 01 checks (second account sees no list; Next after a resolve); now only the Next check. Second-account check is W10, dropped. C1 proposed until re-agreed.
 - **2026-11-03** — development sign-off: developer re-agreed amended C1; C2 not built, deferred as W11 (row C2 stays in Could, verdict Not built).
-- **2026-11-03** — review: W12 (length-limit check, I1) and W13 (generic debug reset error, I4) added, destination with W11.
+- **2026-11-03** — review: W12 (length-limit check, I1) and W13 (generic debug reset error, I4) added. Developer chose build 03 = W11+W12+W13; W4 config now build 04.

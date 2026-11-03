@@ -75,7 +75,7 @@ the deployed bot is already where acceptance runs.
 
 | Issue | Evidence | Size | Outcome |
 |---|---|---|---|
-| I1 — `npm test` does not check Discord's length limits on modal titles, field labels and placeholders, or on button labels. A reword past a limit passes the tests, then that modal or list fails to open live | Limits from `@discordjs/builders`: title 45, label 45, placeholder 100, button 80. `messagesFile.test.js` has no length check. Today's longest title is 26 (Evidence) | Outside scope: a new check that M5 does not name. Nothing today is near a limit | Recommended: a new build, as W12 with W11. The developer decides |
+| I1 — `npm test` does not check Discord's length limits on modal titles, field labels and placeholders, or on button labels. A reword past a limit passes the tests, then that modal or list fails to open live | Limits from `@discordjs/builders`: title 45, label 45, placeholder 100, button 80. `messagesFile.test.js` has no length check. Today's longest title is 26 (Evidence) | Outside scope: a new check that M5 does not name. Nothing today is near a limit | New build: W12, with W11. The developer agreed |
 | I2 — `balance.other` was reworded after F5 was accepted (`29be1cf`), and no document recorded it | `git log cb162f8..HEAD -- messages.json` | Small: documents only | Recorded in [3-development.md](3-development.md). The new wording was first seen live in final acceptance 1 |
 | I3 — M4's agreed acceptance (edit `/mybets`'s item line and see every bet change) was never run | The M4 row in [3-development.md](3-development.md) | Small: a check, no code | Taken to final acceptance 2 |
 | I4 — `/debug reset` shows the raw database error to the user (`Reset failed: ${result.error}`), against CLAUDE.md's rule that error replies stay generic | `src/features/debug/buttons.js:16`; `resetDatabase` returns `err.message` | Outside scope: the debug feature, which this build did not touch. Admin-only | W13, with W11, which moves the debug messages anyway |
@@ -122,10 +122,9 @@ The candidates this build leaves, in the recommended order:
    adds an `npm test` check of Discord's length limits (W12, I1), and makes the debug reset
    reply generic (W13, I4). It goes first because it holds the build's one untested seam: the
    pinboard worker is a separate process that would read the file for the first time. The
-   developer is also now rewording, and I1 is the gap that rewording can fall into. This
-   changes the order agreed in requirements, which earmarked build 03 for configuration; the
-   developer chooses.
-2. **Configuration (W4).** The default credits, the beg limit and the donate amounts become
+   developer is also now rewording, and I1 is the gap that rewording can fall into. The
+   developer chose this order in review. Requirements had earmarked build 03 for configuration.
+2. **Build 04 — configuration (W4).** The default credits, the beg limit and the donate amounts become
    settings. It will be easier to check once every message is in the file, because those
    values show there as placeholders.
 3. **Checks never run live, for whichever build next touches them:** Next on a list left
