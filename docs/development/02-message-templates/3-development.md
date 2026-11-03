@@ -21,7 +21,7 @@ discord.js v14, Express, PostgreSQL. No new dependency in this build.
 
 | Feature | Requirements | Status |
 |---|---|---|
-| F1 — The file, its checks, `/balance`, `/balances` | M3, M5, M4, part of M1, M2 | in acceptance: tests green, waiting on the push and the live run |
+| F1 — The file, its checks, `/balance`, `/balances` | M3, M5, M4, part of M1, M2 | accepted 2026-11-03 |
 | F2 — `/mybets`, `/beg`, donate, `/changebalance`, shared denial and not-found | M1, M2, M4 | planned |
 | F3 — `/predictions` and the three modals | M7, S1, part of C1 | planned |
 | F4 — Confirmations, announcements, `betting.js` errors | M8, M1, M2, C1 | planned |
@@ -34,14 +34,17 @@ Rows are added as each feature is accepted. F1 so far:
 
 | # | Requirement | Demonstrated by | Verdict |
 |---|---|---|---|
-| M5 | `npm test` fails on a bad file, naming the line and column or the message | Broke `messages.json` three ways; `npm test` named `does not parse at line 10 column 13`, `balance.other: is missing`, and `balance.own: unknown placeholder {balanse}`; restored, `cmp` identical to the reference | Pass for the F1 messages; live push pending |
+| M5 | `npm test` fails on a bad file, naming the line and column or the message | Broke `messages.json` three ways; `npm test` named `does not parse at line 10 column 13`, `balance.other: is missing`, and `balance.own: unknown placeholder {balanse}`; restored, `cmp` identical to the reference | Pass for the F1 messages |
+| M3 | Values shown through named placeholders, listed in `uses` | `balance.*` and `balances` in `messages.json`; checker rejects an unknown placeholder (above) | Pass for the F1 messages |
+| M4 | Lists are header, item, separator, empty, each editable | `balances` list: render tests and wording test for items and the empty case | Pass for `/balances`; other lists in F2 to F4 |
+| M2 | Output identical to `cb1f8a5` | Wording tests on the reference for the 5 balance messages; `/balance`, `/balance user:@friend`, `/balances` read as before in Discord | Pass for the F1 messages |
 
 ## Manual checks
 
 | # | Check | How | Result |
 |---|---|---|---|
-| 1 | The deployed bot finds and reads the file | After the F1 push, Heroku log shows `[Messages] file=messages.json messages=4 problems=0` | Not yet run: waiting on the push |
-| 2 | Discord shows each balance message as before | `/balance`, `/balance user:@friend`, `/balances` | Not yet run |
+| 1 | The deployed bot finds and reads the file | After the F1 push, Heroku log shows `[Messages] file=messages.json messages=4 problems=0` | Pass: web.1 logged `[Messages] file=messages.json messages=4 problems=0` at 22:49:28 |
+| 2 | Discord shows each balance message as before | `/balance`, `/balance user:@friend`, `/balances` | Pass: developer saw all three as normal. `/balances` empty case is unit-tested only |
 
 ## Feedback and triage
 
@@ -75,6 +78,7 @@ Design: [2-design.md](2-design.md). Start reading at `src/lib/messages/index.js`
 
 ## Edit log
 
+- **2026-11-03** — F1 accepted live; acceptance and manual checks filled in.
 - **2026-11-03** — F1 built: message modules, `messages.json` with the balance messages,
   reference file, `/balance` and `/balances` through it; version stamped 1.2.0-alpha.
 

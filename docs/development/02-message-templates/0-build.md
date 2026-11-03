@@ -10,7 +10,7 @@ blocked_on:
 version: 1.2.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: Developer pushes main (F1 deploys live), then runs /balance, /balance user:@friend, /balances and reports; agent checks Heroku log for problems=0
+next: F2: /mybets, /beg, donate, /changebalance, shared denial and not-found
 updated: 2026-11-03
 ---
 
