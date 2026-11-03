@@ -1,7 +1,7 @@
 # Build 02 — Phase 3: Development
 
 <!-- pipeline:nav -->
-> **Build 02 — Betting messages from a template file** · Phase 3 of 5 · in progress
+> **Build 02 — Betting messages from a template file** · Phase 3 of 5 · signed off
 > [← Design](2-design.md) · [State](0-build.md) · Review → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
