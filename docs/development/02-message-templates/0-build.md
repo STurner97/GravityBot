@@ -1,14 +1,16 @@
 ---
 build: 02-message-templates
-phase: 1-requirements
-status: signed-off
+phase: 2-design
+status: awaiting-signoff
 size: standard
 format: 2
 signed_off: 1-requirements
 signed_off_by: 1-requirements=Ferby
 blocked_on: 
-gate: developer agrees the MoSCoW list, Won't-have included
-next: advance to 2-design
+version: 1.2.0-alpha
+stage: alpha
+gate: developer approves the design and feature plan, including any revised MoSCoW
+next: developer reviews the design and re-agrees amended M2, M5, C2 (P1-P3)
 updated: 2026-11-03
 ---
 
@@ -34,6 +36,9 @@ It is the change the developer wants most, build 01 proved the one-place pattern
 - **2026-11-03** — numbered 02, not the "build 03" of build 01's notes. Config work is now
   build 03; SQL work not planned. See Decisions in [1-requirements.md](1-requirements.md).
 - **2026-11-03** — pinboard and debug messages moved from Won't to Could (C2).
+- **2026-11-03** — design: developer chose JSON (no new dependency), and that a broken message
+  fails only its command while the bot keeps running. See R1 and R7 in [2-design.md](2-design.md).
+- **2026-11-03** — design proposed amendments to M2, M5 and C2 (push-back P1-P3).
 
 ## Open questions
 

@@ -2,7 +2,7 @@
 
 <!-- pipeline:nav -->
 > **Build 02 — Betting messages from a template file** · Phase 1 of 5 · signed off
-> [State](0-build.md) · Design → · [All builds](../README.md)
+> [State](0-build.md) · [Design →](2-design.md) · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
 ## The problem
@@ -37,10 +37,10 @@ one place: values like the default credits will then show up in the file as plac
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
 | M1 | Every message the betting feature sends (slash command replies, modal and button replies, error replies, button labels, and the `/predictions` list) takes its text from one template file in the repo | Read the file: every betting message is there. Search the betting code: no message text is left in JavaScript | 2026-11-03 |
-| M2 | Every message reads exactly as it does on `cb1f8a5`, character for character | A unit test per message compares the templated output with today's text; a smoke run in Discord shows no visible change | 2026-11-03 |
+| M2 | Every message reads exactly as it does on `cb1f8a5`, character for character | A unit test per message compares the output, built from a reference copy of today's wording, with today's text; the template file is byte-identical to that reference before M6 rewords anything; a smoke run in Discord shows no visible change (amended 2026-11-03) | proposed |
 | M3 | A message shows its values through named placeholders, such as `{amount}` or `{predictionId}`, which can be moved or removed in the file | Read the file: each message names the values it uses | 2026-11-03 |
 | M4 | Lists (active bets, winners, refunds, balances, predictions) are written in the file as a header, a line per item, and a message for when the list is empty, each editable on its own | Change the item line of `/mybets` in the file and see every bet in the list change | 2026-11-03 |
-| M5 | `npm test` fails, naming the message, when the file does not parse, a message the bot needs is missing, or a message uses a placeholder it is not given | Break the file each of those three ways in turn; `npm test` fails each time and names the message; restore it | 2026-11-03 |
+| M5 | `npm test` fails when the file does not parse (naming the line and column), when a message the bot needs is missing, or when a message uses a placeholder it is not given (naming the message) (amended 2026-11-03) | Break the file each of those three ways in turn; `npm test` fails each time and names the line or the message; restore it | proposed |
 | M6 | A wording change is made by editing only the template file, committing and pushing; no JavaScript changes | The developer rewords one message in the file alone, pushes, and sees the new wording live | 2026-11-03 |
 | M7 | `/predictions` keeps build 01's behaviour, including the 2000-character page limit and shortening long entries, now with its layout taken from the file | Build 01's list tests still pass; a longer entry line in the file still yields pages within the limit | 2026-11-03 |
 | M8 | The error text `betting.js` returns to users (insufficient credits, invalid option, already resolved, and the rest) also comes from the file, without changing how `betting.js` reads or writes data | Read the diff of `betting.js`: only returned text changes, no SQL or transaction code; trigger one such error live that writes nothing, chosen in design (R8) | 2026-11-03 |
@@ -57,7 +57,7 @@ one place: values like the default credits will then show up in the file as plac
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
 | C1 | Build 01's two unexercised checks, run during this build's live acceptance: a second account sees no `/predictions` list, and Next works on a list left open after a throwaway prediction is resolved | Both seen live and recorded | 2026-11-03 |
-| C2 | The pinboard and debug messages, including those the pinboard worker posts, also come from the template file, on the same terms as M1 to M5: identical output, placeholders, checked by `npm test` | Read the file: pinboard and debug messages are there; a pin and a debug command in Discord read as before | 2026-11-03 |
+| C2 | The pinboard and debug messages, including those the pinboard worker posts, and the router's channel denial, also come from the template file, on the same terms as M1 to M5: identical output, placeholders, checked by `npm test` (amended 2026-11-03) | Read the file: pinboard, debug and channel-denial messages are there; a pin and a debug command in Discord read as before | proposed |
 
 ### Won't have — in this build
 
@@ -106,3 +106,4 @@ one place: values like the default credits will then show up in the file as plac
 - **2026-11-03** — first draft from developer conversation; all rows proposed.
 - **2026-11-03** — developer moved W1 (pinboard, debug messages; was "a later build") to Could as C2; W1 retired. W8 SQL work: was build 04, now not planned. R9 added for C2.
 - **2026-11-03** — developer agreed all rows via /pipeline-signoff; M8 Must, S1 Should as drafted.
+- **2026-11-03** — design push-back P1-P3 (see [2-design.md](2-design.md)). M2 accepted-by was: unit test per message vs today's text + smoke run; now tests use reference copy, file identical before M6. M5 was: names the message in all three cases; parse error now names line/column. C2 now includes router channel denial. All three proposed.

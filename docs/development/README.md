@@ -8,12 +8,12 @@ prose below the fence, not the table.
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
 | [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
-| [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 1-requirements | signed off | — | advance to 2-design |
+| [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 2-design | awaiting sign-off | — | developer reviews the design and re-agrees amended M2, M5, C2 (P1-P3) |
 
 **By phase**
 
 - Requirements — [01](01-predictions-list-all/1-requirements.md) ✓ · [02](02-message-templates/1-requirements.md) ✓
-- Design — [01](01-predictions-list-all/2-design.md) ✓
+- Design — [01](01-predictions-list-all/2-design.md) ✓ · [02](02-message-templates/2-design.md)
 - Development — [01](01-predictions-list-all/3-development.md) ✓
 - Review — [01](01-predictions-list-all/4-review.md) ✓
 - Publish — [01](01-predictions-list-all/5-publish.md) ✓
