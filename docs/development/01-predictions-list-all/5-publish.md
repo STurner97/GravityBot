@@ -65,13 +65,13 @@ Nothing is built or packaged; there is no file to upload.
 
 The bot is installed by deploying, and `1135e21` has been live since 2026-11-03, so the
 build was accepted on the install itself. The four commits still to push change no bot
-behaviour. Rows 1 to 3 are the check after the push.
+behaviour. Rows 2 and 3 were covered by earlier acceptance, not repeated by agreement with the developer.
 
 | # | Check | Result |
 |---|---|---|
-| 1 | Developer pushes `main`; Heroku deploys `ec84fae` and the app starts | |
-| 2 | `/predictions` shows the private paged list in the expected layout | |
-| 3 | Bet on a prediction opens the modal, then cancel; no bet placed | |
+| 1 | Developer pushes `main`; Heroku deploys the docs-only commits and the app starts | Not done: `origin/main` is still `1135e21`, 5 commits behind. The developer pushes when they choose; the push changes no bot code |
+| 2 | `/predictions` shows the private paged list in the expected layout | Pass with a limit: seen by the developer on the live `1135e21` in final acceptance; developer declined a re-run after the docs-only push. Not exercised on the later commits |
+| 3 | Bet on a prediction opens the modal, then cancel; no bet placed | Pass with a limit: same as row 2. Developer confirmed no bet was placed in any acceptance step |
 
 Requirements owed to publish: none (`4-review.md`, *Requirements met*).
 
@@ -92,6 +92,8 @@ is changed by this build, so none needs restoring. A withdrawn version number is
      check requires at least one dated entry before sign-off. -->
 
 - **2026-11-03** — publish started. Version 1.1.0-alpha confirmed; install test rows await the push.
+
+- **2026-11-03** — developer: no bet placed in acceptance; install test covered by earlier testing. Rows 2-3 pass with a limit, row 1 push pending.
 
 ## Evidence
 

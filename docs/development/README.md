@@ -7,7 +7,7 @@ prose below the fence, not the table.
 
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
-| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | in progress | — | developer pushes main (git push origin main), then runs install test rows 1-3 in 5-publish.md and reports what they see |
+| [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | in progress | — | developer reviews 5-publish.md (push still pending, rows 2-3 pass with a limit) and runs /pipeline-signoff to tag build/01 + v1.1.0-alpha |
 
 **By phase**
 
