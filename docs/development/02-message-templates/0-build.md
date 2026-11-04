@@ -1,7 +1,7 @@
 ---
 build: 02-message-templates
 phase: 4-review
-status: in-progress
+status: awaiting-signoff
 size: standard
 format: 2
 signed_off: 1-requirements, 2-design, 3-development
@@ -11,8 +11,8 @@ accepted: 133bbb934aa69ebd87457c864faba835aa970549
 version: 1.2.0-alpha
 stage: alpha
 gate: documents match reality, final acceptance passed, next steps written
-next: Developer pushes main, then runs final acceptance 1 and 2 in 4-review.md; agent records results
-updated: 2026-11-03
+next: Developer signs off review: final acceptance 1-2 passed on 25d3d99; then publish on sonnet
+updated: 2026-11-04
 ---
 
 # Build 02 — Betting messages from a template file

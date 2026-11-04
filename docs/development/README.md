@@ -8,7 +8,7 @@ prose below the fence, not the table.
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
 | [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
-| [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 4-review | in progress | — | Developer pushes main, then runs final acceptance 1 and 2 in 4-review.md; agent records results |
+| [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 4-review | awaiting sign-off | — | Developer signs off review: final acceptance 1-2 passed on 25d3d99; then publish on sonnet |
 
 **By phase**
 

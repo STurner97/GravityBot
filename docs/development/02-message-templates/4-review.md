@@ -1,7 +1,7 @@
 # Build 02 — Phase 4: Review
 
 <!-- pipeline:nav -->
-> **Build 02 — Betting messages from a template file** · Phase 4 of 5 · in progress
+> **Build 02 — Betting messages from a template file** · Phase 4 of 5 · awaiting sign-off
 > [← Development](3-development.md) · [State](0-build.md) · Publish → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
@@ -15,8 +15,9 @@ until W11.
 | What | Where | State |
 |---|---|---|
 | F1 to F4 code, `186ab7a` to `eec290b` | Heroku `web` dyno, via `main` | Deployed feature by feature in development; each push confirmed by the `[Messages]` startup line |
-| Rewords: `fa43958` and `8d1ed5f` (`balance.own`), `29be1cf` (`balance.other`) | Heroku `web` dyno, via `main` | Deployed 2026-11-03. `origin/main` is `29be1cf`, so the live code is the accepted code |
-| Accepted commit `133bbb9`, sign-off `108544d`, review commits | Heroku, via `main` | Documents only. The developer pushes them before final acceptance |
+| Rewords: `fa43958` and `8d1ed5f` (`balance.own`), `29be1cf` (`balance.other`) | Heroku `web` dyno, via `main` | Deployed 2026-11-03. The code is the accepted code |
+| Accepted commit `133bbb9`, sign-off `108544d`, review commits `29e9a29` and `b8218bf` | Heroku, via `main` | Documents only. Deployed 2026-11-03 |
+| Developer's `/mybets` reword `25d3d99` | Heroku `web` dyno, via `main` | Deployed 2026-11-03 at 23:57; the code under final acceptance |
 
 **Rolling back the whole build.** Run
 `git restore --source=186ab7a^ --staged --worktree -- . ':!docs'`, commit, and push. `186ab7a`
@@ -48,9 +49,9 @@ brings the change back. No data needs restoring.
 | M1 | Every betting message from one file | Pass | Pass. A search of the betting code finds only command descriptions (W5) and SQL | — |
 | M2 | Output identical to `cb1f8a5` | Pass with a limit: the rare cases are unit-tested only | Pass with a limit, as at development. Each of the 62 messages has a wording test on the reference file. `messages.json` now differs from the reference on purpose, in `balance.own` and `balance.other` | — |
 | M3 | Named placeholders | Pass | Pass | — |
-| M4 | Lists as header, item and empty text | Pass with a limit: proven on `/balances`; the agreed check, editing `/mybets`'s item line, was not run | pending | — |
+| M4 | Lists as header, item and empty text | Pass with a limit: proven on `/balances`; the agreed check, editing `/mybets`'s item line, was not run | Pass. The agreed check was run in final acceptance 2: one edit to `myBets.item`, and every bet in `/mybets` changed | — |
 | M5 | `npm test` fails on a broken file and names the problem | Pass, shown on the F1 messages | Pass. Repeated on the full 62-message file: the line and column, `void.refunds: is missing`, and `myBets: item: unknown placeholder {amont}` (Evidence) | — |
-| M6 | A reword is an edit to the file alone | Pass | Pass. The second reword, `29be1cf`, also touched `messages.json` alone | — |
+| M6 | A reword is an edit to the file alone | Pass | Pass. The rewords `29be1cf` and `25d3d99` also touched `messages.json` alone | — |
 | M7 | `/predictions` keeps build 01's behaviour within 2000 characters | Pass | Pass. The worst-case contract test still runs on the real file | — |
 | M8 | `betting.js` errors from the file, no SQL change | Pass | Pass | — |
 | S1 | Modal text from the file | Pass | Pass | — |
@@ -88,12 +89,12 @@ No issue sends the build back to development. The build does what was agreed.
 
 ## Final acceptance
 
-Run on the deploy of the reviewed commit, after the developer pushes.
+Run on the deploy of `25d3d99`: the reviewed documents plus the developer's `/mybets` reword.
 
 | # | Check | How | Result |
 |---|---|---|---|
-| 1 | Smoke test of the main path, and both rewords live | `[Messages] ... problems=0` in the Heroku log; `/balance`, `/balance user:@friend`, `/predictions`, `/mybets` | pending |
-| 2 | M4: an edit to the list's item line changes every item | The developer edits `myBets.item` in `messages.json`, runs `npm test`, pushes, runs `/mybets` | pending |
+| 1 | Smoke test of the main path, and both rewords live | `[Messages] ... problems=0` in the Heroku log; `/balance`, `/balance user:@friend`, `/predictions`, `/mybets` | Pass. web.1 logged `[Messages] file=messages.json messages=62 problems=0` at 23:57:55. The developer saw both balance rewords live (`balance.other` for the first time) and `/predictions` as before |
+| 2 | M4: an edit to the list's item line changes every item | The developer edited `myBets.item` to `Your bet: **{option}** (💰 {amount} credits)` in `25d3d99`, which changed `messages.json` alone. `npm test` 118 pass; pushed; ran `/mybets` | Pass. The developer saw the new line on every bet |
 
 ## What this build retired
 
@@ -137,6 +138,8 @@ W2, W7 and W10.
 ## Edit log
 
 - **2026-11-03** — review: docs checked vs build, I1-I4 found, M5 repeated on full file, rollback tried in worktree; README, CLAUDE.md, build docs updated.
+- **2026-11-03** — developer: I1 to W12; build 03 = W11+W12+W13, config build 04.
+- **2026-11-03** — final acceptance 1-2 pass on deploy of 25d3d99 (mybets reword); M4 now Pass. Awaiting sign-off.
 
 ## Evidence
 
