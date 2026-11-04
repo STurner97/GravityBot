@@ -2,7 +2,7 @@
 
 <!-- pipeline:nav -->
 > **Build 02 — Betting messages from a template file** · Phase 4 of 5 · signed off
-> [← Development](3-development.md) · [State](0-build.md) · Publish → · [All builds](../README.md)
+> [← Development](3-development.md) · [State](0-build.md) · [Publish →](5-publish.md) · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
 ## Deployment

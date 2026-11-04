@@ -1,7 +1,7 @@
 ---
 build: 02-message-templates
-phase: 4-review
-status: signed-off
+phase: 5-publish
+status: in-progress
 size: standard
 format: 2
 signed_off: 1-requirements, 2-design, 3-development, 4-review
@@ -10,8 +10,8 @@ blocked_on:
 accepted: 133bbb934aa69ebd87457c864faba835aa970549
 version: 1.2.0-alpha
 stage: alpha
-gate: documents match reality, final acceptance passed, next steps written
-next: advance to 5-publish
+gate: developer confirms the distributable installs and runs; version and stage recorded, or nothing to publish
+next: the developer confirms install-test rows 1 to 3 in 5-publish.md
 updated: 2026-11-04
 ---
 

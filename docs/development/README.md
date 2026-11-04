@@ -8,7 +8,7 @@ prose below the fence, not the table.
 | Build | Phase | Status | Blocked | Next |
 |---|---|---|---|---|
 | [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
-| [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 4-review | signed off | — | advance to 5-publish |
+| [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 5-publish | in progress | — | write the publish document |
 
 **By phase**
 
@@ -16,7 +16,7 @@ prose below the fence, not the table.
 - Design — [01](01-predictions-list-all/2-design.md) ✓ · [02](02-message-templates/2-design.md) ✓
 - Development — [01](01-predictions-list-all/3-development.md) ✓ · [02](02-message-templates/3-development.md) ✓
 - Review — [01](01-predictions-list-all/4-review.md) ✓ · [02](02-message-templates/4-review.md) ✓
-- Publish — [01](01-predictions-list-all/5-publish.md) ✓
+- Publish — [01](01-predictions-list-all/5-publish.md) ✓ · [02](02-message-templates/5-publish.md)
 
 ✓ marks a phase the developer has signed off.
 
