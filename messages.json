@@ -13,7 +13,7 @@
     },
     "other": {
       "uses": "{userId} {balance}",
-      "text": "<@{userId}> has 💰 **{balance}** Credits."
+      "text": "<@{userId}> has 💰 **{balance}** Credit(s)."
     },
     "invalidUser": "❌ Invalid user format. Please tag a user or use \"_all\"."
   },
@@ -21,7 +21,7 @@
     "header": ["💰 **All Balances:**", "", ""],
     "item": {
       "uses": "{userId} {balance}",
-      "text": ["<@{userId}>: **{balance}** credits", ""]
+      "text": ["<@{userId}>: **{balance}** Credit(s)", ""]
     },
     "empty": "💰 Everyone has the default balance (1000 credits)."
   },
@@ -41,7 +41,7 @@
         "✅ Bet placed!",
         "",
         "**Prediction #{predictionId}:** {question}",
-        "<@{userId}> bet **{amount}** credits on: **{option}**"
+        "<@{userId}> bet **{amount}** Credit(s) on: **{option}**"
       ]
     },
     "alreadyResolved": {
@@ -90,7 +90,7 @@
     "set": {
       "uses": "{amount} {userId} {oldBalance} {newBalance}",
       "text": [
-        "✅ set to {amount} credits for <@{userId}>'s balance.",
+        "✅ set to {amount} Credit(s) for <@{userId}>'s balance.",
         "**Old balance:** {oldBalance}",
         "**New balance:** {newBalance}"
       ]
@@ -98,7 +98,7 @@
     "add": {
       "uses": "{amount} {userId} {oldBalance} {newBalance}",
       "text": [
-        "✅ {amount} credits added to <@{userId}>'s balance.",
+        "✅ {amount} Credit(s) added to <@{userId}>'s balance.",
         "**Old balance:** {oldBalance}",
         "**New balance:** {newBalance}"
       ]
@@ -106,7 +106,7 @@
     "remove": {
       "uses": "{amount} {userId} {oldBalance} {newBalance}",
       "text": [
-        "✅ {amount} credits removed from <@{userId}>'s balance.",
+        "✅ {amount} Credit(s) removed from <@{userId}>'s balance.",
         "**Old balance:** {oldBalance}",
         "**New balance:** {newBalance}"
       ]
@@ -126,7 +126,7 @@
       "text": [
         "**ID {predictionId}:** {question}",
         "**Options:** {options}",
-        "{betCount} bet(s), totalling 💰 {totalCredits} Credits",
+        "{betCount} bet(s), totalling 💰 {totalCredits} Credit(s)",
         "",
         ""
       ]
@@ -202,7 +202,7 @@
         "**Options:**",
         "{options}",
         "",
-        "<@{userId}> bet **{amount}** credits on: **{choice}**",
+        "<@{userId}> bet **{amount}** Credit(s) on: **{choice}**",
         "",
         "Others can bet using `/bet {predictionId}` or `/predictions`!"
       ]
@@ -216,7 +216,7 @@
         "",
         "**Question:** {question}",
         "**Outcome:** {outcome}",
-        "**Total Pot:** {totalPot} credits",
+        "**Total Pot:** {totalPot} Credit(s)",
         "",
         "{results}"
       ]
@@ -225,7 +225,7 @@
       "header": ["🎉 **Winners:**", ""],
       "item": {
         "uses": "{userId} {winnings} {profit}",
-        "text": ["<@{userId}> won **{winnings}** credits (profit: **{profit}**)", ""]
+        "text": ["<@{userId}> won **{winnings}** Credit(s) (profit: **{profit}**)", ""]
       },
       "empty": "❌ No winners. All bets lost."
     }
@@ -237,7 +237,7 @@
         "✅ **Prediction #{predictionId} Voided!**",
         "",
         "**Question:** {question}",
-        "**Total Pot Returned:** {totalPot} credits",
+        "**Total Pot Returned:** {totalPot} Credit(s)",
         "",
         "{refunds}"
       ]
@@ -246,7 +246,7 @@
       "header": ["💸 **Refunds:**", ""],
       "item": {
         "uses": "{userId} {amount}",
-        "text": ["<@{userId}> received **{amount}** credits back", ""]
+        "text": ["<@{userId}> received **{amount}** Credit(s) back", ""]
       },
       "empty": "💸 No bets to refund."
     }
@@ -254,11 +254,11 @@
   "bettingErrors": {
     "insufficientCredits": {
       "uses": "{balance}",
-      "text": "❌ Insufficient credits. You have {balance} credits."
+      "text": "❌ Insufficient credits. You have {balance} Credit(s)."
     },
     "negativeBalance": {
       "uses": "{balance}",
-      "text": "❌ Cannot set negative balance. User has {balance} credits."
+      "text": "❌ Cannot set negative balance. User has {balance} Credit(s)."
     },
     "duplicateOptions": "❌ Options must be unique (duplicates found).",
     "tooFewOptions": "❌ You must provide at least 2 options.",
