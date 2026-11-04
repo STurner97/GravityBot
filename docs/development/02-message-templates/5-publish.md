@@ -1,7 +1,7 @@
 # Build 02 — Phase 5: Publish
 
 <!-- pipeline:nav -->
-> **Build 02 — Betting messages from a template file** · Phase 5 of 5 · in progress
+> **Build 02 — Betting messages from a template file** · Phase 5 of 5 · signed off
 > [← Review](4-review.md) · [State](0-build.md) · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
