@@ -11,7 +11,7 @@ accepted: 133bbb934aa69ebd87457c864faba835aa970549
 version: 1.2.0-alpha
 stage: alpha
 gate: documents match reality, final acceptance passed, next steps written
-next: Developer signs off review: final acceptance 1-2 passed on 25d3d99; then publish on sonnet
+next: Developer pushes main (Credit(s) reword), then signs off review; publish on sonnet
 updated: 2026-11-04
 ---
 

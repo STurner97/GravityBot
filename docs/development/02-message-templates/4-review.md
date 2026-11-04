@@ -17,7 +17,8 @@ until W11.
 | F1 to F4 code, `186ab7a` to `eec290b` | Heroku `web` dyno, via `main` | Deployed feature by feature in development; each push confirmed by the `[Messages]` startup line |
 | Rewords: `fa43958` and `8d1ed5f` (`balance.own`), `29be1cf` (`balance.other`) | Heroku `web` dyno, via `main` | Deployed 2026-11-03. The code is the accepted code |
 | Accepted commit `133bbb9`, sign-off `108544d`, review commits `29e9a29` and `b8218bf` | Heroku, via `main` | Documents only. Deployed 2026-11-03 |
-| Developer's `/mybets` reword `25d3d99` | Heroku `web` dyno, via `main` | Deployed 2026-11-03 at 23:57; the code under final acceptance |
+| Developer's `/mybets` rewords `25d3d99`, `826cddd` | Heroku `web` dyno, via `main` | Deployed 2026-11-03 at 23:57; the code under final acceptance 1 and 2 |
+| `Credit(s)` reword `a1e4fd3`, asked for by the developer in review | Heroku `web` dyno, via `main` | The developer pushes it; final acceptance 3 |
 
 **Rolling back the whole build.** Run
 `git restore --source=186ab7a^ --staged --worktree -- . ':!docs'`, commit, and push. `186ab7a`
@@ -51,7 +52,7 @@ brings the change back. No data needs restoring.
 | M3 | Named placeholders | Pass | Pass | — |
 | M4 | Lists as header, item and empty text | Pass with a limit: proven on `/balances`; the agreed check, editing `/mybets`'s item line, was not run | Pass. The agreed check was run in final acceptance 2: one edit to `myBets.item`, and every bet in `/mybets` changed | — |
 | M5 | `npm test` fails on a broken file and names the problem | Pass, shown on the F1 messages | Pass. Repeated on the full 62-message file: the line and column, `void.refunds: is missing`, and `myBets: item: unknown placeholder {amont}` (Evidence) | — |
-| M6 | A reword is an edit to the file alone | Pass | Pass. The rewords `29be1cf` and `25d3d99` also touched `messages.json` alone | — |
+| M6 | A reword is an edit to the file alone | Pass | Pass. The rewords `29be1cf`, `25d3d99`, `826cddd` and `a1e4fd3` also touched `messages.json` alone | — |
 | M7 | `/predictions` keeps build 01's behaviour within 2000 characters | Pass | Pass. The worst-case contract test still runs on the real file | — |
 | M8 | `betting.js` errors from the file, no SQL change | Pass | Pass | — |
 | S1 | Modal text from the file | Pass | Pass | — |
@@ -89,12 +90,13 @@ No issue sends the build back to development. The build does what was agreed.
 
 ## Final acceptance
 
-Run on the deploy of `25d3d99`: the reviewed documents plus the developer's `/mybets` reword.
+Run on the deploy of `826cddd`: the reviewed documents plus the developer's `/mybets` rewords.
 
 | # | Check | How | Result |
 |---|---|---|---|
 | 1 | Smoke test of the main path, and both rewords live | `[Messages] ... problems=0` in the Heroku log; `/balance`, `/balance user:@friend`, `/predictions`, `/mybets` | Pass. web.1 logged `[Messages] file=messages.json messages=62 problems=0` at 23:57:55. The developer saw both balance rewords live (`balance.other` for the first time) and `/predictions` as before |
-| 2 | M4: an edit to the list's item line changes every item | The developer edited `myBets.item` to `Your bet: **{option}** (💰 {amount} credits)` in `25d3d99`, which changed `messages.json` alone. `npm test` 118 pass; pushed; ran `/mybets` | Pass. The developer saw the new line on every bet |
+| 2 | M4: an edit to the list's item line changes every item | The developer edited `myBets.item` in `25d3d99` and `826cddd`, to `Your bet: **{option}** (💰 {amount} Credit(s))`, each changing `messages.json` alone. `npm test` 118 pass; pushed; ran `/mybets` | Pass. The developer saw the new line on every bet |
+| 3 | `Credit(s)` on every count that has no plural form: 14 lines in `messages.json`, made in review at the developer's request (`a1e4fd3`) | `npm test`: 118 pass, including the `/predictions` page budget on the longer entry line. The developer chose not to test it further live | Pass with a limit: checked by `npm test` only. Not looked at in Discord, by the developer's choice |
 
 ## What this build retired
 
@@ -139,7 +141,8 @@ W2, W7 and W10.
 
 - **2026-11-03** — review: docs checked vs build, I1-I4 found, M5 repeated on full file, rollback tried in worktree; README, CLAUDE.md, build docs updated.
 - **2026-11-03** — developer: I1 to W12; build 03 = W11+W12+W13, config build 04.
-- **2026-11-03** — final acceptance 1-2 pass on deploy of 25d3d99 (mybets reword); M4 now Pass. Awaiting sign-off.
+- **2026-11-03** — final acceptance 1-2 pass on deploy of 826cddd (mybets rewords 25d3d99, 826cddd); M4 now Pass. Awaiting sign-off.
+- **2026-11-04** — developer asked for `Credit(s)` on counts; 14 lines reworded in a1e4fd3, npm test only (developer's choice). FA3 added.
 
 ## Evidence
 
