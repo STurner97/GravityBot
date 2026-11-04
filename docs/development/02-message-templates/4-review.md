@@ -90,7 +90,8 @@ No issue sends the build back to development. The build does what was agreed.
 
 ## Final acceptance
 
-Run on the deploy of `826cddd`: the reviewed documents plus the developer's `/mybets` rewords.
+Checks 1 and 2 ran on the deploy of `826cddd`: the reviewed documents plus the developer's
+`/mybets` rewords. Check 3 covers the review's last change, `a1e4fd3`, which is wording only.
 
 | # | Check | How | Result |
 |---|---|---|---|
