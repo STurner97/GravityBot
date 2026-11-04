@@ -68,8 +68,8 @@ requirement id needs a row here.
 
 | # | Check | Result |
 |---|---|---|
-| 1 | Heroku is running the release built from `f8be73f` (Activity tab) | pending |
-| 2 | The web dyno log shows `[Messages] file=messages.json messages=62 problems=0` for that release | pending |
+| 1 | Heroku is running a release built from the reviewed code (Activity tab) | Pass with a limit: release v69, `Deploy 2f554ae4`, build succeeded at 00:12:25. That is the docs commit after `f8be73f`, so the code is the reviewed code. A deploy over the running app, not a clean install |
+| 2 | The web dyno log shows `[Messages] file=messages.json messages=62 problems=0` for that release | Pass with a limit: web.1 logged it at 00:12:31, then `Listening on port 8811` and `up`. The worker logged in as GravityBot#7124 and loads no messages until W11 |
 | 3 | `/balance` and `/predictions` answer in Discord with the reworded text | pending |
 
 
@@ -85,7 +85,8 @@ so no data needs restoring.
 
 ## Edit log
 
-- **2026-11-04** — publish: 1.2.0-alpha confirmed; notes and install test written; rows pending developer.
+- **2026-11-04** — publish: 1.2.0-alpha confirmed; notes and install test written.
+- **2026-11-04** — install rows 1-2 recorded from developer's Heroku log (v69, 2f554ae); row 3 pending.
 
 ## Evidence
 
