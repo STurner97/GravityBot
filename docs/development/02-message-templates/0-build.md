@@ -1,17 +1,17 @@
 ---
 build: 02-message-templates
 phase: 4-review
-status: awaiting-signoff
+status: signed-off
 size: standard
 format: 2
-signed_off: 1-requirements, 2-design, 3-development
-signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby
+signed_off: 1-requirements, 2-design, 3-development, 4-review
+signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby, 4-review=Ferby
 blocked_on: 
 accepted: 133bbb934aa69ebd87457c864faba835aa970549
 version: 1.2.0-alpha
 stage: alpha
 gate: documents match reality, final acceptance passed, next steps written
-next: Developer pushes main (Credit(s) reword), then signs off review; publish on sonnet
+next: advance to 5-publish
 updated: 2026-11-04
 ---
 
