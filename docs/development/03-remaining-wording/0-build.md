@@ -10,7 +10,7 @@ version: 1.3.0-alpha
 stage: alpha
 blocked_on: 
 gate: developer approves the design and feature plan, including any revised MoSCoW
-next: developer reviews the design (F1–F4, 1.3.0-alpha) and answers O5, then signs off
+next: developer reviews the design (F1–F4, 1.3.0-alpha) and signs it off
 updated: 2026-11-13
 ---
 
@@ -45,7 +45,7 @@ reading the file, and closes the length-limit gap now that the developer rewords
 | O2 | Generic error wording: keep `❌ Reset failed.` and `❌ Failed to force pin.`? | answered: kept |
 | O3 | Debug and pinboard reuse `denied.admin`, `prediction.notFound`, `optionList` (recommended), or keep their own copies? | answered: reuse |
 | O4 | Is `ALLOWED_CHANNEL_IDS` set on Heroku, so the channel denial can be seen live? | answered: set; recorded in `docs/project.md` |
-| O5 | Run forcepin's happy path live on a test message, or leave it to tests (recommended)? | open, at design sign-off |
+| O5 | Run forcepin's happy path live on a test message, or leave it to tests (recommended)? | answered: tests only |
 
 ## Notes for whoever picks this up
 

@@ -322,7 +322,7 @@ a live check instead:
 |---|---|---|
 | `worker/index.js`: client setup, listeners, `clientReady` | Wires Discord's gateway events to `reportFailures(handleReactionChange)` | F1: login line, no warning, a pin re-rendered |
 | `helpers.js`: `publishOrUpdatePin`'s `send` and `edit` | Hands the built payload to discord.js | F1: the re-rendered pin post |
-| Forcepin's `DiscordRequest` calls | `GET` the source message, `POST` the pin | F3: the failing link; the happy path is not run live (see open question 5) |
+| Forcepin's `DiscordRequest` calls | `GET` the source message, `POST` the pin | F3: the failing link; the happy path is not run live (decision 5) |
 | Handler reply wiring in `pinboard/handlers.js`, `debug/handlers.js`, `buttons.js`, `modals.js`, `router.js` | Passes builder output to `ephemeral`, `modal` | F2 and F3 smoke runs |
 | Heroku's worker dyno | Runs the worker from the same slug | F1: the worker's `[Messages]` line |
 
@@ -377,17 +377,14 @@ written. The work is larger, not different.
    `optionList` with betting. A reword of one changes both, as intended.
 4. **Channel denial:** `ALLOWED_CHANNEL_IDS` is set on Heroku, so the denial is checked live in
    F3.
-
-## Open questions for the developer
-
-5. **Forcepin happy path.** Run it live on a test message, which leaves a "📌 1 Pin (forced)"
-   post that friends see until the source message is deleted? Or leave it to wording and
-   embed tests? Recommended: leave it, because the embed is the one F1 checks live.
+5. **Forcepin's success path** is left to the wording and pin-post tests, not run live. F1
+   checks the same pin post live, and a live forcepin would leave a post friends see.
 
 ## Edit log
 
 - **2026-11-13** — first draft: research R1–R7 with evidence, design, F1–F4, 1.3.0-alpha; awaiting signoff.
 - **2026-11-13** — O1–O4 answered by developer: post nothing on broken pin, generic texts kept, reuse shared messages, `ALLOWED_CHANNEL_IDS` set so denial checked live in F3.
+- **2026-11-13** — O5 answered: forcepin happy path left to tests; open-questions section removed.
 
 ## Evidence
 
