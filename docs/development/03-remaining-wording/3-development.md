@@ -31,16 +31,16 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 
 | # | Requirement | Demonstrated by | Verdict |
 |---|---|---|---|
-| M3 | The worker reads `messages.json` and checks it at startup | `pinboardEmbed.js` imports the messages module; the worker imports it too. Locally the worker's import path logs `[Messages] … messages=66 problems=0`. Live: not yet | not yet run |
+| M3 | The worker reads `messages.json` and checks it at startup | `pinboardEmbed.js` imports the messages module; the worker imports it too. Live worker log: `[Messages] file=messages.json messages=66 problems=0` at 14:44:46. Login line not yet seen | Pass with a limit |
 | M4 | A broken pin message fails only that post | `helpers.test.js`: with a broken `text`, `buildPostPayload` and `publishOrUpdatePin` throw and a fake channel's `send` and `edit` are never called. `reportFailures.test.js`: the failure is logged and not thrown | Pass (unit); live not exercised |
-| S1 | The worker listens for `clientReady` | `Events.ClientReady` in `worker/index.js`. Live: no `DeprecationWarning` in the worker log | not yet run |
+| S1 | The worker listens for `clientReady` | `Events.ClientReady` in `worker/index.js`. Live: no `DeprecationWarning` in the worker log, not yet seen | not yet run |
 
 ## Manual checks
 
 | # | Check | How | Result |
 |---|---|---|---|
-| F1.1 | Worker boot log | After push: `heroku logs --dyno worker` shows `[Messages] … messages=66 problems=0` and the login line, no `DeprecationWarning` | not yet run |
-| F1.2 | A pin re-renders from the file | The developer adds 📌 to a message on the pinboard that someone else wrote, sees "N+1 Pins", then removes the reaction | not yet run |
+| F1.1 | Worker boot log | After push: `heroku logs --dyno worker` shows `[Messages] … messages=66 problems=0` and the login line, no `DeprecationWarning` | `[Messages]` line seen (`messages=66 problems=0`); login line and absence of the warning not yet confirmed |
+| F1.2 | A pin re-renders from the file | The developer adds 📌 to a message on the pinboard that someone else wrote, sees "N+1 Pins", then removes the reaction | Pass: developer reports the pin looks fine. Edit path only; the `send` path waits for a real pin |
 
 ## Feedback and triage
 
@@ -82,5 +82,7 @@ None yet.
      check requires at least one dated entry before sign-off. -->
 
 - **2026-11-13** — F1 built test-first: pin post, worker failure wrapper, `clientReady`, 1.3.0-alpha stamped.
+
+- **2026-11-13** — F1 live: `[Messages]` line and pin re-render seen; login line and warning check pending.
 
 ## Evidence
