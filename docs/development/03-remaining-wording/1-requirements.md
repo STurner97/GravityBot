@@ -1,7 +1,7 @@
 # Build 03 — Phase 1: Requirements
 
 <!-- pipeline:nav -->
-> **Build 03 — Pinboard, debug and channel-denial messages from the template file** · Phase 1 of 5 · in progress
+> **Build 03 — Pinboard, debug and channel-denial messages from the template file** · Phase 1 of 5 · signed off
 > [State](0-build.md) · Design → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
@@ -44,20 +44,20 @@ once every message is in the file, because its values show there as placeholders
 
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
-| M1 | Every message the pinboard, debug and router features show users takes its text from `messages.json`: `/pinboard` replies, the pin post the worker makes (its "📌 N Pins" heading and "Posted by" field) and the forced pin, `/debug` replies, its SQL modal and its reset buttons, and the channel denial | Read the file: each of those messages is there. Search those features' code: no user text left in JavaScript, apart from W2 and W9 | proposed |
-| M2 | Every moved message reads exactly as on `11f4e9e`, character for character | A wording test per message, built from a frozen reference copy of today's wording. A smoke run in Discord shows no change: a real pin, `/pinboard whitelist_list`, a read-only `/debug` command, the reset prompt cancelled, and the channel denial | proposed |
-| M3 | The pinboard worker reads the same `messages.json` as the web process, and checks it at startup the way the web process does | After deploy, the worker's Heroku log shows its `[Messages] … problems=0` line, and the next real pin posts as before | proposed |
-| M4 | A broken pinboard message in the deployed file fails only the posts that use it. The worker keeps running and logs the problem | Unit test: a worker given a broken pin message logs the problem and posts nothing for that pin, without crashing. Design chooses the exact behaviour | proposed |
-| M5 | `npm test` fails when a message is longer than Discord allows where it is shown: modal title, field label, placeholder, button label, and embed author and field text. It names the message and the limit | Lengthen one modal title past the limit; `npm test` fails and names it; restore it | proposed |
-| M6 | `/debug reset` shows a generic error if the reset fails. The full error goes to the log | A unit test makes the reset fail: the reply is generic and the log line holds the error. Not triggered live: a real reset empties every table | proposed |
-| M7 | `/pinboard forcepin` shows a generic error if the force pin fails. The full error goes to the log | Live: forcepin on the link to a message that does not exist. The reply is generic, the log holds the error, and nothing is posted | proposed |
-| M8 | The unused root `pinboard.js` is deleted | A search shows nothing imported it; `npm test` passes; the bot runs after deploy | proposed |
+| M1 | Every message the pinboard, debug and router features show users takes its text from `messages.json`: `/pinboard` replies, the pin post the worker makes (its "📌 N Pins" heading and "Posted by" field) and the forced pin, `/debug` replies, its SQL modal and its reset buttons, and the channel denial | Read the file: each of those messages is there. Search those features' code: no user text left in JavaScript, apart from W2 and W9 | 2026-11-13 |
+| M2 | Every moved message reads exactly as on `11f4e9e`, character for character | A wording test per message, built from a frozen reference copy of today's wording. A smoke run in Discord shows no change: a real pin, `/pinboard whitelist_list`, a read-only `/debug` command, the reset prompt cancelled, and the channel denial | 2026-11-13 |
+| M3 | The pinboard worker reads the same `messages.json` as the web process, and checks it at startup the way the web process does | After deploy, the worker's Heroku log shows its `[Messages] … problems=0` line, and the next real pin posts as before | 2026-11-13 |
+| M4 | A broken pinboard message in the deployed file fails only the posts that use it. The worker keeps running and logs the problem | Unit test: a worker given a broken pin message logs the problem and posts nothing for that pin, without crashing. Design chooses the exact behaviour | 2026-11-13 |
+| M5 | `npm test` fails when a message is longer than Discord allows where it is shown: modal title, field label, placeholder, button label, and embed author and field text. It names the message and the limit | Lengthen one modal title past the limit; `npm test` fails and names it; restore it | 2026-11-13 |
+| M6 | `/debug reset` shows a generic error if the reset fails. The full error goes to the log | A unit test makes the reset fail: the reply is generic and the log line holds the error. Not triggered live: a real reset empties every table | 2026-11-13 |
+| M7 | `/pinboard forcepin` shows a generic error if the force pin fails. The full error goes to the log | Live: forcepin on the link to a message that does not exist. The reply is generic, the log holds the error, and nothing is posted | 2026-11-13 |
+| M8 | The unused root `pinboard.js` is deleted | A search shows nothing imported it; `npm test` passes; the bot runs after deploy | 2026-11-13 |
 
 ### Should have
 
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
-| S1 | The pinboard worker listens for `clientReady`, not the deprecated `ready` | After deploy, the worker log has its login line and no `DeprecationWarning` | proposed |
+| S1 | The pinboard worker listens for `clientReady`, not the deprecated `ready` | After deploy, the worker log has its login line and no `DeprecationWarning` | 2026-11-13 |
 
 ### Could have
 
@@ -103,3 +103,4 @@ once every message is in the file, because its values show there as placeholders
 ## Edit log
 
 - **2026-11-13** — first draft from build 02 candidates and developer answers (size, forcepin, identical wording, pin post in scope); all rows proposed.
+- **2026-11-13** — developer agreed all rows via /pipeline-signoff; W9 as drawn; M4's broken-message behaviour left to design.

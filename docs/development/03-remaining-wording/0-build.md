@@ -1,13 +1,14 @@
 ---
 build: 03-remaining-wording
 phase: 1-requirements
-status: awaiting-signoff
+status: signed-off
 size: standard
 format: 2
-signed_off: 
+signed_off: 1-requirements
+signed_off_by: 1-requirements=Ferby
 blocked_on: 
 gate: developer agrees the MoSCoW list, Won't-have included
-next: the developer agrees the MoSCoW list in 1-requirements.md, Won't-have included
+next: advance to 2-design
 updated: 2026-11-13
 ---
 
