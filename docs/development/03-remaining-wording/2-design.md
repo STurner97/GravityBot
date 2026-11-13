@@ -1,7 +1,7 @@
 # Build 03 — Phase 2: Design
 
 <!-- pipeline:nav -->
-> **Build 03 — Pinboard, debug and channel-denial messages from the template file** · Phase 2 of 5 · awaiting sign-off
+> **Build 03 — Pinboard, debug and channel-denial messages from the template file** · Phase 2 of 5 · signed off
 > [← Requirements](1-requirements.md) · [State](0-build.md) · Development → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
@@ -385,6 +385,7 @@ written. The work is larger, not different.
 - **2026-11-13** — first draft: research R1–R7 with evidence, design, F1–F4, 1.3.0-alpha; awaiting signoff.
 - **2026-11-13** — O1–O4 answered by developer: post nothing on broken pin, generic texts kept, reuse shared messages, `ALLOWED_CHANNEL_IDS` set so denial checked live in F3.
 - **2026-11-13** — O5 answered: forcepin happy path left to tests; open-questions section removed.
+- **2026-11-13** — developer approved the design via /pipeline-signoff.
 
 ## Evidence
 
