@@ -24,6 +24,15 @@ branch until it is meant to be deployed. Publishing a version is that deploy plu
 | publish | git push origin main |
 | docs | [README.md](../README.md), [CLAUDE.md](../CLAUDE.md) |
 
+## Production configuration
+
+Heroku's config vars, as the developer confirmed on 2026-11-13: `ADMIN_IDS`,
+`ALLOWED_CHANNEL_IDS`, `APP_ID`, `DATABASE_URL`, `DISCORD_TOKEN`,
+`PINBOARD_MESSAGE_CONTENT_INTENT` and `PUBLIC_KEY`. That is every variable in the README's
+[Environment variables](../README.md#environment-variables) table, which says what each one does.
+`PORT` is set by Heroku itself. Because `ALLOWED_CHANNEL_IDS` is set, the bot answers only in the
+listed channels and denies use anywhere else. Values are secrets and are never written down here.
+
 ## Ground rules
 
 - **Live data is not touched**, prediction bets above all. Anything that could change or delete

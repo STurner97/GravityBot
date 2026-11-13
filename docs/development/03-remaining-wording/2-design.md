@@ -108,8 +108,9 @@ shown in a limited place carries `shownAs` (see *Technical integration*).
 - **Pinboard config:** `whitelist_add` of a channel already on the list changes nothing
   (`ON CONFLICT DO NOTHING`) and shows the "Added" reply. `setchannel` and `whitelist_remove`
   change live config and are proven by wording tests only.
-- **Channel denial:** it shows only when `ALLOWED_CHANNEL_IDS` is set on Heroku. Whether it is
-  set is open question 4.
+- **Channel denial:** it shows only when `ALLOWED_CHANNEL_IDS` is set. The developer confirmed
+  it is set on Heroku (see `docs/project.md`), so a command in a channel off the list shows it
+  and reads nothing.
 
 ### R7 — `clientReady`
 
@@ -233,7 +234,7 @@ the 9 new ones marked below.
 | `pinboard.forcepin.invalidUrl` | text | reply | `❌ Invalid message URL format. Right-click…` |
 | `pinboard.forcepin.noTarget` | text | reply | `❌ Pinboard target channel not set.` |
 | `pinboard.forcepin.done` | `pinUrl` | reply | `✅ Force pinned message: …` |
-| `pinboard.forcepin.failed` | text, no values | reply | **New**: `❌ Failed to force pin.` (open question 2) |
+| `pinboard.forcepin.failed` | text, no values | reply | **New**: `❌ Failed to force pin.` (agreed) |
 | `pinboard.post.heading` | plural `count` | embed author | `📌 1 Pin` / `📌 N Pins` |
 | `pinboard.post.forcedHeading` | text | embed author | `📌 1 Pin (forced)` |
 | `pinboard.post.postedByName` | text | embed field name | `Posted by` |
@@ -258,7 +259,7 @@ the 9 new ones marked below.
 | `debug.reset.cancelButton` | text | button label | `Cancel` |
 | `debug.reset.cancelled` | text | reply | `✋ Reset cancelled.` |
 | `debug.reset.done` | text | reply | `💥 **Database reset complete!** All tables truncated.` |
-| `debug.reset.failed` | text, no values | reply | **New**: `❌ Reset failed.` (open question 2) |
+| `debug.reset.failed` | text, no values | reply | **New**: `❌ Reset failed.` (agreed) |
 | `debug.sqlModal.title` | text | modal title | `Execute SQL Query` |
 | `debug.sqlModal.queryLabel` | text | input label | `SQL Query` |
 | `debug.sqlModal.queryPlaceholder` | text | input placeholder | `SELECT * FROM users;` |
@@ -307,7 +308,7 @@ Accepting a feature includes reading the Heroku log for both dynos.
 |---|---|---|---|
 | **F1 — The pin post from the file.** The riskiest seam: the worker reads `messages.json` | M3, M4, S1; M1 and M2 for the four `pinboard.post.*` messages | Wording tests for `pinboard.post.*`. `buildPinboardEmbed` with `referenceText` equals today's embed object for counts 0, 1 and 3 and for a forced pin. With a broken `text`, `buildPostPayload` throws and a fake channel's `send` and `edit` are never called. `reportFailures` logs the event name and the error, and resolves | Push. The worker's log shows `[Messages] … problems=0` and its login line, with no `DeprecationWarning`. The developer adds 📌 to a message already on the pinboard that someone else wrote: the post re-renders as "N+1 Pins", the same as before. Removing the reaction restores it. The friends' next real pin posts as before |
 | **F2 — Debug from the file, with a generic reset error** | M1 and M2 for `debug.*`; M6 | Wording tests per `debug.*` message. The four reply formatters, the reset prompt, the SQL modal and the SQL result each equal today's output for fixed data. A failing injected reset gives `debug.reset.failed`, and the logged error is the thrown object | Push. `/debug stats`, `/debug recent` and `/debug prediction <id>` read as before. `/debug user` is run on the developer only. Open the SQL modal and submit `SELECT 1 AS one`. Run `/debug reset` and press **Cancel**; never **Yes** |
-| **F3 — Pinboard replies, generic forcepin error, channel denial** | M1 and M2 for the remaining `pinboard.*` and `denied.channel`; M7 | Wording tests per message. `formatWhitelist` matches today's output, with and without channels and target. `pinboard.forcepin.failed` declares no values | Push. `/pinboard whitelist_list`. `whitelist_add` on a channel already listed (no change). Forcepin `not a link` gives the format error. Forcepin on a link to a real channel with a made-up message id gives the generic error, the log holds Discord's error, and nothing is posted. The channel denial in a channel off the list, if `ALLOWED_CHANNEL_IDS` is set |
+| **F3 — Pinboard replies, generic forcepin error, channel denial** | M1 and M2 for the remaining `pinboard.*` and `denied.channel`; M7 | Wording tests per message. `formatWhitelist` matches today's output, with and without channels and target. `pinboard.forcepin.failed` declares no values | Push. `/pinboard whitelist_list`. `whitelist_add` on a channel already listed (no change). Forcepin `not a link` gives the format error. Forcepin on a link to a real channel with a made-up message id gives the generic error, the log holds Discord's error, and nothing is posted. The channel denial: any command in a channel off the list |
 | **F4 — Length limits and the dead file** | M5, M8 | `checkLengths` on fixtures: an over-long modal title, label, placeholder, button label (each plural form), embed author, field name and value. Each is reported with the message's name and the limit; a placeholder without a sample is a problem. The real file passes | Locally: lengthen `predictModal.title` past 45, `npm test` fails naming it and the limit, restore it. `pinboard.js` deleted; `npm test` passes; push; both dynos start |
 
 The final search for M1 runs at the end of F3, after the last message has moved.
@@ -367,20 +368,18 @@ The inventory is larger than the requirements estimated, about 70 strings rather
 because the debug inspection replies were counted as single strings. M1 covers them as
 written. The work is larger, not different.
 
+## Decisions at the design review
+
+1. **M4:** a broken pin message posts nothing and is logged. There is no built-in fallback.
+2. **Generic errors:** `❌ Reset failed.` and `❌ Failed to force pin.`, today's text with the
+   raw error removed.
+3. **Reuse:** `/debug` and `/pinboard` share `denied.admin`, `prediction.notFound` and
+   `optionList` with betting. A reword of one changes both, as intended.
+4. **Channel denial:** `ALLOWED_CHANNEL_IDS` is set on Heroku, so the denial is checked live in
+   F3.
+
 ## Open questions for the developer
 
-These are put at the sign-off and recorded in the state file:
-
-1. **M4.** A broken pin message: post nothing and log (recommended), or fall back to built-in
-   text?
-2. **The two generic errors.** `❌ Reset failed.` and `❌ Failed to force pin.`: today's text
-   with the raw error removed. They are the only new wording in the build. Keep them, or
-   reword them?
-3. **Reuse.** `/debug` and `/pinboard` reuse `denied.admin`, `prediction.notFound` and
-   `optionList`, so a reword of those changes betting and debug together. Recommended: reuse,
-   because they mean the same thing. The alternative is separate debug copies.
-4. **Channel denial.** Is `ALLOWED_CHANNEL_IDS` set on Heroku? If not, the denial cannot be
-   seen live, and it rests on its wording test.
 5. **Forcepin happy path.** Run it live on a test message, which leaves a "📌 1 Pin (forced)"
    post that friends see until the source message is deleted? Or leave it to wording and
    embed tests? Recommended: leave it, because the embed is the one F1 checks live.
@@ -388,6 +387,7 @@ These are put at the sign-off and recorded in the state file:
 ## Edit log
 
 - **2026-11-13** — first draft: research R1–R7 with evidence, design, F1–F4, 1.3.0-alpha; awaiting signoff.
+- **2026-11-13** — O1–O4 answered by developer: post nothing on broken pin, generic texts kept, reuse shared messages, `ALLOWED_CHANNEL_IDS` set so denial checked live in F3.
 
 ## Evidence
 
