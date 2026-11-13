@@ -9,7 +9,7 @@ prose below the fence, not the table.
 |---|---|---|---|---|
 | [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
 | [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 5-publish | signed off | — | build complete |
-| [Build 03 — Pinboard, debug and channel-denial messages from the template file](03-remaining-wording/0-build.md) | 3-development | in progress | — | Developer pushes F1 (git push origin main), then checks worker log and a pin re-render per 3-development.md F1.1/F1.2 |
+| [Build 03 — Pinboard, debug and channel-denial messages from the template file](03-remaining-wording/0-build.md) | 3-development | in progress | — | Developer pushes F2 (git push origin main) and runs F2.1-F2.4 per 3-development.md; also pastes worker login line for S1 |
 
 **By phase**
 

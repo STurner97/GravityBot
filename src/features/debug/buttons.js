@@ -1,20 +1,23 @@
-import { resetDatabase } from '../../../betting.js';
 import { ephemeral } from '../../lib/response.js';
 import { decode } from '../../lib/customId.js';
+import { messageText } from '../../lib/messages/index.js';
 
-export async function handleConfirmReset(interaction) {
+// `reset` is given by the registration, so this file and its test never load the database.
+export async function handleConfirmReset(interaction, { reset, text = messageText }) {
   const { data } = interaction;
   const { parts } = decode(data.custom_id);
   const answer = parts[0];
 
   if (answer === 'no') {
-    return ephemeral('✋ Reset cancelled.');
+    return ephemeral(text('debug.reset.cancelled'));
   }
 
-  const result = await resetDatabase();
-  if (!result.success) {
-    return ephemeral(`❌ Reset failed: ${result.error}`);
+  try {
+    await reset();
+  } catch (err) {
+    console.error('[Debug] action=resetDatabase failed', err);
+    return ephemeral(text('debug.reset.failed'));
   }
 
-  return ephemeral('💥 **Database reset complete!** All tables truncated.');
+  return ephemeral(text('debug.reset.done'));
 }

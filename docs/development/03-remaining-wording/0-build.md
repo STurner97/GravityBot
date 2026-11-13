@@ -10,7 +10,7 @@ blocked_on:
 version: 1.3.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: Developer pushes F1 (git push origin main), then checks worker log and a pin re-render per 3-development.md F1.1/F1.2
+next: Developer pushes F2 (git push origin main) and runs F2.1-F2.4 per 3-development.md; also pastes worker login line for S1
 updated: 2026-11-13
 ---
 

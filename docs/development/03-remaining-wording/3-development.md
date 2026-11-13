@@ -22,8 +22,8 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 
 | Feature | Requirements | Status |
 |---|---|---|
-| F1 — The pin post from the file | M3, M4, S1; M1, M2 for `pinboard.post.*` | in acceptance: built and tested, waiting for push and the live check |
-| F2 — Debug from the file, generic reset error | M1, M2 for `debug.*`; M6 | planned |
+| F1 — The pin post from the file | M3, M4, S1; M1, M2 for `pinboard.post.*` | in acceptance: live check done except the worker login line and the warning |
+| F2 — Debug from the file, generic reset error | M1, M2 for `debug.*`; M6 | in acceptance: built and tested, waiting for push and the live check |
 | F3 — Pinboard replies, generic forcepin error, channel denial | M1, M2 for the rest; M7 | planned |
 | F4 — Length limits and the dead file | M5, M8 | planned |
 
@@ -33,6 +33,7 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 |---|---|---|---|
 | M3 | The worker reads `messages.json` and checks it at startup | `pinboardEmbed.js` imports the messages module; the worker imports it too. Live worker log: `[Messages] file=messages.json messages=66 problems=0` at 14:44:46. Login line not yet seen | Pass with a limit |
 | M4 | A broken pin message fails only that post | `helpers.test.js`: with a broken `text`, `buildPostPayload` and `publishOrUpdatePin` throw and a fake channel's `send` and `edit` are never called. `reportFailures.test.js`: the failure is logged and not thrown | Pass (unit); live not exercised |
+| M6 | `/debug reset` shows a generic error when the reset fails | `buttons.test.js`: an injected failing reset gives `❌ Reset failed.`, the reply holds none of the error, and the log line is `[Debug] action=resetDatabase failed` with the thrown error. Not run live (a real reset empties every table) | Pass (unit) |
 | S1 | The worker listens for `clientReady` | `Events.ClientReady` in `worker/index.js`. Live: no `DeprecationWarning` in the worker log, not yet seen | not yet run |
 
 ## Manual checks
@@ -41,6 +42,10 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 |---|---|---|---|
 | F1.1 | Worker boot log | After push: `heroku logs --dyno worker` shows `[Messages] … messages=66 problems=0` and the login line, no `DeprecationWarning` | `[Messages]` line seen (`messages=66 problems=0`); login line and absence of the warning not yet confirmed |
 | F1.2 | A pin re-renders from the file | The developer adds 📌 to a message on the pinboard that someone else wrote, sees "N+1 Pins", then removes the reaction | Pass: developer reports the pin looks fine. Edit path only; the `send` path waits for a real pin |
+| F2.1 | `/debug stats`, `recent`, `prediction <id>` read as before | After push, the developer runs each; all read-only | not yet run |
+| F2.2 | `/debug user` on the developer only | It writes a `users` row for anyone without one | not yet run |
+| F2.3 | SQL modal | Open it, submit `SELECT 1 AS one`: "Query executed. (1 rows)" and a one-row table | not yet run |
+| F2.4 | Reset prompt | Run `/debug reset`, press **Cancel**. Never **Yes** | not yet run |
 
 ## Feedback and triage
 
@@ -66,6 +71,18 @@ See [2-design.md](2-design.md) for the whole design. What F1 built:
 - **`worker/reportFailures.js`** replaces three copied `try/catch` blocks. The log line is now
   `[Pinboard] event=<name> failed`, not the three old sentences.
 - **The `pinboard.post.heading` plural** gives `0 Pins`, `1 Pin`, `N Pins`, as `count !== 1` did.
+- **Debug text** lives in `debug/formatDebugReplies.js` (the four inspection replies),
+  `buildDebugComponents.js` (reset prompt and SQL modal) and `formatSqlResult.js` (words from
+  the file, table layout in code). Each takes `text`, `messageText` by default. A reply that is
+  a summary plus a list is two messages; the code joins them.
+- **`handleConfirmReset` takes `reset` as a required option**, not defaulting to
+  `resetDatabase` as the design sketched. A default would make `buttons.js` import `betting.js`,
+  which needs production environment variables at import, so its test could not load.
+  `debug/index.js` passes `resetDatabase` in when it registers the button.
+- **`resetDatabase` no longer catches.** `withTransaction` now rolls back and rethrows, as for
+  every other transaction. Before, the inner catch made it commit an aborted transaction.
+- **`handlers.js` dispatches through a `SUBCOMMANDS` map** instead of an `if` chain, per
+  CLAUDE.md's open/closed rule.
 - **`import '../../../lib/messages/index.js'` in `worker/index.js`** looks unused. It is
   deliberate: the import is what runs the startup check, so the worker logs its own
   `[Messages]` line even if a later refactor stops the pin code reaching the module.
@@ -84,5 +101,7 @@ None yet.
 - **2026-11-13** — F1 built test-first: pin post, worker failure wrapper, `clientReady`, 1.3.0-alpha stamped.
 
 - **2026-11-13** — F1 live: `[Messages]` line and pin re-render seen; login line and warning check pending.
+
+- **2026-11-13** — F2 built test-first: `debug.*` messages (30), formatters, reset failure handling; startup line now `messages=96`.
 
 ## Evidence

@@ -291,5 +291,119 @@
         "text": "<@{authorId}> · {messageUrl}"
       }
     }
+  },
+  "debug": {
+    "missingSubcommand": "❌ Missing debug subcommand.",
+    "unknownSubcommand": "❌ Unknown debug subcommand.",
+    "stats": {
+      "uses": "{users} {predictions} {activePredictions} {resolvedPredictions} {bets} {totalBetAmount}",
+      "text": [
+        "🧪 **DB Stats:**",
+        "Users: {users}",
+        "Predictions: {predictions} (active: {activePredictions}, resolved: {resolvedPredictions})",
+        "Bets: {bets} | Total bet amount: {totalBetAmount}"
+      ]
+    },
+    "prediction": {
+      "summary": {
+        "uses": "{predictionId} {question} {options} {createdAt} {resolved} {outcome} {totalPot} {betCount}",
+        "text": [
+          "🧪 **Prediction #{predictionId}**",
+          "Question: {question}",
+          "Options: {options}",
+          "Created: {createdAt}",
+          "Resolved: {resolved}",
+          "Outcome: {outcome}",
+          "Total pot: {totalPot} credits",
+          "Bets ({betCount}):",
+          ""
+        ]
+      },
+      "bets": {
+        "item": {
+          "uses": "{userId} {option} {amount}",
+          "text": ["• <@{userId}>: {option} ({amount})", ""]
+        },
+        "empty": "No bets yet."
+      },
+      "moreBets": {
+        "uses": "{count}",
+        "text": "…and {count} more"
+      }
+    },
+    "user": {
+      "summary": {
+        "uses": "{userId} {balance} {limit}",
+        "text": [
+          "🧪 **User <@{userId}>**",
+          "Balance: {balance} credits",
+          "Recent bets (max {limit}):",
+          ""
+        ]
+      },
+      "bets": {
+        "item": {
+          "uses": "{predictionId} {question} {option} {amount} {status} {createdAt}",
+          "text": ["• #{predictionId}: {question} | {option} ({amount}) | {status} | {createdAt}", ""]
+        },
+        "empty": "No bets found."
+      }
+    },
+    "recent": {
+      "header": {
+        "uses": "{limit}",
+        "text": ["🧪 **Recent Predictions (max {limit})**", ""]
+      },
+      "list": {
+        "item": {
+          "uses": "{predictionId} {question} {status} {createdAt}",
+          "text": ["• #{predictionId}: {question} | {status} | {createdAt}", ""]
+        },
+        "empty": "No predictions found."
+      }
+    },
+    "yes": "yes",
+    "no": "no",
+    "notApplicable": "n/a",
+    "unknownTime": "unknown",
+    "status": {
+      "active": "active",
+      "resolved": {
+        "uses": "{outcome}",
+        "text": "resolved ({outcome})"
+      }
+    },
+    "reset": {
+      "prompt": "⚠️ **WARNING: Are you sure you want to reset the entire database?** This will delete all users, predictions, and bets.",
+      "confirmButton": "Yes, Reset",
+      "cancelButton": "Cancel",
+      "cancelled": "✋ Reset cancelled.",
+      "done": "💥 **Database reset complete!** All tables truncated.",
+      "failed": "❌ Reset failed."
+    },
+    "sqlModal": {
+      "title": "Execute SQL Query",
+      "queryLabel": "SQL Query",
+      "queryPlaceholder": "SELECT * FROM users;"
+    },
+    "sql": {
+      "denied": "❌ You do not have permission to execute SQL queries.",
+      "noRows": {
+        "uses": "{rowCount}",
+        "text": ["✅ Query executed.", "```", "Rows affected: {rowCount}", "```"]
+      },
+      "rows": {
+        "uses": "{rowCount} {table}",
+        "text": ["✅ Query executed. ({rowCount} rows)", "", "{table}"]
+      },
+      "moreRows": {
+        "uses": "{count}",
+        "text": ["... and {count} more rows", ""]
+      },
+      "error": {
+        "uses": "{error}",
+        "text": ["❌ SQL Error:", "```", "{error}", "```"]
+      }
+    }
   }
 }
