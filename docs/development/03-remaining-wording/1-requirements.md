@@ -2,7 +2,7 @@
 
 <!-- pipeline:nav -->
 > **Build 03 — Pinboard, debug and channel-denial messages from the template file** · Phase 1 of 5 · signed off
-> [State](0-build.md) · Design → · [All builds](../README.md)
+> [State](0-build.md) · [Design →](2-design.md) · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
 ## The problem
