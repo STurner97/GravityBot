@@ -276,5 +276,20 @@
       "uses": "{optionCount} {maxOptions}",
       "text": "❌ You cannot bet on all {optionCount} options. Maximum allowed: {maxOptions} options."
     }
+  },
+  "pinboard": {
+    "post": {
+      "heading": {
+        "uses": "{count}",
+        "one": "📌 {count} Pin",
+        "other": "📌 {count} Pins"
+      },
+      "forcedHeading": "📌 1 Pin (forced)",
+      "postedByName": "Posted by",
+      "postedByValue": {
+        "uses": "{authorId} {messageUrl}",
+        "text": "<@{authorId}> · {messageUrl}"
+      }
+    }
   }
 }

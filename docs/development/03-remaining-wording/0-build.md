@@ -1,7 +1,7 @@
 ---
 build: 03-remaining-wording
-phase: 2-design
-status: signed-off
+phase: 3-development
+status: in-progress
 size: standard
 format: 2
 signed_off: 1-requirements, 2-design
@@ -9,8 +9,8 @@ signed_off_by: 1-requirements=Ferby, 2-design=Ferby
 blocked_on: 
 version: 1.3.0-alpha
 stage: alpha
-gate: developer approves the design and feature plan, including any revised MoSCoW
-next: advance to 3-development
+gate: developer accepts the build: every Must accepted, tests passing, clean tree
+next: Developer pushes F1 (git push origin main), then checks worker log and a pin re-render per 3-development.md F1.1/F1.2
 updated: 2026-11-13
 ---
 
@@ -36,6 +36,7 @@ reading the file, and closes the length-limit gap now that the developer rewords
 
 - **2026-11-13** — build opened from build 02's W11, W12, W13; S1 (`clientReady`) new from the publish log.
 - **2026-11-13** — design drafted, 1.3.0-alpha planned; O1–O5 put to the developer ([2-design.md](2-design.md)).
+- **2026-11-13** — F1 (pin post from file, worker failure wrapper, clientReady) built, 1.3.0-alpha stamped; awaiting push and live check ([3-development.md](3-development.md)).
 
 ## Open questions
 

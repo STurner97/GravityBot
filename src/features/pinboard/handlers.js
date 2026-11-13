@@ -4,9 +4,9 @@ import {
   listPinboardWhitelist,
   addPinboardWhitelist,
   removePinboardWhitelist,
-  buildPinboardEmbed,
   upsertPinboardPost,
 } from './data.js';
+import { buildPinboardEmbed } from './pinboardEmbed.js';
 import { DiscordRequest } from '../../../utils.js';
 import { ephemeral } from '../../lib/response.js';
 import { isAdmin } from '../../lib/auth.js';
@@ -123,14 +123,13 @@ async function handleForcePin(subcommand) {
     const timestamp = message.timestamp ? new Date(message.timestamp) : new Date();
     const pinboardEmbed = buildPinboardEmbed({
       count: 1,
+      forced: true,
       messageUrl: sourceMessageUrl,
       messageContent: message.content,
       authorId: message.author.id,
       createdAt: timestamp,
       imageUrl: imageAttachment?.url || gifUrl,
     });
-
-    pinboardEmbed.author.name = '📌 1 Pin (forced)';
 
     const embeds = [pinboardEmbed];
     if (message.embeds?.length > 0) {

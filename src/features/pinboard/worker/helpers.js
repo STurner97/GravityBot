@@ -1,6 +1,7 @@
 import { ChannelType } from 'discord.js';
+import { buildPinboardEmbed } from '../pinboardEmbed.js';
+import { messageText } from '../../../lib/messages/index.js';
 import {
-  buildPinboardEmbed,
   PINBOARD_EMOJI,
   listPinboardWhitelist,
   upsertPinboardPost,
@@ -64,7 +65,7 @@ export function resolveMediaUrl(message) {
 }
 
 // Builds the embed array and file list to send/edit a pinboard post.
-export function buildPostPayload(message, reactionCount) {
+export function buildPostPayload(message, reactionCount, text = messageText) {
   const { imageUrl, hasImageAttachment } = resolveMediaUrl(message);
 
   const pinboardEmbed = buildPinboardEmbed({
@@ -74,7 +75,7 @@ export function buildPostPayload(message, reactionCount) {
     authorId: message.author?.id,
     createdAt: message.createdAt,
     imageUrl,
-  });
+  }, text);
 
   const embeds = message.embeds
     ? message.embeds
@@ -103,11 +104,11 @@ export async function removeFromPinboard(client, targetChannelId, existing, mess
 }
 
 // Creates or updates a pinboard post for the given message.
-export async function publishOrUpdatePin(client, targetChannelId, message, reactionCount, existing) {
+export async function publishOrUpdatePin(client, targetChannelId, message, reactionCount, existing, text = messageText) {
   const targetChannel = await client.channels.fetch(targetChannelId);
   if (!targetChannel?.isTextBased()) return;
 
-  const { embeds, files } = buildPostPayload(message, reactionCount);
+  const { embeds, files } = buildPostPayload(message, reactionCount, text);
   const fileOption = files.length > 0 ? files : undefined;
 
   if (existing?.pinboard_message_id) {

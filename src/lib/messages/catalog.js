@@ -77,4 +77,8 @@ export const catalog = {
   'bettingErrors.alreadyResolved': textMessage(),
   'bettingErrors.invalidOption': textMessage(['options']),
   'bettingErrors.cannotBetOnAllOptions': textMessage(['optionCount', 'maxOptions']),
+  'pinboard.post.heading': pluralMessage('count'),
+  'pinboard.post.forcedHeading': textMessage(),
+  'pinboard.post.postedByName': textMessage(),
+  'pinboard.post.postedByValue': textMessage(['authorId', 'messageUrl']),
 };

@@ -7,35 +7,6 @@ export const PINBOARD_EMOJI = {
 };
 export const DEFAULT_EMOJI = PINBOARD_EMOJI.character;
 
-export function buildPinboardEmbed({ count, messageUrl, messageContent, authorId, createdAt, imageUrl }) {
-  const timestamp = createdAt
-    ? Math.floor(createdAt.getTime() / 1000)
-    : Math.floor(Date.now() / 1000);
-
-  const embed = {
-    color: 0xED4245,
-    author: {
-      name: `📌 ${count} Pin${count !== 1 ? 's' : ''}`,
-    },
-    description: messageContent || ' ',
-    fields: [
-      {
-        name: 'Posted by',
-        value: `<@${authorId}> · ${messageUrl}`,
-        inline: false,
-      },
-    ],
-    timestamp: new Date(timestamp * 1000).toISOString(),
-    url: messageUrl,
-  };
-
-  if (imageUrl) {
-    embed.image = { url: imageUrl };
-  }
-
-  return embed;
-}
-
 export async function getPinboardConfig() {
   const result = await query(
     'SELECT target_channel_id, threshold, emoji FROM pinboard_config WHERE id = 1'
