@@ -1,17 +1,17 @@
 ---
 build: 03-remaining-wording
 phase: 4-review
-status: awaiting-signoff
+status: signed-off
 size: standard
 format: 2
-signed_off: 1-requirements, 2-design, 3-development
-signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby
+signed_off: 1-requirements, 2-design, 3-development, 4-review
+signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby, 4-review=Ferby
 blocked_on: 
 accepted: 10e57e7ff70d83cbc3d2a84908de121e218b2830
 version: 1.3.0-alpha
 stage: alpha
 gate: documents match reality, final acceptance passed, next steps written
-next: review signed off; developer opens 5-publish in a fresh session
+next: advance to 5-publish
 updated: 2026-11-14
 ---
 
