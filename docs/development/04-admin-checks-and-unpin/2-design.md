@@ -74,7 +74,8 @@ Between any two steps, both dynos work. A push restarts both dynos; a pin post d
 seconds the worker is down is not seen (W3).
 
 The migration's other statements are all `IF NOT EXISTS` or guarded, so running it again
-changes nothing. How the developer runs it is open question O1.
+changes nothing. The developer runs it from the Heroku dashboard's Run console (O1), so the
+database URL never leaves Heroku.
 
 ### R4 — How each kind of row reacts to 📌
 
@@ -95,7 +96,8 @@ behaviour; it is named here because it means a single 📌 added and removed cle
 pin.
 
 Today the first 📌 change rewrites a forced post as an ordinary one. With the state stored, the
-post can keep the forced heading until the pin turns natural. Open question O2.
+post keeps the forced heading until the pin turns natural, then shows the ordinary count
+heading (O2).
 
 ### R5 — Forcepin
 
@@ -135,14 +137,14 @@ the `denied.admin` reply, so the two checks cannot drift apart:
   `resolvePrediction` refuses an already-resolved prediction before its first write. So the
   developer submits the form for an already-resolved prediction and gets "❌ This prediction is
   already resolved": the submit passed the check and reached the read, and nothing changed.
-  Which prediction to use is open question O3.
+  The developer picks the prediction at the time (O3).
 - **M4, M7.** The developer force-pins a throwaway message of their own. It is public in the
   pinboard channel for about a minute. A `/debug sql` `SELECT` shows it `forced`, the developer
   deletes the post, and the `SELECT` shows no row. Then the developer force-pins it again and
   deletes the source message: the bot removes post and row, and nothing is banned.
 - **M3, M5, M6.** Seeing a natural pin live needs one: the threshold's worth of 📌 from people
-  other than the author. Open question O4 offers a reversible loop on a pin the developer
-  chooses, or unit tests only.
+  other than the author. No natural pin is touched live; these three are unit-tested only
+  (O4). M6's forcepin side is still seen live, on the throwaway message.
 - **M8.** `/debug sql` counts rows before push A, and counts them by `pin_state` after the
   migration.
 
@@ -194,7 +196,7 @@ replace them.
 | `handleReactionChange` | `worker/handleReactionChange.js` | Acts on the reaction outcome |
 | `handleMessageDeleted(client, deletedId, deps)` | `worker/handleMessageDeleted.js` | Acts on each row's deletion outcome |
 | `removeFromPinboard` | `worker/helpers.js` | Row first, then post (R2) |
-| `publishOrUpdatePin(…, pinState)` | `worker/helpers.js` | Writes the state; forced heading per O2 |
+| `publishOrUpdatePin(…, pinState)` | `worker/helpers.js` | Writes the state; forced heading while `forced` (O2) |
 | Listeners | `worker/index.js` | `MessageDelete` and `MessageBulkDelete` both call `handleMessageDeleted` |
 | `handleForcePin` | `pinboard/handlers.js` | Writes `forced` |
 
@@ -264,8 +266,8 @@ Discord's delete events. The admin re-checks are web-dyno only and low risk.
 
 | Feature | Requirements | Tests first | Accepted by |
 |---|---|---|---|
-| F1 — Taking pins down | M3, M4, M5, M6, M7, M8, S1 | `pinRules.test.js`: every row of R4's table and of the deletion table. `handleMessageDeleted.test.js` with fake data and client: forced → row gone; natural → banned; source → `removeFromPinboard`; bulk ids each handled; no row → nothing. `helpers.test.js`: `removeFromPinboard` deletes the row before calling Discord; `publishOrUpdatePin` passes the state through. Forcepin's upsert carries `forced` | Push A and migration: counts before and after (M8). Push B: the forced-pin checks of R7 (M4, M7), the natural-pin loop if O4 chooses it (M3, M5, M6), and an existing pin updating at its next 📌 change (M8) |
-| F2 — Admin re-checks | M1, M2 | `buttons.test.js`: a non-admin on Yes and on Cancel gets the denial, `reset` is never called, and the line is logged; admins as before. `resolveModal.test.js`: a non-admin gets the denial and neither `getPrediction` nor `resolvePrediction` is called; an admin goes through. `adminDenial.test.js`: the reply and the log line | One push. The developer cancels a reset prompt; submits `/resolve` for the prediction O3 names and reads "already resolved" |
+| F1 — Taking pins down | M3, M4, M5, M6, M7, M8, S1 | `pinRules.test.js`: every row of R4's table and of the deletion table. `handleMessageDeleted.test.js` with fake data and client: forced → row gone; natural → banned; source → `removeFromPinboard`; bulk ids each handled; no row → nothing. `helpers.test.js`: `removeFromPinboard` deletes the row before calling Discord; `publishOrUpdatePin` passes the state through. Forcepin's upsert carries `forced` | Push A and migration: counts before and after (M8). Push B: the forced-pin checks of R7 (M4, M7, M6's forcepin side), and an existing pin updating at its next 📌 change (M8). M3 and M5 by unit test only (O4) |
+| F2 — Admin re-checks | M1, M2 | `buttons.test.js`: a non-admin on Yes and on Cancel gets the denial, `reset` is never called, and the line is logged; admins as before. `resolveModal.test.js`: a non-admin gets the denial and neither `getPrediction` nor `resolvePrediction` is called; an admin goes through. `adminDenial.test.js`: the reply and the log line | One push. The developer cancels a reset prompt; submits `/resolve` for an already-resolved prediction of their choosing and reads "already resolved" |
 
 The version is stamped in `package.json` in push A, so every acceptance runs 1.4.0-alpha.
 
@@ -279,6 +281,7 @@ The adapters stay thin, so what is left to check by hand is Discord's side and H
 | The bot's own removal bans nothing | `removeFromPinboard`'s order | F1: deleting the forced pin's source; the log shows `removePin` and no `ban` line |
 | A purge of several posts is handled | `MessageBulkDelete` listener | Not exercised live: a purge needs a bot or tool the server does not use. Unit-tested through `handleMessageDeleted`; the listener is one line |
 | Forcepin writes `forced` | `handleForcePin` | F1's `SELECT` after a forcepin |
+| A deleted natural post is banned | `MessageDelete` listener | Not exercised live (O4): it would take down a real pin. The listener path is the same one F1's forced-pin check exercises |
 | The migration runs on Heroku | `migrate.js` | F1's counts before and after |
 | A non-admin is denied | Both handlers | Not exercisable live: nobody else can use an admin's ephemeral prompt or form. Unit-tested |
 
@@ -289,7 +292,7 @@ The adapters stay thin, so what is left to check by hand is Discord's side and H
 - `handleResolveModal` leaves `modals.js` for its own file. This is a move, not a deletion.
 - The `/debug sql` takedown workaround in build 03's release notes, for any deletion after this
   build is live. It stays documented for posts deleted before (W3).
-- If O2 chooses it, the rewrite of a forced post as an ordinary one at its first 📌 change.
+- The rewrite of a forced post as an ordinary one at its first 📌 change (O2).
 
 The README's pinboard section and table list are updated in review to name `pin_state` and the
 takedown.
@@ -307,6 +310,8 @@ takedown.
 
 - **2026-11-14** — research R1-R7 with evidence; design, F1 takedown then F2 admin re-checks;
   1.4.0-alpha; O1-O4 open.
+- **2026-11-14** — O1-O4 answered: Run console, forced heading kept, resolve test picked live,
+  natural pins unit-tested only.
 
 ## Evidence
 

@@ -10,7 +10,7 @@ prose below the fence, not the table.
 | [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
 | [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 5-publish | signed off | — | build complete |
 | [Build 03 — Pinboard, debug and channel-denial messages from the template file](03-remaining-wording/0-build.md) | 5-publish | signed off | — | build complete |
-| [Build 04 — Admin re-checks and taking pins down](04-admin-checks-and-unpin/0-build.md) | 2-design | awaiting sign-off | — | developer answers O1-O4 and approves design, feature plan, 1.4.0-alpha |
+| [Build 04 — Admin re-checks and taking pins down](04-admin-checks-and-unpin/0-build.md) | 2-design | awaiting sign-off | — | developer approves design, feature plan, 1.4.0-alpha |
 
 **By phase**
 
