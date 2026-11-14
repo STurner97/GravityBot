@@ -24,7 +24,7 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 |---|---|---|
 | F1 — The pin post from the file | M3, M4, S1; M1, M2 for `pinboard.post.*` | accepted: pin re-render and worker boot checked live; the `send` path waits for a real pin |
 | F2 — Debug from the file, generic reset error | M1, M2 for `debug.*`; M6 | accepted: F2.1 to F2.4 passed live after deploy `ca9e434` |
-| F3 — Pinboard replies, generic forcepin error, channel denial | M1, M2 for the rest; M7 | planned |
+| F3 — Pinboard replies, generic forcepin error, channel denial | M1, M2 for the rest; M7 | accepted: boot log and F3.4 live; F3.1, F3.2, F3.3, F3.5 passed unexercised on the developer's risk call |
 | F4 — Length limits and the dead file | M5, M8 | planned |
 
 ## Acceptance — requirement by requirement
@@ -33,7 +33,8 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 |---|---|---|---|
 | M3 | The worker reads `messages.json` and checks it at startup | `pinboardEmbed.js` imports the messages module; the worker imports it too. Live worker log after deploy `ca9e434`: `[Messages] file=messages.json messages=96 problems=0`, then `Worker logged in as GravityBot#7124` | Pass |
 | M4 | A broken pin message fails only that post | `helpers.test.js`: with a broken `text`, `buildPostPayload` and `publishOrUpdatePin` throw and a fake channel's `send` and `edit` are never called. `reportFailures.test.js`: the failure is logged and not thrown | Pass (unit); live not exercised |
-| M1 | Every message of the three features comes from the file | Final search after F3: no user text left in `pinboard/`, `debug/` or `router.js`, apart from the 📌 reaction-emoji constant (`data.js`, configuration not wording), W2 and W9. Startup line `messages=114 problems=0` | Pass (code search); live smoke after F3 |
+| M1 | Every message of the three features comes from the file | Final search after F3: no user text left in `pinboard/`, `debug/` or `router.js`, apart from the 📌 reaction-emoji constant (`data.js`, configuration not wording), W2 and W9. Startup line `messages=114 problems=0` | Pass (code search; boot log `messages=114 problems=0` on both dynos) |
+| M7 | `/pinboard forcepin` shows a generic error | F3.4 live: made-up message id on a real channel gave `❌ Failed to force pin.`, nothing posted. The log line holding Discord's error was seen by the developer | Pass |
 | M6 | `/debug reset` shows a generic error when the reset fails | `buttons.test.js`: an injected failing reset gives `❌ Reset failed.`, the reply holds none of the error, and the log line is `[Debug] action=resetDatabase failed` with the thrown error. Not run live (a real reset empties every table) | Pass (unit) |
 | S1 | The worker listens for `clientReady` | `Events.ClientReady` in `worker/index.js`. Live worker boot log (2026-11-14 21:52): login line, no `DeprecationWarning` | Pass |
 
@@ -47,11 +48,11 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 | F2.2 | `/debug user` on the developer only | It writes a `users` row for anyone without one | Pass: developer ran it after deploy `ca9e434` (2026-11-14) |
 | F2.3 | SQL modal | Open it, submit `SELECT 1 AS one`: "Query executed. (1 rows)" and a one-row table | Pass: developer ran it after deploy `ca9e434` (2026-11-14) |
 | F2.4 | Reset prompt | Run `/debug reset`, press **Cancel**. Never **Yes** | Pass: developer ran it after deploy `ca9e434` (2026-11-14) |
-| F3.1 | `/pinboard whitelist_list` reads as before | After push, the developer runs it | not yet run |
-| F3.2 | `whitelist_add` on a channel already listed | Shows "Added …"; `ON CONFLICT DO NOTHING` changes nothing | not yet run |
-| F3.3 | Forcepin with `not a link` | Gives the format error; nothing is read or written | not yet run |
-| F3.4 | Forcepin on a real channel link with a made-up message id | Generic reply `❌ Failed to force pin.`; Heroku log holds Discord's error (`[Pinboard] Force pin failed`); nothing posted | not yet run |
-| F3.5 | Channel denial | Any command in a channel off `ALLOWED_CHANNEL_IDS` shows the denial and reads nothing | not yet run |
+| F3.1 | `/pinboard whitelist_list` reads as before | After push, the developer runs it | Not exercised live. Developer accepted on risk (2026-11-14); covered by wording and formatter tests and a local run of the real handler and router |
+| F3.2 | `whitelist_add` on a channel already listed | Shows "Added …"; `ON CONFLICT DO NOTHING` changes nothing | Not exercised live. Developer accepted on risk (2026-11-14); covered by wording and formatter tests and a local run of the real handler and router |
+| F3.3 | Forcepin with `not a link` | Gives the format error; nothing is read or written | Not exercised live. Developer accepted on risk (2026-11-14); covered by wording and formatter tests and a local run of the real handler and router |
+| F3.4 | Forcepin on a real channel link with a made-up message id | Generic reply `❌ Failed to force pin.`; Heroku log holds Discord's error (`[Pinboard] Force pin failed`); nothing posted | Pass: developer ran it after deploy `052a49b` (2026-11-14): generic reply, nothing posted |
+| F3.5 | Channel denial | Any command in a channel off `ALLOWED_CHANNEL_IDS` shows the denial and reads nothing | Not exercised live. Developer accepted on risk (2026-11-14); covered by wording and formatter tests and a local run of the real handler and router |
 
 ## Feedback and triage
 
@@ -119,5 +120,7 @@ None yet.
 - **2026-11-14** — F2 accepted: F2.1-F2.4 passed live on ca9e434.
 
 - **2026-11-14** — F3 built test-first: 20 `pinboard.*` and `denied.channel` messages; startup line now `messages=114`; final M1 search done.
+
+- **2026-11-14** — F3 accepted: boot log ok, F3.4 passed live, other F3 checks skipped by developer on low risk.
 
 ## Evidence
