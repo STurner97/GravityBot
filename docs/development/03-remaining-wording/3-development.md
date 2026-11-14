@@ -22,7 +22,7 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 
 | Feature | Requirements | Status |
 |---|---|---|
-| F1 — The pin post from the file | M3, M4, S1; M1, M2 for `pinboard.post.*` | in acceptance: live check done except the worker login line and the warning |
+| F1 — The pin post from the file | M3, M4, S1; M1, M2 for `pinboard.post.*` | accepted: pin re-render and worker boot checked live; the `send` path waits for a real pin |
 | F2 — Debug from the file, generic reset error | M1, M2 for `debug.*`; M6 | in acceptance: built and tested, waiting for push and the live check |
 | F3 — Pinboard replies, generic forcepin error, channel denial | M1, M2 for the rest; M7 | planned |
 | F4 — Length limits and the dead file | M5, M8 | planned |
@@ -31,16 +31,16 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 
 | # | Requirement | Demonstrated by | Verdict |
 |---|---|---|---|
-| M3 | The worker reads `messages.json` and checks it at startup | `pinboardEmbed.js` imports the messages module; the worker imports it too. Live worker log: `[Messages] file=messages.json messages=66 problems=0` at 14:44:46. Login line not yet seen | Pass with a limit |
+| M3 | The worker reads `messages.json` and checks it at startup | `pinboardEmbed.js` imports the messages module; the worker imports it too. Live worker log after deploy `ca9e434`: `[Messages] file=messages.json messages=96 problems=0`, then `Worker logged in as GravityBot#7124` | Pass |
 | M4 | A broken pin message fails only that post | `helpers.test.js`: with a broken `text`, `buildPostPayload` and `publishOrUpdatePin` throw and a fake channel's `send` and `edit` are never called. `reportFailures.test.js`: the failure is logged and not thrown | Pass (unit); live not exercised |
 | M6 | `/debug reset` shows a generic error when the reset fails | `buttons.test.js`: an injected failing reset gives `❌ Reset failed.`, the reply holds none of the error, and the log line is `[Debug] action=resetDatabase failed` with the thrown error. Not run live (a real reset empties every table) | Pass (unit) |
-| S1 | The worker listens for `clientReady` | `Events.ClientReady` in `worker/index.js`. Live: no `DeprecationWarning` in the worker log, not yet seen | not yet run |
+| S1 | The worker listens for `clientReady` | `Events.ClientReady` in `worker/index.js`. Live worker boot log (2026-11-14 21:52): login line, no `DeprecationWarning` | Pass |
 
 ## Manual checks
 
 | # | Check | How | Result |
 |---|---|---|---|
-| F1.1 | Worker boot log | After push: `heroku logs --dyno worker` shows `[Messages] … messages=66 problems=0` and the login line, no `DeprecationWarning` | `[Messages]` line seen (`messages=66 problems=0`); login line and absence of the warning not yet confirmed |
+| F1.1 | Worker boot log | After push: `heroku logs --dyno worker` shows `[Messages] … messages=66 problems=0` and the login line, no `DeprecationWarning` | worker `[Messages] … messages=96 problems=0`, login line, no `DeprecationWarning` (deploy `ca9e434`, 2026-11-14) | Pass |
 | F1.2 | A pin re-renders from the file | The developer adds 📌 to a message on the pinboard that someone else wrote, sees "N+1 Pins", then removes the reaction | Pass: developer reports the pin looks fine. Edit path only; the `send` path waits for a real pin |
 | F2.1 | `/debug stats`, `recent`, `prediction <id>` read as before | After push, the developer runs each; all read-only | not yet run |
 | F2.2 | `/debug user` on the developer only | It writes a `users` row for anyone without one | not yet run |
@@ -103,5 +103,7 @@ None yet.
 - **2026-11-13** — F1 live: `[Messages]` line and pin re-render seen; login line and warning check pending.
 
 - **2026-11-13** — F2 built test-first: `debug.*` messages (30), formatters, reset failure handling; startup line now `messages=96`.
+
+- **2026-11-14** — F1 accepted: worker boot log shows messages line, login, no warning. F2 deployed (ca9e434); F2.1-F2.4 awaiting rerun.
 
 ## Evidence
