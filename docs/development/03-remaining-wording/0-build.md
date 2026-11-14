@@ -1,17 +1,17 @@
 ---
 build: 03-remaining-wording
 phase: 5-publish
-status: awaiting-signoff
+status: signed-off
 size: standard
 format: 2
-signed_off: 1-requirements, 2-design, 3-development, 4-review
-signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby, 4-review=Ferby
+signed_off: 1-requirements, 2-design, 3-development, 4-review, 5-publish
+signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby, 4-review=Ferby, 5-publish=Ferby
 blocked_on: 
 accepted: 10e57e7ff70d83cbc3d2a84908de121e218b2830
 version: 1.3.0-alpha
 stage: alpha
 gate: developer confirms the distributable installs and runs; version and stage recorded, or nothing to publish
-next: developer confirms install rows 1-2 (Heroku release and logs) and signs off publish
+next: build complete
 updated: 2026-11-14
 ---
 
