@@ -35,7 +35,7 @@ build's riskiest seam.
 
 The developer chose this order in build 02's review. It holds that build's one untested seam,
 the worker reading the file, and it closes the gap that rewording can fall into (I1), now that
-rewording has started. Configuration (build 04) comes after, and will be easier to check
+rewording has started. Configuration (now build 05) comes after, and will be easier to check
 once every message is in the file, because its values show there as placeholders.
 
 ## Scope
@@ -71,15 +71,15 @@ once every message is in the file, because its values show there as placeholders
 | W1 | A generic error on the `/debug sql` console | Dropped: the console shows the database's error on purpose, so an admin can see why their SQL failed |
 | W2 | The router's JSON error bodies (`unknown command`, `internal error` and the rest) | Stay in code: they go back to Discord's API, not to a user |
 | W3 | Rewording any message | After this build, through the file |
-| W4 | Values inside messages becoming settings (default credits, beg limit, donate amounts, pin threshold) | Build 04, configuration |
+| W4 | Values inside messages becoming settings (default credits, beg limit, donate amounts, pin threshold) | Build 05, configuration |
 | W5 | Slash command names and descriptions | Stay in `commands.js`, the recorded single source of truth |
 | W6 | Log lines | Stay in code: read by the developer in Heroku logs, not by users |
-| W7 | The betting checks never run live: Next across a resolve, "too rich to beg", the no-winners and no-refunds announcements (build 02's C1 and review) | Build 04, or whichever build next touches betting. This build does not change betting |
+| W7 | The betting checks never run live: Next across a resolve, "too rich to beg", the no-winners and no-refunds announcements (build 02's C1 and review) | Build 05, configuration, or whichever build next touches betting. This build does not change betting |
 | W8 | Any change to how SQL is configured or run; a way to see resolved predictions | Not planned (build 02's W8 and W9) |
 | W9 | The layout of the `/debug sql` result table (column padding, separators, `NULL`) | Stays in code: it is formatting of the database's data, not wording. The text around it ("Query executed", "… and N more rows") moves under M1 |
-| W10 | The `/debug reset` confirm button and the `/resolve` form submit re-checking `ADMIN_IDS` before they write (review I1) | The next build, first: see [4-review.md](4-review.md) |
-| W11 | The worker's message-delete listener repeating `removeFromPinboard` (review I2) | Whichever build next touches the pinboard worker |
-| W12 | A way to take a pin down: an unpin command, or the worker clearing the row when a pin post is deleted (review I4) | A later build, with W11 |
+| W10 | The `/debug reset` confirm button and the `/resolve` form submit re-checking `ADMIN_IDS` before they write (review I1) | Build 04: see [4-review.md](4-review.md) |
+| W11 | The worker's message-delete listener repeating `removeFromPinboard` (review I2) | Build 04, with W10 and W12 |
+| W12 | A way to take a pin down: an unpin command, or the worker clearing the row when a pin post is deleted (review I4) | Build 04, with W10 and W11 |
 
 ## Decisions taken in this phase
 
@@ -108,3 +108,4 @@ once every message is in the file, because its values show there as placeholders
 - **2026-11-13** — first draft from build 02 candidates and developer answers (size, forcepin, identical wording, pin post in scope); all rows proposed.
 - **2026-11-13** — developer agreed all rows via /pipeline-signoff; W9 as drawn; M4's broken-message behaviour left to design.
 - **2026-11-14** — review: W10 (admin re-check, I1) and W11 (delete listener duplication, I2) added as out-of-scope findings; W12 (no way to take a pin down, I4).
+- **2026-11-14** — review: developer agreed W10-W12 go to build 04; W4, W7 now build 05.

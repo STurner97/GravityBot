@@ -11,7 +11,7 @@ accepted: 10e57e7ff70d83cbc3d2a84908de121e218b2830
 version: 1.3.0-alpha
 stage: alpha
 gate: documents match reality, final acceptance passed, next steps written
-next: developer signs off review; agrees I1 to build 04 (small), I2+I4 to a later worker build
+next: review signed off; developer opens 5-publish in a fresh session
 updated: 2026-11-14
 ---
 

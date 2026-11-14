@@ -81,10 +81,10 @@ limited places) are project conventions and now live in CLAUDE.md, where convent
 
 | Issue | Evidence | Size | Outcome |
 |---|---|---|---|
-| I1 — Two admin-only follow-ups do not re-check `ADMIN_IDS` before writing. The `/debug reset` confirm button truncates every table, and the `/resolve` form submit pays out, on the strength of the command having checked. CLAUDE.md asks for the check at the top of every admin-only handler, before any read or write | `isAdmin` is called in `debug/handlers.js`, `debug/modals.js`, `pinboard/handlers.js` and `betting/handlers.js` only. `debug/buttons.js` (`handleConfirmReset`) and `betting/modals.js:83` (`handleResolveModal`) have none. Both are the same at `11f4e9e`. Each is reached only from a reply or form Discord showed the admin; whether Discord refuses a crafted interaction from anyone else is not verified | Outside scope: the reset handler's check predates this build, which changed only its error reply, and betting was not touched. Low exposure, high cost if reached | Recommended: the next build, first (W10). The developer decides at the gate |
-| I2 — The worker's message-delete listener repeats `removeFromPinboard`'s body: fetch the channel, delete the post, delete the row | `worker/index.js`'s `MessageDelete` listener and `worker/helpers.js` `removeFromPinboard`; the same at `11f4e9e`. This build only wrapped it in `reportFailures` | Outside scope: a DRY cleanup with no change in behaviour | Recommended: whichever build next touches the worker (W11) |
+| I1 — Two admin-only follow-ups do not re-check `ADMIN_IDS` before writing. The `/debug reset` confirm button truncates every table, and the `/resolve` form submit pays out, on the strength of the command having checked. CLAUDE.md asks for the check at the top of every admin-only handler, before any read or write | `isAdmin` is called in `debug/handlers.js`, `debug/modals.js`, `pinboard/handlers.js` and `betting/handlers.js` only. `debug/buttons.js` (`handleConfirmReset`) and `betting/modals.js:83` (`handleResolveModal`) have none. Both are the same at `11f4e9e`. Each is reached only from a reply or form Discord showed the admin; whether Discord refuses a crafted interaction from anyone else is not verified | Outside scope: the reset handler's check predates this build, which changed only its error reply, and betting was not touched. Low exposure, high cost if reached | Build 04, with I2 and I4 (W10). The developer agreed |
+| I2 — The worker's message-delete listener repeats `removeFromPinboard`'s body: fetch the channel, delete the post, delete the row | `worker/index.js`'s `MessageDelete` listener and `worker/helpers.js` `removeFromPinboard`; the same at `11f4e9e`. This build only wrapped it in `reportFailures` | Outside scope: a DRY cleanup with no change in behaviour | Build 04, with I1 and I4 (W11). The developer agreed |
 | I3 — During final acceptance, `/pinboard` and `/debug` gave Discord's "The application did not respond" while `/balance` worked | No app log line appeared for the failures, though the router logs every error. The reviewed commit, run locally through the real router, answered forcepin `not a link` in 0 ms. Re-adding the bot to the server made both commands work again. The exact cause on Discord's side is not proven | Not a code defect: Discord's integration for the server | Resolved by re-adding the bot. No change. If it recurs, re-add the bot before looking at the code |
-| I4 — There is no way to take a pin down. Deleting the post by hand leaves its `pinboard_posts` row, and the next 📌 added or removed on the source message posts it again, even below the threshold | The worker's delete listener looks the row up by `message_id`, the source message's id (`data.js` `getPinboardPost`), so deleting the pin post itself matches nothing. `handleReactionChange` skips only when `reactionCount < threshold && !existing`, so a stale row re-posts at one reaction; at zero it deletes the row. The same at `11f4e9e` | Outside scope: new behaviour (an unpin command, or cleanup when a pin post is deleted) | Recommended: a later build (W12). Until then, see the workaround in I4's note under *Next steps* |
+| I4 — There is no way to take a pin down. Deleting the post by hand leaves its `pinboard_posts` row, and the next 📌 added or removed on the source message posts it again, even below the threshold | The worker's delete listener looks the row up by `message_id`, the source message's id (`data.js` `getPinboardPost`), so deleting the pin post itself matches nothing. `handleReactionChange` skips only when `reactionCount < threshold && !existing`, so a stale row re-posts at one reaction; at zero it deletes the row. The same at `11f4e9e` | Outside scope: new behaviour (an unpin command, or cleanup when a pin post is deleted) | Build 04, with I1 and I2 (W12). The developer agreed. Until then, the workaround under *Next steps* |
 
 ## Final acceptance
 
@@ -125,32 +125,34 @@ What is waiting, from this build and earlier ones:
 
 - **W10 (I1)**: the admin re-check on the reset button and the resolve form.
 - **W4**: values inside messages becoming settings (default credits, beg limit, donate
-  amounts, pin threshold). Planned as build 04, configuration, since build 02.
+  amounts, pin threshold). Planned as the configuration build since build 02.
 - **W7**: the betting checks never run live (Next across a resolve, "too rich to beg", the
   no-winners and no-refunds announcements). Goes with whichever build next touches betting.
-- **W11 (I2)**: the delete listener's duplication. Goes with whichever build next touches the
-  worker.
+- **W11 (I2)**: the delete listener's duplication.
 - **W12 (I4)**: a way to take a pin down. Until it exists, an admin deletes the pin post, then
   removes its row with `/debug sql`:
   `DELETE FROM pinboard_posts WHERE message_id = '<source message id>'`, after a `SELECT` with
   the same `WHERE` shows the one row. Without the row deleted, the pin comes back at the next
-  📌 on the source message. W12 and W11 touch the same listener, so they fit one build.
+  📌 on the source message.
 
-Recommended order:
+Order, agreed with the developer:
 
-1. **Build 04 — admin checks on follow-ups (W10), small.** It is the one risk found: a gap in
-   the project's own security rule, on the two most destructive actions the bot has. It is a
-   few lines and a test each, so it should not wait behind a standard build. `isAdmin` imports
+1. **Build 04 — admin re-checks and taking pins down (W10, W11, W12), standard.** W10 is the
+   one risk found: a gap in the project's own security rule, on the two most destructive
+   actions the bot has. W12 is new behaviour and needs a requirements choice first (an unpin
+   command, the worker clearing the row when a pin post is deleted, or both). W11 sits in the
+   same delete listener as W12. One build costs one set of phases instead of two; the price is
+   that W10 waits for W12's design, accepted because its exposure is low. `isAdmin` imports
    `config.js`, so the handlers will need it passed in, the way `reset` is, to stay testable.
 2. **Build 05 — configuration (W4), standard,** carrying W7, since configuration touches the
-   betting values those checks exercise, and W11 if the pin threshold work reaches the worker.
-   Every message now sits in the file, so the values that become settings show there as
-   placeholders, which makes the inventory easy.
+   betting values those checks exercise. Every message now sits in the file, so the values that
+   become settings show there as placeholders, which makes the inventory easy.
 
 ## Edit log
 
 - **2026-11-14** — review drafted: deployment and rollback, documents checked, CLAUDE.md and README updated, I1 and I2 found, final acceptance planned.
 - **2026-11-14** — FA1 passed on `21406ef`. I3: admin commands not reaching app, fixed by re-adding bot.
 - **2026-11-14** — FA2-FA7 passed; M2 now Pass. I4 (no way to take a pin down) found, W12.
+- **2026-11-14** — developer agreed: I1, I2, I4 all to build 04; configuration moves to build 05.
 
 ## Evidence

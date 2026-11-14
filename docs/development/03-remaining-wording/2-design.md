@@ -349,7 +349,7 @@ a live check instead:
 | Target version | 1.3.0-alpha |
 | Stage | alpha |
 | Previous version | 1.2.0-alpha |
-| Why this number | MINOR: a body of new scope. The rest of the bot's wording becomes editable, the worker reads the file, and `npm test` gains a length check. Not PATCH, because the behaviour changes: generic errors, and new log lines from the worker. Alpha, because configuration (build 04) and more builds are still to come |
+| Why this number | MINOR: a body of new scope. The rest of the bot's wording becomes editable, the worker reads the file, and `npm test` gains a length check. Not PATCH, because the behaviour changes: generic errors, and new log lines from the worker. Alpha, because configuration (now build 05) and more builds are still to come |
 
 ## Push-back on the requirements
 
