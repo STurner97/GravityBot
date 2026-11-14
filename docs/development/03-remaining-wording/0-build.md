@@ -1,7 +1,7 @@
 ---
 build: 03-remaining-wording
 phase: 3-development
-status: in-progress
+status: awaiting-signoff
 size: standard
 format: 2
 signed_off: 1-requirements, 2-design
@@ -10,7 +10,7 @@ blocked_on:
 version: 1.3.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: Developer pushes F4 (git push origin main), confirms both dynos boot with messages=114 problems=0; then the agent sets awaiting-signoff
+next: The developer reviews the M2, M4 and M8 limits and accepts the build with /pipeline-signoff
 updated: 2026-11-14
 ---
 
@@ -37,6 +37,7 @@ reading the file, and closes the length-limit gap now that the developer rewords
 - **2026-11-13** — build opened from build 02's W11, W12, W13; S1 (`clientReady`) new from the publish log.
 - **2026-11-13** — design drafted, 1.3.0-alpha planned; O1–O5 put to the developer ([2-design.md](2-design.md)).
 - **2026-11-13** — F1 (pin post from file, worker failure wrapper, clientReady) built, 1.3.0-alpha stamped; awaiting push and live check ([3-development.md](3-development.md)).
+- **2026-11-14** — F2, F3, F4 built and accepted live; all Musts have verdicts; awaiting developer sign-off of development.
 
 ## Open questions
 

@@ -1,7 +1,7 @@
 # Build 03 — Phase 3: Development
 
 <!-- pipeline:nav -->
-> **Build 03 — Pinboard, debug and channel-denial messages from the template file** · Phase 3 of 5 · in progress
+> **Build 03 — Pinboard, debug and channel-denial messages from the template file** · Phase 3 of 5 · awaiting sign-off
 > [← Design](2-design.md) · [State](0-build.md) · Review → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
@@ -25,7 +25,7 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 | F1 — The pin post from the file | M3, M4, S1; M1, M2 for `pinboard.post.*` | accepted: pin re-render and worker boot checked live; the `send` path waits for a real pin |
 | F2 — Debug from the file, generic reset error | M1, M2 for `debug.*`; M6 | accepted: F2.1 to F2.4 passed live after deploy `ca9e434` |
 | F3 — Pinboard replies, generic forcepin error, channel denial | M1, M2 for the rest; M7 | accepted: boot log and F3.4 live; F3.1, F3.2, F3.3, F3.5 passed unexercised on the developer's risk call |
-| F4 — Length limits and the dead file | M5, M8 | in acceptance: built and tested; waiting for push and both dynos starting |
+| F4 — Length limits and the dead file | M5, M8 | accepted: M5 shown by lengthening a title; both dynos booted on `0c65dc3` |
 
 ## Acceptance — requirement by requirement
 
@@ -33,7 +33,7 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 |---|---|---|---|
 | M2 | Every moved message reads exactly as on `11f4e9e` | `pinboard/wording.test.js`, `debug/wording.test.js`, `pinboard/pinboardEmbed.test.js` and the formatter tests check each of the 52 new messages against `wording-cb1f8a5.json`, with expected strings taken from the code at `11f4e9e`. Live: pin re-render (F1.2) and the four read-only `/debug` commands, SQL modal and reset prompt (F2.1-F2.4) looked unchanged; F3's wording unexercised live by the developer's risk call | Pass with a limit (F3 wording and a brand-new pin not seen live) |
 | M5 | `npm test` fails on a message too long for where it is shown | `checkLengths.test.js` on fixtures for every place and both plural forms. Real run: `predictModal.title` lengthened to 57 characters, `npm test` failed with `predictModal.title: is 57 characters; a modal title allows 45`, file restored, 181 tests pass | Pass |
-| M8 | The unused root `pinboard.js` is deleted | `git grep` found no importer. Deleted; `npm test` passes (181); the registry, pinboard feature and worker import cleanly. Live start after push: not yet run | Pass (local); live start not yet run |
+| M8 | The unused root `pinboard.js` is deleted | `git grep` found no importer. Deleted; `npm test` passes (181); the registry, pinboard feature and worker import cleanly. Live start after push: not yet run | Pass: local, and live boot after deploy `0c65dc3` (release v75): both dynos `messages=114 problems=0`, worker logged in |
 | M3 | The worker reads `messages.json` and checks it at startup | `pinboardEmbed.js` imports the messages module; the worker imports it too. Live worker log after deploy `ca9e434`: `[Messages] file=messages.json messages=96 problems=0`, then `Worker logged in as GravityBot#7124` | Pass |
 | M4 | A broken pin message fails only that post | `helpers.test.js`: with a broken `text`, `buildPostPayload` and `publishOrUpdatePin` throw and a fake channel's `send` and `edit` are never called. `reportFailures.test.js`: the failure is logged and not thrown | Pass (unit); live not exercised |
 | M1 | Every message of the three features comes from the file | Final search after F3: no user text left in `pinboard/`, `debug/` or `router.js`, apart from the 📌 reaction-emoji constant (`data.js`, configuration not wording), W2 and W9. Startup line `messages=114 problems=0` | Pass (code search; boot log `messages=114 problems=0` on both dynos) |
@@ -47,7 +47,7 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 |---|---|---|---|
 | F1.1 | Worker boot log | After push: `heroku logs --dyno worker` shows `[Messages] … messages=66 problems=0` and the login line, no `DeprecationWarning` | worker `[Messages] … messages=96 problems=0`, login line, no `DeprecationWarning` (deploy `ca9e434`, 2026-11-14) | Pass |
 | F1.2 | A pin re-renders from the file | The developer adds 📌 to a message on the pinboard that someone else wrote, sees "N+1 Pins", then removes the reaction | Pass: developer reports the pin looks fine. Edit path only; the `send` path waits for a real pin |
-| F4.1 | Both dynos start after `pinboard.js` is deleted and the length check ships | After push: both boot logs show `messages=114 problems=0`, worker logs in | not yet run |
+| F4.1 | Both dynos start after `pinboard.js` is deleted and the length check ships | After push: both boot logs show `messages=114 problems=0`, worker logs in | Pass: release v75, deploy `0c65dc3`, 2026-11-14 22:11; both lines seen, worker logged in as GravityBot#7124 |
 | F2.1 | `/debug stats`, `recent`, `prediction <id>` read as before | After push, the developer runs each; all read-only | Pass: developer ran it after deploy `ca9e434` (2026-11-14) |
 | F2.2 | `/debug user` on the developer only | It writes a `users` row for anyone without one | Pass: developer ran it after deploy `ca9e434` (2026-11-14) |
 | F2.3 | SQL modal | Open it, submit `SELECT 1 AS one`: "Query executed. (1 rows)" and a one-row table | Pass: developer ran it after deploy `ca9e434` (2026-11-14) |
@@ -136,5 +136,7 @@ None known.
 - **2026-11-14** — F3 accepted: boot log ok, F3.4 passed live, other F3 checks skipped by developer on low risk.
 
 - **2026-11-14** — F4 built test-first: `TEXT_LIMITS`, `shownAs` on 29 messages, `checkLengths`; M5 shown by lengthening a title; root `pinboard.js` deleted.
+
+- **2026-11-14** — F4 accepted: v75 boot log ok on both dynos.
 
 ## Evidence
