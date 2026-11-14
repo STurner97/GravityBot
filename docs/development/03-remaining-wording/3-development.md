@@ -1,7 +1,7 @@
 # Build 03 — Phase 3: Development
 
 <!-- pipeline:nav -->
-> **Build 03 — Pinboard, debug and channel-denial messages from the template file** · Phase 3 of 5 · awaiting sign-off
+> **Build 03 — Pinboard, debug and channel-denial messages from the template file** · Phase 3 of 5 · signed off
 > [← Design](2-design.md) · [State](0-build.md) · Review → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 

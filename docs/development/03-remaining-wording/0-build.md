@@ -1,16 +1,17 @@
 ---
 build: 03-remaining-wording
 phase: 3-development
-status: awaiting-signoff
+status: signed-off
 size: standard
 format: 2
-signed_off: 1-requirements, 2-design
-signed_off_by: 1-requirements=Ferby, 2-design=Ferby
+signed_off: 1-requirements, 2-design, 3-development
+signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby
 blocked_on: 
+accepted: 10e57e7ff70d83cbc3d2a84908de121e218b2830
 version: 1.3.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: The developer reviews the M2, M4 and M8 limits and accepts the build with /pipeline-signoff
+next: advance to 4-review
 updated: 2026-11-14
 ---
 
