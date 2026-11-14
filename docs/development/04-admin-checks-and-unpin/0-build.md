@@ -32,8 +32,8 @@ the two most destructive actions, and gives the pinboard a way to take a pin dow
 ## What changed during the build
 
 - **2026-11-14** — build opened from build 03's W10, W11, W12; takedown rules agreed with the
-- **2026-11-14** — requirements signed off: M1-M8, S1 agreed as drafted.
   developer ([1-requirements.md](1-requirements.md), decisions).
+- **2026-11-14** — requirements signed off: M1-M8, S1 agreed as drafted.
 
 ## Open questions
 
