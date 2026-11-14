@@ -1,7 +1,7 @@
 # Build 04 — Phase 2: Design
 
 <!-- pipeline:nav -->
-> **Build 04 — Admin re-checks and taking pins down** · Phase 2 of 5 · awaiting sign-off
+> **Build 04 — Admin re-checks and taking pins down** · Phase 2 of 5 · signed off
 > [← Requirements](1-requirements.md) · [State](0-build.md) · Development → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
