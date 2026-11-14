@@ -79,6 +79,7 @@ once every message is in the file, because its values show there as placeholders
 | W9 | The layout of the `/debug sql` result table (column padding, separators, `NULL`) | Stays in code: it is formatting of the database's data, not wording. The text around it ("Query executed", "… and N more rows") moves under M1 |
 | W10 | The `/debug reset` confirm button and the `/resolve` form submit re-checking `ADMIN_IDS` before they write (review I1) | The next build, first: see [4-review.md](4-review.md) |
 | W11 | The worker's message-delete listener repeating `removeFromPinboard` (review I2) | Whichever build next touches the pinboard worker |
+| W12 | A way to take a pin down: an unpin command, or the worker clearing the row when a pin post is deleted (review I4) | A later build, with W11 |
 
 ## Decisions taken in this phase
 
@@ -106,4 +107,4 @@ once every message is in the file, because its values show there as placeholders
 
 - **2026-11-13** — first draft from build 02 candidates and developer answers (size, forcepin, identical wording, pin post in scope); all rows proposed.
 - **2026-11-13** — developer agreed all rows via /pipeline-signoff; W9 as drawn; M4's broken-message behaviour left to design.
-- **2026-11-14** — review: W10 (admin re-check, I1) and W11 (delete listener duplication, I2) added as out-of-scope findings.
+- **2026-11-14** — review: W10 (admin re-check, I1) and W11 (delete listener duplication, I2) added as out-of-scope findings; W12 (no way to take a pin down, I4).

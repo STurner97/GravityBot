@@ -1,7 +1,7 @@
 # Build 03 — Phase 4: Review
 
 <!-- pipeline:nav -->
-> **Build 03 — Pinboard, debug and channel-denial messages from the template file** · Phase 4 of 5 · in progress
+> **Build 03 — Pinboard, debug and channel-denial messages from the template file** · Phase 4 of 5 · awaiting sign-off
 > [← Development](3-development.md) · [State](0-build.md) · Publish → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
@@ -56,7 +56,7 @@ outside `docs/` is empty).
 | # | Requirement | At development | Now | Owed to publish |
 |---|---|---|---|---|
 | M1 | Every pinboard, debug and router message comes from `messages.json` | Pass | Pass: search repeated in review (no reply, label, title or placeholder literal left in the three features); 181 tests pass | — |
-| M2 | Every moved message reads exactly as on `11f4e9e` | Pass with a limit (F3 wording and a brand-new pin not seen live) | Pass with a limit: final acceptance pending | — |
+| M2 | Every moved message reads exactly as on `11f4e9e` | Pass with a limit (F3 wording and a brand-new pin not seen live) | Pass: F3 wording seen live in FA2, FA3, FA4, FA6, and a brand-new pin in FA7 | — |
 | M3 | The worker reads the same file and checks it at startup | Pass | Pass | — |
 | M4 | A broken pin message fails only that post; the worker keeps running | Pass (unit) | Pass (unit). Not run live by design: it would mean deploying a broken file | — |
 | M5 | `npm test` fails on a message too long for where it is shown | Pass | Pass | — |
@@ -83,6 +83,8 @@ limited places) are project conventions and now live in CLAUDE.md, where convent
 |---|---|---|---|
 | I1 — Two admin-only follow-ups do not re-check `ADMIN_IDS` before writing. The `/debug reset` confirm button truncates every table, and the `/resolve` form submit pays out, on the strength of the command having checked. CLAUDE.md asks for the check at the top of every admin-only handler, before any read or write | `isAdmin` is called in `debug/handlers.js`, `debug/modals.js`, `pinboard/handlers.js` and `betting/handlers.js` only. `debug/buttons.js` (`handleConfirmReset`) and `betting/modals.js:83` (`handleResolveModal`) have none. Both are the same at `11f4e9e`. Each is reached only from a reply or form Discord showed the admin; whether Discord refuses a crafted interaction from anyone else is not verified | Outside scope: the reset handler's check predates this build, which changed only its error reply, and betting was not touched. Low exposure, high cost if reached | Recommended: the next build, first (W10). The developer decides at the gate |
 | I2 — The worker's message-delete listener repeats `removeFromPinboard`'s body: fetch the channel, delete the post, delete the row | `worker/index.js`'s `MessageDelete` listener and `worker/helpers.js` `removeFromPinboard`; the same at `11f4e9e`. This build only wrapped it in `reportFailures` | Outside scope: a DRY cleanup with no change in behaviour | Recommended: whichever build next touches the worker (W11) |
+| I3 — During final acceptance, `/pinboard` and `/debug` gave Discord's "The application did not respond" while `/balance` worked | No app log line appeared for the failures, though the router logs every error. The reviewed commit, run locally through the real router, answered forcepin `not a link` in 0 ms. Re-adding the bot to the server made both commands work again. The exact cause on Discord's side is not proven | Not a code defect: Discord's integration for the server | Resolved by re-adding the bot. No change. If it recurs, re-add the bot before looking at the code |
+| I4 — There is no way to take a pin down. Deleting the post by hand leaves its `pinboard_posts` row, and the next 📌 added or removed on the source message posts it again, even below the threshold | The worker's delete listener looks the row up by `message_id`, the source message's id (`data.js` `getPinboardPost`), so deleting the pin post itself matches nothing. `handleReactionChange` skips only when `reactionCount < threshold && !existing`, so a stale row re-posts at one reaction; at zero it deletes the row. The same at `11f4e9e` | Outside scope: new behaviour (an unpin command, or cleanup when a pin post is deleted) | Recommended: a later build (W12). Until then, see the workaround in I4's note under *Next steps* |
 
 ## Final acceptance
 
@@ -91,13 +93,13 @@ FA6, which runs an insert that changes no row. `/debug reset` is not run.
 
 | # | Check | How | Result |
 |---|---|---|---|
-| FA1 | Both dynos boot on the reviewed commit | Heroku log after the push: `[Messages] file=messages.json messages=114 problems=0` from web and worker, the worker's login line, no `DeprecationWarning` | pending |
-| FA2 | `/pinboard whitelist_list` reads as before (F3.1, never live) | The developer runs it: the pinboard channel line, a blank line, "Whitelisted channels:", then each channel | pending |
-| FA3 | Forcepin's format error (F3.3, never live) | `/pinboard forcepin message_url: not a link` gives `❌ Invalid message URL format…`; nothing posted | pending |
-| FA4 | The channel denial (F3.5, never live) | `/balance` in a channel not on `ALLOWED_CHANNEL_IDS` gives `❌ This bot can only be used in specific channels.` | pending |
-| FA5 | The bet form's options placeholder (`buildOptionsPlaceholder`'s limit now from `TEXT_LIMITS`) | `/bet <id>` on an active prediction: the form opens and its placeholder lists the options. Close it without submitting | pending |
-| FA6 | `whitelist_add` on a channel already listed (F3.2, never live) | `/pinboard whitelist_add` with a channel the FA2 list already shows: "✅ Added … to the pinboard whitelist."; `ON CONFLICT DO NOTHING` leaves the table as it was | pending |
-| FA7 | A brand-new pin (M2's limit: the worker's `send` path) | The developer looks in the pinboard channel for a pin first posted after 2026-11-13: it reads "📌 N Pins" and "Posted by" as before | pending |
+| FA1 | Both dynos boot on the reviewed commit | Heroku log after the push: `[Messages] file=messages.json messages=114 problems=0` from web and worker, the worker's login line, no `DeprecationWarning` | Pass: `origin/main` at `21406ef`; build succeeded 2026-11-14 22:23, web and worker both `messages=114 problems=0`, worker logged in as GravityBot#7124, no warning |
+| FA2 | `/pinboard whitelist_list` reads as before (F3.1, never live) | The developer runs it: the pinboard channel line, a blank line, "Whitelisted channels:", then each channel | Pass: developer ran it after re-adding the bot (I3) |
+| FA3 | Forcepin's format error (F3.3, never live) | `/pinboard forcepin message_url: not a link` gives `❌ Invalid message URL format…`; nothing posted | Pass |
+| FA4 | The channel denial (F3.5, never live) | `/balance` in a channel not on `ALLOWED_CHANNEL_IDS` gives `❌ This bot can only be used in specific channels.` | Pass |
+| FA5 | The bet form's options placeholder (`buildOptionsPlaceholder`'s limit now from `TEXT_LIMITS`) | `/bet <id>` on an active prediction: the form opens and its placeholder lists the options. Close it without submitting | Pass |
+| FA6 | `whitelist_add` on a channel already listed (F3.2, never live) | `/pinboard whitelist_add` with a channel the FA2 list already shows: "✅ Added … to the pinboard whitelist."; `ON CONFLICT DO NOTHING` leaves the table as it was | Pass: reply as expected, no row changed |
+| FA7 | A brand-new pin (M2's limit: the worker's `send` path) | The developer looks in the pinboard channel for a pin first posted after 2026-11-13: it reads "📌 N Pins" and "Posted by" as before | Pass: developer saw a new pin read as before |
 
 ## What this build retired
 
@@ -128,6 +130,11 @@ What is waiting, from this build and earlier ones:
   no-winners and no-refunds announcements). Goes with whichever build next touches betting.
 - **W11 (I2)**: the delete listener's duplication. Goes with whichever build next touches the
   worker.
+- **W12 (I4)**: a way to take a pin down. Until it exists, an admin deletes the pin post, then
+  removes its row with `/debug sql`:
+  `DELETE FROM pinboard_posts WHERE message_id = '<source message id>'`, after a `SELECT` with
+  the same `WHERE` shows the one row. Without the row deleted, the pin comes back at the next
+  📌 on the source message. W12 and W11 touch the same listener, so they fit one build.
 
 Recommended order:
 
@@ -143,5 +150,7 @@ Recommended order:
 ## Edit log
 
 - **2026-11-14** — review drafted: deployment and rollback, documents checked, CLAUDE.md and README updated, I1 and I2 found, final acceptance planned.
+- **2026-11-14** — FA1 passed on `21406ef`. I3: admin commands not reaching app, fixed by re-adding bot.
+- **2026-11-14** — FA2-FA7 passed; M2 now Pass. I4 (no way to take a pin down) found, W12.
 
 ## Evidence

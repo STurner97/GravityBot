@@ -9,7 +9,7 @@ prose below the fence, not the table.
 |---|---|---|---|---|
 | [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
 | [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 5-publish | signed off | — | build complete |
-| [Build 03 — Pinboard, debug and channel-denial messages from the template file](03-remaining-wording/0-build.md) | 4-review | in progress | — | developer pushes review commit, runs FA1-FA7 in 4-review.md, pastes boot log |
+| [Build 03 — Pinboard, debug and channel-denial messages from the template file](03-remaining-wording/0-build.md) | 4-review | awaiting sign-off | — | developer signs off review; agrees I1 to build 04 (small), I2+I4 to a later worker build |
 
 **By phase**
 
