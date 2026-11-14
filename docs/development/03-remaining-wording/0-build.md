@@ -1,7 +1,7 @@
 ---
 build: 03-remaining-wording
-phase: 4-review
-status: signed-off
+phase: 5-publish
+status: awaiting-signoff
 size: standard
 format: 2
 signed_off: 1-requirements, 2-design, 3-development, 4-review
@@ -10,8 +10,8 @@ blocked_on:
 accepted: 10e57e7ff70d83cbc3d2a84908de121e218b2830
 version: 1.3.0-alpha
 stage: alpha
-gate: documents match reality, final acceptance passed, next steps written
-next: advance to 5-publish
+gate: developer confirms the distributable installs and runs; version and stage recorded, or nothing to publish
+next: developer confirms install rows 1-2 (Heroku release and logs) and signs off publish
 updated: 2026-11-14
 ---
 
