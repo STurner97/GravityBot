@@ -10,8 +10,8 @@ blocked_on:
 version: 1.3.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: Developer pushes F2 (git push origin main) and runs F2.1-F2.4 per 3-development.md; also pastes worker login line for S1
-updated: 2026-11-13
+next: Developer pushes F3 (git push origin main) and runs F3.1-F3.5 per 3-development.md
+updated: 2026-11-14
 ---
 
 # Build 03 — Pinboard, debug and channel-denial messages from the template file

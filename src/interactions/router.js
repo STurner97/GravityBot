@@ -3,6 +3,7 @@ import { commandHandlers, modalHandlers, buttonHandlers } from './registry.js';
 import { ALLOWED_CHANNEL_IDS } from '../config.js';
 import { pong, ephemeral } from '../lib/response.js';
 import { decode } from '../lib/customId.js';
+import { messageText } from '../lib/messages/index.js';
 
 export async function handleInteraction(req, res) {
   try {
@@ -16,7 +17,7 @@ export async function handleInteraction(req, res) {
     if (ALLOWED_CHANNEL_IDS.length > 0) {
       const channelId = req.body.channel?.id || req.body.channel_id;
       if (channelId && !ALLOWED_CHANNEL_IDS.includes(channelId)) {
-        return res.send(ephemeral('❌ This bot can only be used in specific channels.'));
+        return res.send(ephemeral(messageText('denied.channel')));
       }
     }
 

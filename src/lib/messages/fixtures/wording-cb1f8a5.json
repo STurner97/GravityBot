@@ -26,7 +26,8 @@
     "empty": "💰 Everyone has the default balance (1000 credits)."
   },
   "denied": {
-    "admin": "❌ You do not have permission to use this command."
+    "admin": "❌ You do not have permission to use this command.",
+    "channel": "❌ This bot can only be used in specific channels."
   },
   "prediction": {
     "notFound": {
@@ -278,6 +279,59 @@
     }
   },
   "pinboard": {
+    "missingSubcommand": "❌ Missing pinboard subcommand.",
+    "unknownSubcommand": "❌ Unknown pinboard subcommand.",
+    "setChannel": {
+      "missing": "❌ Missing channel for pinboard target.",
+      "done": {
+        "uses": "{channelId}",
+        "text": "📌 Pinboard channel set to <#{channelId}>."
+      }
+    },
+    "whitelistAdd": {
+      "missing": "❌ Missing channel to whitelist.",
+      "done": {
+        "uses": "{channelId}",
+        "text": "✅ Added <#{channelId}> to the pinboard whitelist."
+      }
+    },
+    "whitelistRemove": {
+      "missing": "❌ Missing channel to remove.",
+      "done": {
+        "uses": "{channelId}",
+        "text": "✅ Removed <#{channelId}> from the pinboard whitelist."
+      }
+    },
+    "whitelist": {
+      "target": {
+        "uses": "{target}",
+        "text": ["📌 Pinboard channel: {target}", ""]
+      },
+      "targetChannel": {
+        "uses": "{channelId}",
+        "text": "<#{channelId}>"
+      },
+      "targetNotSet": "not set",
+      "channels": {
+        "header": ["Whitelisted channels:", ""],
+        "item": {
+          "uses": "{channelId}",
+          "text": "<#{channelId}>"
+        },
+        "separator": ["", ""],
+        "empty": "Whitelist is empty."
+      }
+    },
+    "forcepin": {
+      "missingUrl": "❌ Message URL is required.",
+      "invalidUrl": "❌ Invalid message URL format. Right-click a message and select \"Copy Message Link\".",
+      "noTarget": "❌ Pinboard target channel not set.",
+      "done": {
+        "uses": "{pinUrl}",
+        "text": "✅ Force pinned message: {pinUrl}"
+      },
+      "failed": "❌ Failed to force pin."
+    },
     "post": {
       "heading": {
         "uses": "{count}",

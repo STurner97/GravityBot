@@ -23,7 +23,7 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 | Feature | Requirements | Status |
 |---|---|---|
 | F1 — The pin post from the file | M3, M4, S1; M1, M2 for `pinboard.post.*` | accepted: pin re-render and worker boot checked live; the `send` path waits for a real pin |
-| F2 — Debug from the file, generic reset error | M1, M2 for `debug.*`; M6 | in acceptance: built and tested, waiting for push and the live check |
+| F2 — Debug from the file, generic reset error | M1, M2 for `debug.*`; M6 | accepted: F2.1 to F2.4 passed live after deploy `ca9e434` |
 | F3 — Pinboard replies, generic forcepin error, channel denial | M1, M2 for the rest; M7 | planned |
 | F4 — Length limits and the dead file | M5, M8 | planned |
 
@@ -33,6 +33,7 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 |---|---|---|---|
 | M3 | The worker reads `messages.json` and checks it at startup | `pinboardEmbed.js` imports the messages module; the worker imports it too. Live worker log after deploy `ca9e434`: `[Messages] file=messages.json messages=96 problems=0`, then `Worker logged in as GravityBot#7124` | Pass |
 | M4 | A broken pin message fails only that post | `helpers.test.js`: with a broken `text`, `buildPostPayload` and `publishOrUpdatePin` throw and a fake channel's `send` and `edit` are never called. `reportFailures.test.js`: the failure is logged and not thrown | Pass (unit); live not exercised |
+| M1 | Every message of the three features comes from the file | Final search after F3: no user text left in `pinboard/`, `debug/` or `router.js`, apart from the 📌 reaction-emoji constant (`data.js`, configuration not wording), W2 and W9. Startup line `messages=114 problems=0` | Pass (code search); live smoke after F3 |
 | M6 | `/debug reset` shows a generic error when the reset fails | `buttons.test.js`: an injected failing reset gives `❌ Reset failed.`, the reply holds none of the error, and the log line is `[Debug] action=resetDatabase failed` with the thrown error. Not run live (a real reset empties every table) | Pass (unit) |
 | S1 | The worker listens for `clientReady` | `Events.ClientReady` in `worker/index.js`. Live worker boot log (2026-11-14 21:52): login line, no `DeprecationWarning` | Pass |
 
@@ -42,10 +43,15 @@ discord.js v14, Express, PostgreSQL. Nothing is scaffolded and no dependency is 
 |---|---|---|---|
 | F1.1 | Worker boot log | After push: `heroku logs --dyno worker` shows `[Messages] … messages=66 problems=0` and the login line, no `DeprecationWarning` | worker `[Messages] … messages=96 problems=0`, login line, no `DeprecationWarning` (deploy `ca9e434`, 2026-11-14) | Pass |
 | F1.2 | A pin re-renders from the file | The developer adds 📌 to a message on the pinboard that someone else wrote, sees "N+1 Pins", then removes the reaction | Pass: developer reports the pin looks fine. Edit path only; the `send` path waits for a real pin |
-| F2.1 | `/debug stats`, `recent`, `prediction <id>` read as before | After push, the developer runs each; all read-only | not yet run |
-| F2.2 | `/debug user` on the developer only | It writes a `users` row for anyone without one | not yet run |
-| F2.3 | SQL modal | Open it, submit `SELECT 1 AS one`: "Query executed. (1 rows)" and a one-row table | not yet run |
-| F2.4 | Reset prompt | Run `/debug reset`, press **Cancel**. Never **Yes** | not yet run |
+| F2.1 | `/debug stats`, `recent`, `prediction <id>` read as before | After push, the developer runs each; all read-only | Pass: developer ran it after deploy `ca9e434` (2026-11-14) |
+| F2.2 | `/debug user` on the developer only | It writes a `users` row for anyone without one | Pass: developer ran it after deploy `ca9e434` (2026-11-14) |
+| F2.3 | SQL modal | Open it, submit `SELECT 1 AS one`: "Query executed. (1 rows)" and a one-row table | Pass: developer ran it after deploy `ca9e434` (2026-11-14) |
+| F2.4 | Reset prompt | Run `/debug reset`, press **Cancel**. Never **Yes** | Pass: developer ran it after deploy `ca9e434` (2026-11-14) |
+| F3.1 | `/pinboard whitelist_list` reads as before | After push, the developer runs it | not yet run |
+| F3.2 | `whitelist_add` on a channel already listed | Shows "Added …"; `ON CONFLICT DO NOTHING` changes nothing | not yet run |
+| F3.3 | Forcepin with `not a link` | Gives the format error; nothing is read or written | not yet run |
+| F3.4 | Forcepin on a real channel link with a made-up message id | Generic reply `❌ Failed to force pin.`; Heroku log holds Discord's error (`[Pinboard] Force pin failed`); nothing posted | not yet run |
+| F3.5 | Channel denial | Any command in a channel off `ALLOWED_CHANNEL_IDS` shows the denial and reads nothing | not yet run |
 
 ## Feedback and triage
 
@@ -75,6 +81,10 @@ See [2-design.md](2-design.md) for the whole design. What F1 built:
   `buildDebugComponents.js` (reset prompt and SQL modal) and `formatSqlResult.js` (words from
   the file, table layout in code). Each takes `text`, `messageText` by default. A reply that is
   a summary plus a list is two messages; the code joins them.
+- **The pinboard and router** follow the same pattern: `formatWhitelist.js` builds the
+  `whitelist_list` reply (summary and list are two messages joined in code) and `handlers.js`
+  dispatches through a `SUBCOMMANDS` map. Forcepin's `catch` logs the full error and replies
+  `pinboard.forcepin.failed`, which declares no values.
 - **`handleConfirmReset` takes `reset` as a required option**, not defaulting to
   `resetDatabase` as the design sketched. A default would make `buttons.js` import `betting.js`,
   which needs production environment variables at import, so its test could not load.
@@ -105,5 +115,9 @@ None yet.
 - **2026-11-13** — F2 built test-first: `debug.*` messages (30), formatters, reset failure handling; startup line now `messages=96`.
 
 - **2026-11-14** — F1 accepted: worker boot log shows messages line, login, no warning. F2 deployed (ca9e434); F2.1-F2.4 awaiting rerun.
+
+- **2026-11-14** — F2 accepted: F2.1-F2.4 passed live on ca9e434.
+
+- **2026-11-14** — F3 built test-first: 20 `pinboard.*` and `denied.channel` messages; startup line now `messages=114`; final M1 search done.
 
 ## Evidence

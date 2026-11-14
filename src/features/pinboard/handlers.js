@@ -10,63 +10,62 @@ import { buildPinboardEmbed } from './pinboardEmbed.js';
 import { DiscordRequest } from '../../../utils.js';
 import { ephemeral } from '../../lib/response.js';
 import { isAdmin } from '../../lib/auth.js';
+import { messageText } from '../../lib/messages/index.js';
+import { formatWhitelist } from './formatWhitelist.js';
+
+// The handlers are function declarations below, hoisted, so the map can name them directly.
+const SUBCOMMANDS = {
+  setchannel: handleSetChannel,
+  whitelist_add: handleWhitelistAdd,
+  whitelist_remove: handleWhitelistRemove,
+  whitelist_list: handleWhitelistList,
+  forcepin: handleForcePin,
+};
 
 export async function handlePinboard(interaction) {
   const { data, userId } = interaction;
 
   if (!isAdmin(userId)) {
-    return ephemeral('❌ You do not have permission to use this command.');
+    return ephemeral(messageText('denied.admin'));
   }
 
   const subcommand = data.options?.[0];
   if (!subcommand) {
-    return ephemeral('❌ Missing pinboard subcommand.');
+    return ephemeral(messageText('pinboard.missingSubcommand'));
   }
 
-  if (subcommand.name === 'setchannel') {
-    return handleSetChannel(subcommand);
+  const run = SUBCOMMANDS[subcommand.name];
+  if (!run) {
+    return ephemeral(messageText('pinboard.unknownSubcommand'));
   }
-  if (subcommand.name === 'whitelist_add') {
-    return handleWhitelistAdd(subcommand);
-  }
-  if (subcommand.name === 'whitelist_remove') {
-    return handleWhitelistRemove(subcommand);
-  }
-  if (subcommand.name === 'whitelist_list') {
-    return handleWhitelistList();
-  }
-  if (subcommand.name === 'forcepin') {
-    return handleForcePin(subcommand);
-  }
-
-  return ephemeral('❌ Unknown pinboard subcommand.');
+  return run(subcommand);
 }
 
 async function handleSetChannel(subcommand) {
   const channelId = subcommand.options?.find(opt => opt.name === 'channel')?.value;
   if (!channelId) {
-    return ephemeral('❌ Missing channel for pinboard target.');
+    return ephemeral(messageText('pinboard.setChannel.missing'));
   }
   await setPinboardChannel(channelId);
-  return ephemeral(`📌 Pinboard channel set to <#${channelId}>.`);
+  return ephemeral(messageText('pinboard.setChannel.done', { channelId }));
 }
 
 async function handleWhitelistAdd(subcommand) {
   const channelId = subcommand.options?.find(opt => opt.name === 'channel')?.value;
   if (!channelId) {
-    return ephemeral('❌ Missing channel to whitelist.');
+    return ephemeral(messageText('pinboard.whitelistAdd.missing'));
   }
   await addPinboardWhitelist(channelId);
-  return ephemeral(`✅ Added <#${channelId}> to the pinboard whitelist.`);
+  return ephemeral(messageText('pinboard.whitelistAdd.done', { channelId }));
 }
 
 async function handleWhitelistRemove(subcommand) {
   const channelId = subcommand.options?.find(opt => opt.name === 'channel')?.value;
   if (!channelId) {
-    return ephemeral('❌ Missing channel to remove.');
+    return ephemeral(messageText('pinboard.whitelistRemove.missing'));
   }
   await removePinboardWhitelist(channelId);
-  return ephemeral(`✅ Removed <#${channelId}> from the pinboard whitelist.`);
+  return ephemeral(messageText('pinboard.whitelistRemove.done', { channelId }));
 }
 
 async function handleWhitelistList() {
@@ -74,34 +73,25 @@ async function handleWhitelistList() {
     listPinboardWhitelist(),
     getPinboardConfig(),
   ]);
-  const targetText = config?.target_channel_id
-    ? `<#${config.target_channel_id}>`
-    : 'not set';
-
-  if (channels.length === 0) {
-    return ephemeral(`📌 Pinboard channel: ${targetText}\nWhitelist is empty.`);
-  }
-
-  const lines = channels.map(id => `<#${id}>`).join('\n');
-  return ephemeral(`📌 Pinboard channel: ${targetText}\nWhitelisted channels:\n${lines}`);
+  return ephemeral(formatWhitelist(config?.target_channel_id, channels));
 }
 
 async function handleForcePin(subcommand) {
   const messageUrl = subcommand.options?.find(opt => opt.name === 'message_url')?.value;
   if (!messageUrl) {
-    return ephemeral('❌ Message URL is required.');
+    return ephemeral(messageText('pinboard.forcepin.missingUrl'));
   }
 
   const urlMatch = messageUrl.match(/discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)/);
   if (!urlMatch) {
-    return ephemeral('❌ Invalid message URL format. Right-click a message and select "Copy Message Link".');
+    return ephemeral(messageText('pinboard.forcepin.invalidUrl'));
   }
 
   const [, guildId, channelId, messageId] = urlMatch;
 
   const config = await getPinboardConfig();
   if (!config?.target_channel_id) {
-    return ephemeral('❌ Pinboard target channel not set.');
+    return ephemeral(messageText('pinboard.forcepin.noTarget'));
   }
 
   try {
@@ -155,9 +145,11 @@ async function handleForcePin(subcommand) {
       reactionCount: 1,
     });
 
-    return ephemeral(`✅ Force pinned message: https://discord.com/channels/${guildId}/${config.target_channel_id}/${sentMessage.id}`);
+    return ephemeral(messageText('pinboard.forcepin.done', {
+      pinUrl: `https://discord.com/channels/${guildId}/${config.target_channel_id}/${sentMessage.id}`,
+    }));
   } catch (err) {
     console.error('[Pinboard] Force pin failed', err);
-    return ephemeral(`❌ Failed to force pin: ${err.message}`);
+    return ephemeral(messageText('pinboard.forcepin.failed'));
   }
 }
