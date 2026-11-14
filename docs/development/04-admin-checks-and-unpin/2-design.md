@@ -7,49 +7,54 @@
 
 ## Part 1 — Research
 
-Each topic from [1-requirements.md](1-requirements.md), what settled it, and the answer. The
-quoted commands and output are under [Evidence](#evidence), in the order below.
+This part gives each topic from [1-requirements.md](1-requirements.md), the data that settled
+it, and the answer. [Evidence](#evidence) quotes the commands and their output, in the order
+below.
 
 ### R1 — What the worker receives when a pin post is deleted
 
-The worker runs discord.js 14.25.1 with `Partials.Message` and `Partials.Channel` on. With a
-partial enabled, discord.js builds a partial object instead of dropping the event
-(`getPayload`). So `MessageDelete` fires for every deleted message in a channel the worker can
-see, cached or not, and the message carries its `id` and `channelId`. Pin posts the worker sent
-before its last restart are not cached, and they still arrive.
+The worker runs discord.js 14.25.1 with `Partials.Message` and `Partials.Channel` on. When a
+partial is on, discord.js makes a partial object and does not drop the event (`getPayload`).
+Thus `MessageDelete` fires for every deleted message in a channel that the worker can see. The
+message can be in the cache or not. The event message carries its `id` and `channelId`. The
+cache does not hold pin posts that the worker sent before its last restart, but their delete
+events still arrive.
 
-A purge of several messages arrives as `MessageBulkDelete` instead, with a collection of
-partial messages, as long as the channel is cached. Guild text channels are cached by the
-`Guilds` intent, which the worker has. The bulk messages are built with `cache: false`, so they
-carry ids only, which is all the takedown needs.
+A purge of several messages arrives as one `MessageBulkDelete` event. The event carries a
+collection of partial messages. discord.js sends it only when the channel is in the cache. The
+`Guilds` intent puts guild text channels in the cache, and the worker has that intent.
+discord.js makes the bulk messages with `cache: false`. They carry only their ids, and the
+takedown needs only the ids.
 
-No query looks a row up by `pinboard_message_id` today. One new query finds every row whose
-`message_id` or `pinboard_message_id` is the deleted id. It returns rows, not a row: if the
-pinboard channel is itself whitelisted, a pin post can be the source of another pin.
+Today, no query finds a row by its `pinboard_message_id`. One new query finds every row whose
+`message_id` or `pinboard_message_id` is the deleted id. The query returns a list of rows, not
+one row. The reason: if the pinboard channel is itself on the whitelist, a pin post can be the
+source of a different pin.
 
-The table is small (one row per pin ever made), so the lookup needs no index. One can be added
-later without changing any code.
+The table is small, with one row for each pin that the bot ever made. Thus the lookup needs no
+index. A later build can add an index with no change to the code.
 
 ### R2 — Telling the bot's own deletion from a person's
 
-`removeFromPinboard` deletes the post, then the row. With that order, the delete event for the
-bot's own removal can arrive while the row still exists, and would be read as a person taking
-the pin down.
+Today, `removeFromPinboard` deletes the post first and the row second. With that order, the
+delete event for the bot's own removal can arrive while the row still exists. The worker
+would then read the event as a person who took the pin down.
 
-Reversing the order settles it: the row is deleted first and awaited, and only then is the post
-deleted. Discord cannot report a deletion before the bot asks for it, so by the time the event
-arrives, no row names that post and the event does nothing. This holds whether or not Discord
-sends the bot events for its own deletions, so the design does not depend on that.
+The fix is to reverse the order. The worker deletes the row first and waits for the database.
+Only then does it delete the post. Discord cannot report a deletion before the bot asks for
+it. Thus, when the event arrives, no row names that post, and the event does nothing. This is
+true whether or not Discord sends the bot events for its own deletions. The design does not
+depend on that behaviour.
 
-A post deleted by a person always still has its row when the event arrives, because nothing
-else removes the row first.
+When a person deletes a post, the row always still exists when the event arrives. Nothing else
+deletes the row first.
 
 ### R3 — The stored shape and the deploy order
 
-One column, `pin_state`, records what a row is: `natural`, `forced` or `banned`. The three are
-exclusive, and a banned pin is only ever a natural one taken down, so one column with a check
-constraint makes impossible combinations (forced and banned) unstorable. Two booleans would
-allow them.
+One column, `pin_state`, records the kind of each row: `natural`, `forced` or `banned`. Only
+one of the three can be true at a time. A banned pin is always a natural pin that a person
+took down. One column with a check constraint makes it impossible to store a row that is both
+forced and banned. Two booleans would let the database store that row.
 
 ```sql
 ALTER TABLE pinboard_posts
@@ -57,71 +62,75 @@ ALTER TABLE pinboard_posts
   CHECK (pin_state IN ('natural', 'forced', 'banned'));
 ```
 
-PostgreSQL returns a constant default for every existing row without rewriting the table, so
-every row made before this build reads as `natural` (M8), and no row's values change.
+PostgreSQL gives a constant default to every existing row and does not rewrite the table.
+Thus every row from before this build reads as `natural` (M8). The statement changes no
+value in any row.
 
-**Deploy order.** Every query on `pinboard_posts` names its columns, so the code running today
-ignores a new column, and its inserts take the default. New code that reads `pin_state` fails
-until the column exists. So the column goes in first:
+**Deploy order.** Every query on `pinboard_posts` names its columns. Thus the code that runs
+today ignores a new column, and its inserts get the default. New code that reads `pin_state`
+fails until the column exists. For that reason, the column goes in first:
 
-1. **Push A**: `migrate.js` with the new statement, and the version stamp. Nothing else changes,
-   so both dynos run today's behaviour.
-2. **The migration**, run once by hand (`npm run migrate`; the Procfile has no release step). On
-   Heroku a one-off dyno runs the code already deployed, which is why push A comes first.
+1. **Push A**: `migrate.js` with the new statement, and the version stamp. Nothing else
+   changes. Both dynos keep today's behaviour.
+2. **The migration**: the developer runs `npm run migrate` one time, by hand. The Procfile has
+   no release step. On Heroku, a one-off dyno runs the code that is already deployed. That is
+   why push A comes first.
 3. **Push B**: the code that uses `pin_state`.
 
-Between any two steps, both dynos work. A push restarts both dynos; a pin post deleted in the
-seconds the worker is down is not seen (W3).
+Between any two steps, both dynos work. A push restarts both dynos. If a person deletes a pin
+post in the seconds while the worker is down, the worker does not see it (W3).
 
-The migration's other statements are all `IF NOT EXISTS` or guarded, so running it again
-changes nothing. The developer runs it from the Heroku dashboard's Run console (O1), so the
-database URL never leaves Heroku.
+The other statements in the migration all use `IF NOT EXISTS` or a guard. Thus a second run
+changes nothing. The developer runs the migration from the Run console in the Heroku dashboard
+(O1). The database URL stays on Heroku.
 
 ### R4 — How each kind of row reacts to 📌
 
-A pure function decides, from the row, the count and the threshold:
+A pure function makes the decision from the row, the count and the threshold:
 
 | Row | Count | Outcome |
 |---|---|---|
-| banned | any | Nothing. The row stays, even at zero (M3) |
-| natural or forced | zero | Bot removes post and row, bans nothing (M7) |
+| banned | any | Nothing. The row stays, also at zero (M3) |
+| natural or forced | zero | The bot deletes the post and the row. It bans nothing (M7) |
 | none | below threshold | Nothing |
 | none | at or above threshold | Post, as `natural` |
-| forced | above zero, below threshold | Update post, stays `forced` |
-| natural or forced | at or above threshold | Update post, becomes or stays `natural` (M5) |
-| natural | above zero, below threshold | Update post, stays `natural` (as today) |
+| forced | above zero, below threshold | Update the post. The row stays `forced` |
+| natural or forced | at or above threshold | Update the post. The row becomes or stays `natural` (M5) |
+| natural | above zero, below threshold | Update the post. The row stays `natural` (as today) |
 
-A forced pin whose 📌 go from one back to zero is removed by the bot, as today. M7 keeps that
-behaviour; it is named here because it means a single 📌 added and removed clears a forced
-pin.
+When the 📌 on a forced pin go from one back to zero, the bot deletes the pin, as it does
+today. M7 keeps that behaviour. This section names it because of one result: if a person adds
+one 📌 and then takes it away, the forced pin goes.
 
-Today the first 📌 change rewrites a forced post as an ordinary one. With the state stored, the
-post keeps the forced heading until the pin turns natural, then shows the ordinary count
-heading (O2).
+Today, the first 📌 change rewrites a forced post as an ordinary post. When the database
+stores the state, the post can keep the forced heading until the pin becomes natural. Then the
+post shows the ordinary heading with the count (O2).
 
 ### R5 — Forcepin
 
-Forcepin builds its own post and upserts the row with a count of 1. It will pass
-`pin_state: 'forced'`, and the upsert sets `pin_state` on conflict as well as on insert. A
-banned row is overwritten with `forced` and the new post's id, which lifts the ban (M6).
+Forcepin makes its own post and writes the row with an upsert and a count of 1. It will send
+`pin_state: 'forced'`. The upsert sets `pin_state` on a conflict and on an insert. A forcepin
+on a banned row writes `forced` and the id of the new post over the old values. This lifts the
+ban (M6).
 
-Forcepin on a message that is already on the board posts a second copy and points the row at
-it, as today. The first copy is left with no row, so deleting it does nothing. That is
-existing behaviour this build does not change.
+A forcepin on a message that is already on the board posts a second copy, and the row then
+points to the second copy. This is today's behaviour. No row points to the first copy, so a
+deletion of the first copy does nothing. This build does not change that behaviour.
 
 ### R6 — The admin checks, testably
 
-`isAdmin` imports `config.js`, which throws without the production environment variables, so a
-test cannot import it. Both handlers take it as a dependency, the way `handleConfirmReset`
-already takes `reset`, and the registration passes the real one.
+`isAdmin` imports `config.js`. `config.js` throws an error when the production environment
+variables are missing. Thus a test cannot import `isAdmin`. Both handlers get `isAdmin` as a
+dependency, as `handleConfirmReset` already gets `reset`. The registration gives the real
+function.
 
-`handleResolveModal` sits in `modals.js`, which imports `betting.js` and so the database. It
-moves to its own file, `resolveModal.js`, taking `isAdmin`, `getPrediction` and
-`resolvePrediction` as dependencies, so its test loads no database. `modals.js` keeps the other
-two forms.
+`handleResolveModal` is in `modals.js`, and `modals.js` imports `betting.js`, which loads the
+database. The handler moves to its own file, `resolveModal.js`. It gets `isAdmin`,
+`getPrediction` and `resolvePrediction` as dependencies. Thus its test loads no database.
+`modals.js` keeps the other two forms.
 
-Nothing in the codebase logs a denial today. A small shared helper logs the line and returns
-the `denied.admin` reply, so the two checks cannot drift apart:
+Today, no code in the codebase logs a denial. A small shared helper writes the log line and
+returns the `denied.admin` reply. Because both checks use the helper, they cannot drift apart:
 
 ```
 [Debug] userId=<id> action=confirmReset denied=notAdmin
@@ -130,25 +139,27 @@ the `denied.admin` reply, so the two checks cannot drift apart:
 
 ### R7 — A live acceptance plan under the live-data rule
 
-- **M1.** Nobody else can click an admin's ephemeral reset prompt, so the denial is
-  unit-tested only. Live, the developer opens the prompt and presses Cancel. A real reset is
-  never run.
+- **M1.** No other person can click an ephemeral reset prompt that an admin sees. Thus only a
+  unit test proves the denial. Live, the developer opens the prompt and clicks Cancel. Nobody
+  runs a real reset.
 - **M2.** `/resolve` opens the form for any prediction that exists, resolved or not.
-  `resolvePrediction` refuses an already-resolved prediction before its first write. So the
-  developer submits the form for an already-resolved prediction and gets "❌ This prediction is
-  already resolved": the submit passed the check and reached the read, and nothing changed.
-  The developer picks the prediction at the time (O3).
-- **M4, M7.** The developer force-pins a throwaway message of their own. It is public in the
-  pinboard channel for about a minute. A `/debug sql` `SELECT` shows it `forced`, the developer
-  deletes the post, and the `SELECT` shows no row. Then the developer force-pins it again and
-  deletes the source message: the bot removes post and row, and nothing is banned.
-- **M3, M5, M6.** Seeing a natural pin live needs one: the threshold's worth of 📌 from people
-  other than the author. No natural pin is touched live; these three are unit-tested only
-  (O4). M6's forcepin side is still seen live, on the throwaway message.
-- **M8.** `/debug sql` counts rows before push A, and counts them by `pin_state` after the
-  migration.
+  `resolvePrediction` refuses an already-resolved prediction before its first write. The
+  developer submits the form for an already-resolved prediction. The reply is "❌ This
+  prediction is already resolved". This proves that the submit passed the check and got to the
+  read. No data changed. The developer selects the prediction at that time (O3).
+- **M4, M7.** The developer force-pins a throwaway message of their own. The pin is public in
+  the pinboard channel for approximately one minute. A `/debug sql` `SELECT` shows the row as
+  `forced`. The developer deletes the post, and the `SELECT` then shows no row. Next, the
+  developer force-pins the message again and deletes the source message. The bot deletes the
+  post and the row, and it bans nothing.
+- **M3, M5, M6.** A live check of a natural pin needs a natural pin. That needs as many 📌 as
+  the threshold, from persons other than the author. The developer does not touch a natural pin
+  live. Only unit tests prove these three (O4). The live check on the throwaway message still
+  shows the forcepin part of M6.
+- **M8.** `/debug sql` counts the rows before push A. After the migration, it counts the rows
+  for each `pin_state`.
 
-The `SELECT`s, all read-only:
+The `SELECT`s. All of them only read data:
 
 ```sql
 SELECT count(*) FROM pinboard_posts;
@@ -160,43 +171,46 @@ SELECT message_id, pinboard_message_id, pin_state FROM pinboard_posts WHERE mess
 
 ### Core functionality
 
-Two admin-only actions check `ADMIN_IDS` again at the point they write: the reset prompt's
-buttons, and the `/resolve` form submit. Anyone not on the list gets the usual "admins only"
-reply, and the denial is logged.
+Two admin-only actions check `ADMIN_IDS` again at the point where they write. The first is the
+pair of buttons on the reset prompt. The second is the `/resolve` form submit. A person who is
+not on the list gets the usual "admins only" reply, and the bot logs the denial.
 
-The pinboard learns the difference between a pin the server earned and one an admin forced.
-An admin takes a pin down by deleting its post in the pinboard channel:
+The pinboard learns the difference between a pin that the server earned and a pin that an
+admin forced. An admin takes a pin down when they delete its post in the pinboard channel:
 
-- a **forced** pin is forgotten, so the message is ordinary again;
-- a **natural** pin is banned, and 📌 never brings it back;
-- **forcepin** brings back a banned pin as a forced one.
+- The bot forgets a **forced** pin. The message is then an ordinary message again.
+- The bot bans a **natural** pin. No 📌 brings it back.
+- **Forcepin** brings back a banned pin as a forced pin.
 
-A forced pin whose 📌 reach the threshold becomes natural. The bot's own removals (📌 down to
-zero, source message deleted) work as today and ban nothing.
+A forced pin becomes natural when its 📌 reach the threshold. The bot's own removals work as
+today and ban nothing. The bot deletes the post and row of a pin when its 📌 go down to zero,
+and when a person deletes its source message.
 
 ### Technical integration / back end
 
-The stack is the project's own and binding: Node.js ES modules, discord.js v14, Express,
-PostgreSQL. No new dependency.
+The stack is the project's own stack, and it is binding: Node.js ES modules, discord.js v14,
+Express, PostgreSQL. The build adds no dependency.
 
-The pattern follows the codebase: pure decisions in their own files with unit tests, thin
-adapters around Discord and the database, and dependencies passed in where a test needs to
-replace them.
+The pattern follows the codebase:
+
+- Pure decisions go in their own files, with unit tests.
+- Thin adapters sit around Discord and the database.
+- A handler gets a dependency as an argument where a test must replace it.
 
 **Pinboard: new and changed parts**
 
 | Part | File | What it does |
 |---|---|---|
 | `PIN_STATE` | `pinboard/data.js` | The three state names, as constants |
-| `findPinboardPostsByAnyMessageId(id)` | `pinboard/data.js` | Rows whose source or post is `id` |
+| `findPinboardPostsByAnyMessageId(id)` | `pinboard/data.js` | Finds the rows whose source or post is `id` |
 | `markPinboardPostBanned(messageId)` | `pinboard/data.js` | Sets `pin_state` to `banned` |
-| `upsertPinboardPost({ …, pinState })` | `pinboard/data.js` | Writes `pin_state` on insert and conflict |
-| `decideReactionOutcome({ row, reactionCount, threshold })` | `worker/pinRules.js` | R4's table, pure |
-| `decideDeletionOutcome(deletedId, row)` | `worker/pinRules.js` | `removePin`, `forget`, `ban` or `nothing`, pure |
-| `handleReactionChange` | `worker/handleReactionChange.js` | Acts on the reaction outcome |
-| `handleMessageDeleted(client, deletedId, deps)` | `worker/handleMessageDeleted.js` | Acts on each row's deletion outcome |
-| `removeFromPinboard` | `worker/helpers.js` | Row first, then post (R2) |
-| `publishOrUpdatePin(…, pinState)` | `worker/helpers.js` | Writes the state; forced heading while `forced` (O2) |
+| `upsertPinboardPost({ …, pinState })` | `pinboard/data.js` | Writes `pin_state` on an insert and on a conflict |
+| `decideReactionOutcome({ row, reactionCount, threshold })` | `worker/pinRules.js` | The table in R4, as a pure function |
+| `decideDeletionOutcome(deletedId, row)` | `worker/pinRules.js` | Returns `removePin`, `forget`, `ban` or `nothing`. Pure |
+| `handleReactionChange` | `worker/handleReactionChange.js` | Does the reaction outcome |
+| `handleMessageDeleted(client, deletedId, deps)` | `worker/handleMessageDeleted.js` | Does the deletion outcome for each row |
+| `removeFromPinboard` | `worker/helpers.js` | Deletes the row first, then the post (R2) |
+| `publishOrUpdatePin(…, pinState)` | `worker/helpers.js` | Writes the state. Shows the forced heading while the row is `forced` (O2) |
 | Listeners | `worker/index.js` | `MessageDelete` and `MessageBulkDelete` both call `handleMessageDeleted` |
 | `handleForcePin` | `pinboard/handlers.js` | Writes `forced` |
 
@@ -204,98 +218,100 @@ replace them.
 
 | The deleted id is the row's | Row state | Outcome |
 |---|---|---|
-| source message | any | `removePin`: row, then post, as today (M7) |
+| source message | any | `removePin`: delete the row, then the post, as today (M7) |
 | pin post | `forced` | `forget`: delete the row (M4) |
-| pin post | `natural` | `ban`: mark the row `banned` (M3) |
+| pin post | `natural` | `ban`: set the row to `banned` (M3) |
 | pin post | `banned` | `nothing` |
 
-Each outcome is logged with the message ids, for example
+The worker logs each outcome with the message ids. For example:
 `[Pinboard] messageId=<id> pinboardMessageId=<id> action=takedown outcome=ban`.
 
 **Admin re-checks: new and changed parts**
 
 | Part | File | What it does |
 |---|---|---|
-| `denyNonAdmin({ tag, action, userId, fields, text })` | `src/lib/adminDenial.js` | Logs R6's line, returns the `denied.admin` reply |
-| `handleConfirmReset(interaction, { reset, isAdmin, text })` | `debug/buttons.js` | Checks first, on Yes and Cancel |
-| `handleResolveModal(interaction, { isAdmin, getPrediction, resolvePrediction, text })` | `betting/resolveModal.js` | Moved from `modals.js`; checks first |
-| Registrations | `debug/index.js`, `betting/index.js` | Pass the real `isAdmin` and data functions |
+| `denyNonAdmin({ tag, action, userId, fields, text })` | `src/lib/adminDenial.js` | Writes the log line from R6. Returns the `denied.admin` reply |
+| `handleConfirmReset(interaction, { reset, isAdmin, text })` | `debug/buttons.js` | Checks first, on Yes and on Cancel |
+| `handleResolveModal(interaction, { isAdmin, getPrediction, resolvePrediction, text })` | `betting/resolveModal.js` | Moves from `modals.js`. Checks first |
+| Registrations | `debug/index.js`, `betting/index.js` | Give the real `isAdmin` and data functions |
 
-`adminDenial.js` imports only `response.js` and the messages module, so tests can load it.
+`adminDenial.js` imports only `response.js` and the messages module. Thus tests can load it.
 
 ### Data
 
-`pinboard_posts` gains one column, `pin_state TEXT NOT NULL DEFAULT 'natural'`, checked to be
-`natural`, `forced` or `banned` (R3). No other table changes.
+`pinboard_posts` gets one new column, `pin_state TEXT NOT NULL DEFAULT 'natural'`. A check
+constraint permits only `natural`, `forced` or `banned` (R3). No other table changes.
 
 | State | Written by | Meaning |
 |---|---|---|
-| `natural` | the default; the worker when a pin reaches the threshold | Earned, or older than this build |
-| `forced` | forcepin | Forced, below the threshold |
-| `banned` | the worker, when a person deletes a natural pin's post | Off the board for good, unless forced |
+| `natural` | The default. Also the worker, when a pin reaches the threshold | The server earned the pin, or the pin is older than this build |
+| `forced` | Forcepin | An admin forced the pin, and it is below the threshold |
+| `banned` | The worker, when a person deletes the post of a natural pin | The pin stays off the board, until a forcepin |
 
 A banned row keeps its old `pinboard_message_id`, which names a deleted post. The column is
-`NOT NULL`, and the id is harmless: no event will name it again.
+`NOT NULL`. The old id causes no problem, because no event will name it again.
 
-**On upgrade:** push A, the migration, push B (R3). Existing rows read `natural` and keep
-updating as before. Before the migration, the developer counts rows; after it, the count by
-state must give the same total, all `natural`.
+**On upgrade:** push A, then the migration, then push B (R3). Existing rows read `natural`
+and update as before. Before the migration, the developer counts the rows. After the
+migration, the counts for each state must add up to the same total, and all rows must be
+`natural`.
 
-**On rollback:** reverting push B leaves the column, which today's code ignores. A banned row
-would then act as an ordinary pin again and re-post at the next 📌 change, which is today's
-behaviour for a deleted post. The column itself is never dropped.
+**On rollback:** a revert of push B leaves the column, and today's code ignores it. A banned
+row would then act as an ordinary pin again. It would post again at the next 📌 change. That
+is today's behaviour for a deleted post. Nobody drops the column.
 
 ### How each requirement is met
 
 | # | Satisfied by |
 |---|---|
-| M1 | `handleConfirmReset` calls `isAdmin` first, for Yes and Cancel, and returns `denyNonAdmin`'s reply |
+| M1 | `handleConfirmReset` calls `isAdmin` first, for Yes and for Cancel. On a denial it returns the reply from `denyNonAdmin` |
 | M2 | `handleResolveModal`, in `resolveModal.js`, calls `isAdmin` before `getPrediction` |
-| M3 | `decideDeletionOutcome` → `ban`; `decideReactionOutcome` ignores a banned row |
-| M4 | `decideDeletionOutcome` → `forget` deletes a forced row; a later 📌 is treated as a new message |
-| M5 | `decideReactionOutcome` writes `natural` once the count reaches the threshold |
-| M6 | `handleForcePin` upserts `forced`, overwriting `banned` |
-| M7 | `removeFromPinboard` deletes the row before the post (R2); source deletion → `removePin` |
-| M8 | One additive `ALTER TABLE … ADD COLUMN IF NOT EXISTS` with default `natural`; deploy order in R3 |
-| S1 | `handleMessageDeleted` calls `removeFromPinboard`; the copy in `worker/index.js` goes |
+| M3 | `decideDeletionOutcome` returns `ban`. `decideReactionOutcome` ignores a banned row |
+| M4 | `decideDeletionOutcome` returns `forget`, and the worker deletes the forced row. A later 📌 sees a new message |
+| M5 | `decideReactionOutcome` writes `natural` when the count reaches the threshold |
+| M6 | `handleForcePin` writes `forced` with an upsert, over `banned` |
+| M7 | `removeFromPinboard` deletes the row before the post (R2). A source deletion returns `removePin` |
+| M8 | One additive `ALTER TABLE … ADD COLUMN IF NOT EXISTS`, with the default `natural`. R3 gives the deploy order |
+| S1 | `handleMessageDeleted` calls `removeFromPinboard`. The copy in `worker/index.js` goes |
 
 ### Feature plan
 
-Takedown goes first: it holds both seams unit tests cannot see, the live database migration and
-Discord's delete events. The admin re-checks are web-dyno only and low risk.
+Takedown comes first. It holds both seams that unit tests cannot see: the migration of the
+live database, and the delete events from Discord. The admin re-checks run only on the web
+dyno, and their risk is low.
 
 | Feature | Requirements | Tests first | Accepted by |
 |---|---|---|---|
-| F1 — Taking pins down | M3, M4, M5, M6, M7, M8, S1 | `pinRules.test.js`: every row of R4's table and of the deletion table. `handleMessageDeleted.test.js` with fake data and client: forced → row gone; natural → banned; source → `removeFromPinboard`; bulk ids each handled; no row → nothing. `helpers.test.js`: `removeFromPinboard` deletes the row before calling Discord; `publishOrUpdatePin` passes the state through. Forcepin's upsert carries `forced` | Push A and migration: counts before and after (M8). Push B: the forced-pin checks of R7 (M4, M7, M6's forcepin side), and an existing pin updating at its next 📌 change (M8). M3 and M5 by unit test only (O4) |
-| F2 — Admin re-checks | M1, M2 | `buttons.test.js`: a non-admin on Yes and on Cancel gets the denial, `reset` is never called, and the line is logged; admins as before. `resolveModal.test.js`: a non-admin gets the denial and neither `getPrediction` nor `resolvePrediction` is called; an admin goes through. `adminDenial.test.js`: the reply and the log line | One push. The developer cancels a reset prompt; submits `/resolve` for an already-resolved prediction of their choosing and reads "already resolved" |
+| F1 — Taking pins down | M3, M4, M5, M6, M7, M8, S1 | `pinRules.test.js`: every row of the table in R4, and every row of the deletion table. `handleMessageDeleted.test.js`, with fake data and a fake client: a forced row goes. A natural row becomes banned. A source deletion calls `removeFromPinboard`. Each id in a bulk deletion gets its own outcome. No row means nothing happens. `helpers.test.js`: `removeFromPinboard` deletes the row before it calls Discord. `publishOrUpdatePin` sends the state to the upsert. The upsert from forcepin carries `forced` | Push A and the migration: counts before and after (M8). Push B: the forced-pin checks in R7 (M4, M7, and the forcepin part of M6). An existing pin updates at its next 📌 change (M8). Only unit tests prove M3 and M5 (O4) |
+| F2 — Admin re-checks | M1, M2 | `buttons.test.js`: a non-admin on Yes and on Cancel gets the denial. `reset` never runs, and the log has the line. Admins get the same result as before. `resolveModal.test.js`: a non-admin gets the denial. Neither `getPrediction` nor `resolvePrediction` runs. An admin goes through. `adminDenial.test.js`: the reply and the log line | One push. The developer cancels a reset prompt. Then the developer submits `/resolve` for an already-resolved prediction of their choice, and reads "already resolved" |
 
-The version is stamped in `package.json` in push A, so every acceptance runs 1.4.0-alpha.
+Push A stamps the version in `package.json`. Thus every acceptance runs 1.4.0-alpha.
 
 ### Manual checks
 
-The adapters stay thin, so what is left to check by hand is Discord's side and Heroku's:
+The adapters stay thin. What remains to check by hand is on the side of Discord and Heroku:
 
 | Check | Adapter | How |
 |---|---|---|
-| A deleted pin post reaches `handleMessageDeleted` | `MessageDelete` listener | F1's forced-pin check: the row goes when the post is deleted |
-| The bot's own removal bans nothing | `removeFromPinboard`'s order | F1: deleting the forced pin's source; the log shows `removePin` and no `ban` line |
-| A purge of several posts is handled | `MessageBulkDelete` listener | Not exercised live: a purge needs a bot or tool the server does not use. Unit-tested through `handleMessageDeleted`; the listener is one line |
-| Forcepin writes `forced` | `handleForcePin` | F1's `SELECT` after a forcepin |
-| A deleted natural post is banned | `MessageDelete` listener | Not exercised live (O4): it would take down a real pin. The listener path is the same one F1's forced-pin check exercises |
-| The migration runs on Heroku | `migrate.js` | F1's counts before and after |
-| A non-admin is denied | Both handlers | Not exercisable live: nobody else can use an admin's ephemeral prompt or form. Unit-tested |
+| A deleted pin post gets to `handleMessageDeleted` | `MessageDelete` listener | The forced-pin check in F1: the row goes when the developer deletes the post |
+| The bot's own removal bans nothing | The order in `removeFromPinboard` | F1: the developer deletes the source of the forced pin. The log shows `removePin` and no `ban` line |
+| The worker handles a purge of several posts | `MessageBulkDelete` listener | Not done live. A purge needs a bot or a tool that the server does not use. Unit tests cover it through `handleMessageDeleted`, and the listener is one line |
+| Forcepin writes `forced` | `handleForcePin` | The `SELECT` in F1 after a forcepin |
+| A deleted natural post becomes banned | `MessageDelete` listener | Not done live (O4), because it would take down a real pin. F1's forced-pin check uses the same listener path |
+| The migration runs on Heroku | `migrate.js` | The counts before and after, in F1 |
+| The bot denies a non-admin | Both handlers | Not possible live. No other person can use an ephemeral prompt or form that an admin sees. Unit tests cover it |
 
 ### What this build retires
 
-- The copy of `removeFromPinboard`'s body in the `MessageDelete` listener (I2, S1). The listener
-  becomes one call.
-- `handleResolveModal` leaves `modals.js` for its own file. This is a move, not a deletion.
-- The `/debug sql` takedown workaround in build 03's release notes, for any deletion after this
-  build is live. It stays documented for posts deleted before (W3).
-- The rewrite of a forced post as an ordinary one at its first 📌 change (O2).
+- The copy of the body of `removeFromPinboard` in the `MessageDelete` listener (I2, S1). The
+  listener becomes one call.
+- `handleResolveModal` moves from `modals.js` to its own file. This is a move, not a deletion.
+- The `/debug sql` takedown workaround in the release notes of build 03, for each deletion
+  after this build goes live. The workaround stays in the notes for posts deleted before (W3).
+- The rewrite of a forced post as an ordinary post at its first 📌 change (O2).
 
-The README's pinboard section and table list are updated in review to name `pin_state` and the
-takedown.
+In review, the agent updates the pinboard section and the table list in the README to name
+`pin_state` and the takedown.
 
 ### Version
 
@@ -304,14 +320,15 @@ takedown.
 | Target version | 1.4.0-alpha |
 | Stage | alpha |
 | Previous version | 1.3.0-alpha |
-| Why this number | Taking pins down is new behaviour, so MINOR goes up. The stage stays alpha: configuration (build 05) is still to come, and the roadmap is not full |
+| Why this number | Taking pins down is new behaviour, so MINOR goes up. The stage stays alpha. Configuration (build 05) is still to come, and the roadmap is not full |
 
 ## Edit log
 
-- **2026-11-14** — research R1-R7 with evidence; design, F1 takedown then F2 admin re-checks;
-  1.4.0-alpha; O1-O4 open.
+- **2026-11-14** — research R1-R7 with evidence. Design: F1 takedown, then F2 admin re-checks.
+  1.4.0-alpha. O1-O4 open.
 - **2026-11-14** — O1-O4 answered: Run console, forced heading kept, resolve test picked live,
   natural pins unit-tested only.
+- **2026-11-14** — prose rewritten in plain technical English (STE style). No design change.
 
 ## Evidence
 
