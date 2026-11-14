@@ -1,14 +1,16 @@
 ---
 build: 04-admin-checks-and-unpin
-phase: 1-requirements
-status: signed-off
+phase: 2-design
+status: awaiting-signoff
 size: standard
 format: 2
 signed_off: 1-requirements
 signed_off_by: 1-requirements=Ferby
 blocked_on: 
-gate: developer agrees the MoSCoW list, Won't-have included
-next: advance to 2-design
+version: 1.4.0-alpha
+stage: alpha
+gate: developer approves the design and feature plan, including any revised MoSCoW
+next: developer answers O1-O4 and approves design, feature plan, 1.4.0-alpha
 updated: 2026-11-14
 ---
 
@@ -34,11 +36,17 @@ the two most destructive actions, and gives the pinboard a way to take a pin dow
 - **2026-11-14** — build opened from build 03's W10, W11, W12; takedown rules agreed with the
   developer ([1-requirements.md](1-requirements.md), decisions).
 - **2026-11-14** — requirements signed off: M1-M8, S1 agreed as drafted.
+- **2026-11-14** — design drafted: `pin_state` column, row-first removal, F1 takedown then F2
+  re-checks, 1.4.0-alpha; O1-O4 put to the developer ([2-design.md](2-design.md)).
 
 ## Open questions
 
 | # | Question | Status |
 |---|---|---|
+| O1 | How is `npm run migrate` run against the live database after push A: Heroku dashboard "Run console" (recommended, the secret stays on Heroku), or locally with the live `DATABASE_URL`? | open |
+| O2 | A forced post keeps the forced heading until it turns natural (recommended), or is rewritten as ordinary at its first 📌 change, as today? | open |
+| O3 | Which already-resolved prediction does the M2 live check submit `/resolve` for? | open |
+| O4 | M3, M5, M6 live: take down a natural pin the developer chooses, then bring it back with forcepin and one 📌 toggle (recommended), or unit tests only? | open |
 
 ## Notes for whoever picks this up
 

@@ -10,7 +10,7 @@ the prose below the fence, not the table.
 | 1.1.0-alpha | alpha | [01](01-predictions-list-all/0-build.md) | v1.1.0-alpha | published | 2026-11-03 |
 | 1.2.0-alpha | alpha | [02](02-message-templates/0-build.md) | v1.2.0-alpha | published | 2026-11-04 |
 | 1.3.0-alpha | alpha | [03](03-remaining-wording/0-build.md) | v1.3.0-alpha | published | 2026-11-14 |
-| — | — | [04](04-admin-checks-and-unpin/0-build.md) | — | not in a version yet | — |
+| 1.4.0-alpha | alpha | [04](04-admin-checks-and-unpin/0-build.md) | — | planned | — |
 
 <!-- /pipeline:versions -->
 
