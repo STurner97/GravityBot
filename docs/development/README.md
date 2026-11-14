@@ -9,7 +9,7 @@ prose below the fence, not the table.
 |---|---|---|---|---|
 | [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
 | [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 5-publish | signed off | — | build complete |
-| [Build 03 — Pinboard, debug and channel-denial messages from the template file](03-remaining-wording/0-build.md) | 3-development | in progress | — | Developer pushes F3 (git push origin main) and runs F3.1-F3.5 per 3-development.md |
+| [Build 03 — Pinboard, debug and channel-denial messages from the template file](03-remaining-wording/0-build.md) | 3-development | in progress | — | Developer pushes F4 (git push origin main), confirms both dynos boot with messages=114 problems=0; then the agent sets awaiting-signoff |
 
 **By phase**
 

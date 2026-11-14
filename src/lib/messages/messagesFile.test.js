@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { catalog } from './catalog.js';
 import { checkMessages } from './checkMessages.js';
+import { checkLengths } from './checkLengths.js';
 import { createMessages } from './createMessages.js';
 import { MESSAGES_FILE } from './index.js';
 import { buildPredictionsListPage } from '../../features/betting/predictionsList.js';
@@ -30,4 +31,20 @@ test('the /predictions layout in messages.json fits its page budget without bein
     assert.equal(built.cut, false, `page ${page} had to be cut`);
     assert.ok(built.content.length <= MESSAGE_CONTENT_MAX_LENGTH);
   }
+});
+
+// The longest each value can be, so a message is measured at its worst. A new value needs an
+// entry here, or checkLengths reports it.
+const LONGEST_VALUES = {
+  predictionId: '9'.repeat(10), // a PostgreSQL integer
+  amount: '9'.repeat(10), // the amount inputs' max_length
+  count: '9'.repeat(6), // a reaction count
+  authorId: '9'.repeat(20), // a Discord snowflake
+  messageUrl: `https://discord.com/channels/${'9'.repeat(20)}/${'9'.repeat(20)}/${'9'.repeat(20)}`, // 91 characters
+};
+
+test('no message is longer than Discord allows where it is shown', () => {
+  const problems = checkLengths(readFileSync(MESSAGES_FILE, 'utf8'), catalog, LONGEST_VALUES);
+  const report = problems.map(({ message, problem }) => `${message}: ${problem}`);
+  assert.deepEqual(report, []);
 });

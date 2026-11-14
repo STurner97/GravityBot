@@ -10,7 +10,7 @@ blocked_on:
 version: 1.3.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: Developer pushes F3 (git push origin main) and runs F3.1-F3.5 per 3-development.md
+next: Developer pushes F4 (git push origin main), confirms both dynos boot with messages=114 problems=0; then the agent sets awaiting-signoff
 updated: 2026-11-14
 ---
 

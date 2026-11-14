@@ -5,11 +5,12 @@ import {
 } from 'discord-interactions';
 import { modal } from '../../lib/response.js';
 import { messageText } from '../../lib/messages/index.js';
+import { TEXT_LIMITS } from '../../lib/discordLimits.js';
 import { encode } from '../../lib/customId.js';
 import { formatOptionList } from './formatOptionList.js';
 
 // Truncates the options list to fit Discord's 100-char placeholder limit.
-function buildOptionsPlaceholder(options, text, maxLength = 100) {
+function buildOptionsPlaceholder(options, text, maxLength = TEXT_LIMITS.inputPlaceholder.max) {
   if (!Array.isArray(options) || options.length === 0) return text('optionsPlaceholder.none');
   const optionsText = formatOptionList(options, text);
   if (optionsText.length <= maxLength) return optionsText;
