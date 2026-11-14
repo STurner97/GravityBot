@@ -1,7 +1,7 @@
 # Build 04 — Phase 1: Requirements
 
 <!-- pipeline:nav -->
-> **Build 04 — Admin re-checks and taking pins down** · Phase 1 of 5 · in progress
+> **Build 04 — Admin re-checks and taking pins down** · Phase 1 of 5 · signed off
 > [State](0-build.md) · Design → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
@@ -51,20 +51,20 @@ down** is to delete its post in the pinboard channel, by hand, in Discord.
 
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
-| M1 | The `/debug reset` confirm buttons check `ADMIN_IDS` for the person who clicked, before anything else. Someone not on the list gets the `denied.admin` reply, the reset does not run, and the denial is logged | Unit test: a non-admin click, on either Yes or Cancel, gets the denial, never calls the reset, and logs it. Live: the developer opens the reset prompt and cancels it, and the reply reads as before. A real reset is never run | proposed |
-| M2 | The `/resolve` form submit checks `ADMIN_IDS` for the person who submitted it, before any read or write. Someone not on the list gets the `denied.admin` reply, nothing is paid out, and the denial is logged | Unit test: a non-admin submit gets the denial, never reads the prediction or resolves it, and logs it. Live: a check that resolves no real prediction, chosen in design (R7) | proposed |
-| M3 | Taking down a natural pin keeps it down: later 📌 added or removed on the source message never post it again | Unit test: after its post is deleted, 📌 changes on the source post nothing. Live, as design plans it (R7), without taking down a pin the developer has not chosen | proposed |
-| M4 | Taking down a forced pin undoes the forcepin: its row is removed and the message is ordinary again, so 📌 reaching the threshold pins it as usual, and forcepin can force it again | Live: the developer force-pins a throwaway message of their own, deletes the pin post, and a `/debug sql` `SELECT` shows no row for it. Unit test: 📌 below the threshold then posts nothing | proposed |
-| M5 | A forced pin whose 📌 count reaches the threshold becomes a natural pin, so M3 applies to it | Unit test | proposed |
-| M6 | `/pinboard forcepin` on a message that was taken down posts it as a forced pin and lifts the ban, so taking that post down then follows M4 | Unit test. Live only if design finds a safe way (R7) | proposed |
-| M7 | Only a pin post deleted from the pinboard channel takes a pin down. The bot's own removals keep today's behaviour: a pin whose 📌 drop to zero, and a pin whose source message is deleted, lose their post and row, and nothing is banned | Unit tests for both removals. Live: the forced pin from M4's check is cleared by its post being deleted, not by the bot | proposed |
-| M8 | The stored change to `pinboard_posts` is additive: no existing row is changed or lost, and every pin already on the board keeps updating as before. Rows made before this build count as natural pins | `migrate.js` run once against the live database, said aloud first, after a count of `pinboard_posts`; the same count after; the next real 📌 change updates its post as before | proposed |
+| M1 | The `/debug reset` confirm buttons check `ADMIN_IDS` for the person who clicked, before anything else. Someone not on the list gets the `denied.admin` reply, the reset does not run, and the denial is logged | Unit test: a non-admin click, on either Yes or Cancel, gets the denial, never calls the reset, and logs it. Live: the developer opens the reset prompt and cancels it, and the reply reads as before. A real reset is never run | 2026-11-14 |
+| M2 | The `/resolve` form submit checks `ADMIN_IDS` for the person who submitted it, before any read or write. Someone not on the list gets the `denied.admin` reply, nothing is paid out, and the denial is logged | Unit test: a non-admin submit gets the denial, never reads the prediction or resolves it, and logs it. Live: a check that resolves no real prediction, chosen in design (R7) | 2026-11-14 |
+| M3 | Taking down a natural pin keeps it down: later 📌 added or removed on the source message never post it again | Unit test: after its post is deleted, 📌 changes on the source post nothing. Live, as design plans it (R7), without taking down a pin the developer has not chosen | 2026-11-14 |
+| M4 | Taking down a forced pin undoes the forcepin: its row is removed and the message is ordinary again, so 📌 reaching the threshold pins it as usual, and forcepin can force it again | Live: the developer force-pins a throwaway message of their own, deletes the pin post, and a `/debug sql` `SELECT` shows no row for it. Unit test: 📌 below the threshold then posts nothing | 2026-11-14 |
+| M5 | A forced pin whose 📌 count reaches the threshold becomes a natural pin, so M3 applies to it | Unit test | 2026-11-14 |
+| M6 | `/pinboard forcepin` on a message that was taken down posts it as a forced pin and lifts the ban, so taking that post down then follows M4 | Unit test. Live only if design finds a safe way (R7) | 2026-11-14 |
+| M7 | Only a pin post deleted from the pinboard channel takes a pin down. The bot's own removals keep today's behaviour: a pin whose 📌 drop to zero, and a pin whose source message is deleted, lose their post and row, and nothing is banned | Unit tests for both removals. Live: the forced pin from M4's check is cleared by its post being deleted, not by the bot | 2026-11-14 |
+| M8 | The stored change to `pinboard_posts` is additive: no existing row is changed or lost, and every pin already on the board keeps updating as before. Rows made before this build count as natural pins | `migrate.js` run once against the live database, said aloud first, after a count of `pinboard_posts`; the same count after; the next real 📌 change updates its post as before | 2026-11-14 |
 
 ### Should have
 
 | # | Requirement | Accepted by | Agreed |
 |---|---|---|---|
-| S1 | The worker's message-delete handling reuses `removeFromPinboard` (or its replacement), not a copy of its body | Read the code: one place deletes a pin post and its row. `npm test` passes | proposed |
+| S1 | The worker's message-delete handling reuses `removeFromPinboard` (or its replacement), not a copy of its body | Read the code: one place deletes a pin post and its row. `npm test` passes | 2026-11-14 |
 
 ### Could have
 
@@ -113,3 +113,4 @@ down** is to delete its post in the pinboard channel, by hand, in Discord.
 - **2026-11-14** — first draft from build 03 candidates W10-W12 and developer answers: delete-post
   takedown, forced undo vs natural ban, forcepin lifts ban, forced turns natural at threshold,
   only new deletions; W11 as Should; all rows proposed.
+- **2026-11-14** — developer agreed M1-M8, S1, W1-W6 via /pipeline-signoff, as drafted.
