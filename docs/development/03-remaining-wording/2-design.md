@@ -171,9 +171,10 @@ The pattern is build 02's, extended:
 - **Generic errors (M6, M7).**
   - `resetDatabase` stops catching its own error. `withTransaction` then rolls back and
     rethrows, as it does for every other transaction.
-  - `handleConfirmReset(interaction, { reset = resetDatabase, text = messageText } = {})`
-    catches, logs `[Debug] action=resetDatabase failed` with the error, and replies
-    `debug.reset.failed`.
+  - `handleConfirmReset(interaction, { reset, text = messageText })` catches, logs
+    `[Debug] action=resetDatabase failed` with the error, and replies `debug.reset.failed`.
+    `reset` is required and `debug/index.js` passes `resetDatabase` in, so `buttons.js` never
+    imports `betting.js` and its test loads without production environment variables.
   - Forcepin's `catch` already logs the full error. It now replies
     `pinboard.forcepin.failed`.
   - Both messages are declared with no values, and `checkMessages` refuses a placeholder the
@@ -189,7 +190,7 @@ The pattern is build 02's, extended:
   - A placeholder with no sample value is itself a problem. A new message cannot skip the
     check unnoticed.
   - `messagesFile.test.js` runs it on the real `messages.json`. `buildOptionsPlaceholder`'s
-    bare `100` becomes `TEXT_LIMITS.inputPlaceholder`.
+    bare `100` becomes `TEXT_LIMITS.inputPlaceholder.max`.
   - The check runs in `npm test` only, not at bot startup. It needs sample values that mean
     nothing at run time, and the test runs before every push.
 - **Sample values** live in the test file beside the check. Each value is the longest it can
@@ -375,8 +376,9 @@ written. The work is larger, not different.
    raw error removed.
 3. **Reuse:** `/debug` and `/pinboard` share `denied.admin`, `prediction.notFound` and
    `optionList` with betting. A reword of one changes both, as intended.
-4. **Channel denial:** `ALLOWED_CHANNEL_IDS` is set on Heroku, so the denial is checked live in
-   F3.
+4. **Channel denial:** `ALLOWED_CHANNEL_IDS` is set on Heroku, so the denial can be checked live
+   in F3. The developer later accepted it unexercised on risk (see
+   [3-development.md](3-development.md), F3.5).
 5. **Forcepin's success path** is left to the wording and pin-post tests, not run live. F1
    checks the same pin post live, and a live forcepin would leave a post friends see.
 
@@ -386,6 +388,7 @@ written. The work is larger, not different.
 - **2026-11-13** — O1–O4 answered by developer: post nothing on broken pin, generic texts kept, reuse shared messages, `ALLOWED_CHANNEL_IDS` set so denial checked live in F3.
 - **2026-11-13** — O5 answered: forcepin happy path left to tests; open-questions section removed.
 - **2026-11-13** — developer approved the design via /pipeline-signoff.
+- **2026-11-14** — review: `handleConfirmReset` signature as built (`reset` required), `.max` on placeholder limit, decision 4 notes denial accepted unexercised.
 
 ## Evidence
 

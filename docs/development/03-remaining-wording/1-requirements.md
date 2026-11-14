@@ -77,6 +77,8 @@ once every message is in the file, because its values show there as placeholders
 | W7 | The betting checks never run live: Next across a resolve, "too rich to beg", the no-winners and no-refunds announcements (build 02's C1 and review) | Build 04, or whichever build next touches betting. This build does not change betting |
 | W8 | Any change to how SQL is configured or run; a way to see resolved predictions | Not planned (build 02's W8 and W9) |
 | W9 | The layout of the `/debug sql` result table (column padding, separators, `NULL`) | Stays in code: it is formatting of the database's data, not wording. The text around it ("Query executed", "… and N more rows") moves under M1 |
+| W10 | The `/debug reset` confirm button and the `/resolve` form submit re-checking `ADMIN_IDS` before they write (review I1) | The next build, first: see [4-review.md](4-review.md) |
+| W11 | The worker's message-delete listener repeating `removeFromPinboard` (review I2) | Whichever build next touches the pinboard worker |
 
 ## Decisions taken in this phase
 
@@ -104,3 +106,4 @@ once every message is in the file, because its values show there as placeholders
 
 - **2026-11-13** — first draft from build 02 candidates and developer answers (size, forcepin, identical wording, pin post in scope); all rows proposed.
 - **2026-11-13** — developer agreed all rows via /pipeline-signoff; W9 as drawn; M4's broken-message behaviour left to design.
+- **2026-11-14** — review: W10 (admin re-check, I1) and W11 (delete listener duplication, I2) added as out-of-scope findings.

@@ -17,7 +17,7 @@ GravityBot is a Discord prediction-betting bot built with Discord.js v14, Expres
 
 ## SOLID
 
-- **Single Responsibility.** Each module owns one concern: `db.js` manages the connection pool and transactions, `betting.js` owns betting logic, `pinboard.js` owns pinboard logic. Do not let helpers bleed across these boundaries.
+- **Single Responsibility.** Each module owns one concern: `db.js` manages the connection pool and transactions, `betting.js` owns betting logic, `src/features/pinboard/` owns pinboard logic. Do not let helpers bleed across these boundaries.
 - **Open/Closed.** Add new slash commands or interaction types by registering them in the dispatch map — do not add another `if/else if` branch to the main interaction handler.
 - **Liskov Substitution.** Any function that accepts a Discord interaction object should work with any interaction subtype that exposes the same interface. Do not reach inside interaction internals beyond what the type contract provides.
 - **Interface Segregation.** Pass only what a function needs. If a helper only needs `userId` and `guildId`, do not pass the entire interaction object.
@@ -62,4 +62,4 @@ GravityBot is a Discord prediction-betting bot built with Discord.js v14, Expres
 - Use `withTransaction(pool, async (client) => { … })` from `db.js` for any operation that touches multiple tables.
 - Discord interactions must receive a response within 3 seconds. Defer with `DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE` immediately if the handler needs to do async work, then follow up.
 - Keep `commands.js` as the single source of truth for slash command definitions.
-- Keep `messages.json` as the single source of truth for the betting feature's user-visible text. Handlers call `messageText(name, values)`, never a string literal. A new message goes into `src/lib/messages/catalog.js`, `messages.json` and the reference `src/lib/messages/fixtures/wording-cb1f8a5.json`, with a wording test. Log lines and slash command definitions stay in code. Debug and pinboard text stays in code until it is moved (build 02's W11).
+- Keep `messages.json` as the single source of truth for every user-visible text: betting, pinboard (the pin post included), debug and the router's channel denial. Handlers and pure builders call `messageText(name, values)` (builders take it as a `text` argument), never a string literal. A new message goes into `src/lib/messages/catalog.js`, `messages.json` and the reference `src/lib/messages/fixtures/wording-cb1f8a5.json`, with a wording test in that feature's `wording.test.js`. A message Discord shows in a length-limited place (modal title, input label or placeholder, button label, embed author, field name or value) declares it with `shownAs` in the catalog, so `npm test` checks its length; an unmarked one is not checked. Log lines, slash command definitions, the router's JSON error bodies and the `/debug sql` table layout stay in code.

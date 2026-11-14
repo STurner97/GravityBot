@@ -1,7 +1,7 @@
 ---
 build: 03-remaining-wording
-phase: 3-development
-status: signed-off
+phase: 4-review
+status: in-progress
 size: standard
 format: 2
 signed_off: 1-requirements, 2-design, 3-development
@@ -10,8 +10,8 @@ blocked_on:
 accepted: 10e57e7ff70d83cbc3d2a84908de121e218b2830
 version: 1.3.0-alpha
 stage: alpha
-gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: advance to 4-review
+gate: documents match reality, final acceptance passed, next steps written
+next: developer pushes review commit, runs FA1-FA7 in 4-review.md, pastes boot log
 updated: 2026-11-14
 ---
 
@@ -38,7 +38,8 @@ reading the file, and closes the length-limit gap now that the developer rewords
 - **2026-11-13** — build opened from build 02's W11, W12, W13; S1 (`clientReady`) new from the publish log.
 - **2026-11-13** — design drafted, 1.3.0-alpha planned; O1–O5 put to the developer ([2-design.md](2-design.md)).
 - **2026-11-13** — F1 (pin post from file, worker failure wrapper, clientReady) built, 1.3.0-alpha stamped; awaiting push and live check ([3-development.md](3-development.md)).
-- **2026-11-14** — F2, F3, F4 built and accepted live; all Musts have verdicts; awaiting developer sign-off of development.
+- **2026-11-14** — F2, F3, F4 built and accepted live; all Musts have verdicts; development signed off, `10e57e7` accepted.
+- **2026-11-14** — review: docs brought current; I1 (admin re-check) and I2 found, out of scope as W10, W11; final acceptance planned ([4-review.md](4-review.md)).
 
 ## Open questions
 
