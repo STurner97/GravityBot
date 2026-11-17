@@ -10,7 +10,7 @@ prose below the fence, not the table.
 | [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
 | [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 5-publish | signed off | — | build complete |
 | [Build 03 — Pinboard, debug and channel-denial messages from the template file](03-remaining-wording/0-build.md) | 5-publish | signed off | — | build complete |
-| [Build 04 — Admin re-checks and taking pins down](04-admin-checks-and-unpin/0-build.md) | 4-review | signed off | — | advance to 5-publish |
+| [Build 04 — Admin re-checks and taking pins down](04-admin-checks-and-unpin/0-build.md) | 5-publish | in progress | — | write the publish document |
 
 **By phase**
 
@@ -18,7 +18,7 @@ prose below the fence, not the table.
 - Design — [01](01-predictions-list-all/2-design.md) ✓ · [02](02-message-templates/2-design.md) ✓ · [03](03-remaining-wording/2-design.md) ✓ · [04](04-admin-checks-and-unpin/2-design.md) ✓
 - Development — [01](01-predictions-list-all/3-development.md) ✓ · [02](02-message-templates/3-development.md) ✓ · [03](03-remaining-wording/3-development.md) ✓ · [04](04-admin-checks-and-unpin/3-development.md) ✓
 - Review — [01](01-predictions-list-all/4-review.md) ✓ · [02](02-message-templates/4-review.md) ✓ · [03](03-remaining-wording/4-review.md) ✓ · [04](04-admin-checks-and-unpin/4-review.md) ✓
-- Publish — [01](01-predictions-list-all/5-publish.md) ✓ · [02](02-message-templates/5-publish.md) ✓ · [03](03-remaining-wording/5-publish.md) ✓
+- Publish — [01](01-predictions-list-all/5-publish.md) ✓ · [02](02-message-templates/5-publish.md) ✓ · [03](03-remaining-wording/5-publish.md) ✓ · [04](04-admin-checks-and-unpin/5-publish.md)
 
 ✓ marks a phase the developer has signed off.
 
