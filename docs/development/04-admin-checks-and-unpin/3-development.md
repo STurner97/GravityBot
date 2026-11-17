@@ -15,7 +15,10 @@
 
 | Task | Command |
 |---|---|
-| test |  |
+| test | `npm test` (`node --test`) |
+
+The stack is the project's own: Node.js ES modules, discord.js v14, Express, PostgreSQL. No
+dependency is added.
 
 ## Features
 
@@ -25,6 +28,8 @@
 
 | Feature | Requirements | Status |
 |---|---|---|
+| F1 — Taking pins down (push A, migration, push B) | M3, M4, M5, M6, M7, M8, S1 | building: push A committed |
+| F2 — Admin re-checks | M1, M2 | planned |
 
 ## Acceptance — requirement by requirement
 
@@ -71,5 +76,7 @@
      append-only section:
      - **YYYY-MM-DD** — what changed, and why if it is not obvious.
      check requires at least one dated entry before sign-off. -->
+
+- **2026-11-17** — dev doc opened; F1 push A committed (migrate column, 1.4.0-alpha).
 
 ## Evidence
