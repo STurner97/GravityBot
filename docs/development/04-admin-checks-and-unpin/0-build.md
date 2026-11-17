@@ -1,17 +1,17 @@
 ---
 build: 04-admin-checks-and-unpin
 phase: 4-review
-status: awaiting-signoff
+status: signed-off
 size: standard
 format: 2
-signed_off: 1-requirements, 2-design, 3-development
-signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby
+signed_off: 1-requirements, 2-design, 3-development, 4-review
+signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby, 4-review=Ferby
 blocked_on: 
 accepted: e9af5c041de809f727a1be64f32700c94407b708
 version: 1.4.0-alpha
 stage: alpha
 gate: documents match reality, final acceptance passed, next steps written
-next: Developer signs off review (FA waived) and agrees W7-W11 destinations
+next: advance to 5-publish
 updated: 2026-11-17
 ---
 
