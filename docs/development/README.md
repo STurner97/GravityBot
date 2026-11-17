@@ -10,7 +10,7 @@ prose below the fence, not the table.
 | [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
 | [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 5-publish | signed off | — | build complete |
 | [Build 03 — Pinboard, debug and channel-denial messages from the template file](03-remaining-wording/0-build.md) | 5-publish | signed off | — | build complete |
-| [Build 04 — Admin re-checks and taking pins down](04-admin-checks-and-unpin/0-build.md) | 3-development | in progress | — | The developer pushes F2, then the agent drives the M1 and M2 live checks |
+| [Build 04 — Admin re-checks and taking pins down](04-admin-checks-and-unpin/0-build.md) | 3-development | awaiting sign-off | — | The developer reviews the acceptance table in 3-development.md and signs off the accepted commit |
 
 **By phase**
 

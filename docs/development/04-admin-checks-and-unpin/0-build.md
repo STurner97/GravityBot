@@ -1,7 +1,7 @@
 ---
 build: 04-admin-checks-and-unpin
 phase: 3-development
-status: in-progress
+status: awaiting-signoff
 size: standard
 format: 2
 signed_off: 1-requirements, 2-design
@@ -10,7 +10,7 @@ blocked_on:
 version: 1.4.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: The developer pushes F2, then the agent drives the M1 and M2 live checks
+next: The developer reviews the acceptance table in 3-development.md and signs off the accepted commit
 updated: 2026-11-17
 ---
 
@@ -39,6 +39,7 @@ the two most destructive actions, and gives the pinboard a way to take a pin dow
 - **2026-11-14** — design drafted: `pin_state` column, row-first removal, F1 takedown then F2
   re-checks, 1.4.0-alpha; O1-O4 put to the developer and answered ([2-design.md](2-design.md)).
 - **2026-11-14** — design signed off: F1 takedown (push A, migration, push B), then F2.
+- **2026-11-17** — F1 and F2 built and accepted live; see [3-development.md](3-development.md).
 
 ## Open questions
 
