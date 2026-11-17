@@ -1,7 +1,7 @@
 ---
 build: 04-admin-checks-and-unpin
-phase: 2-design
-status: signed-off
+phase: 3-development
+status: in-progress
 size: standard
 format: 2
 signed_off: 1-requirements, 2-design
@@ -9,9 +9,9 @@ signed_off_by: 1-requirements=Ferby, 2-design=Ferby
 blocked_on: 
 version: 1.4.0-alpha
 stage: alpha
-gate: developer approves the design and feature plan, including any revised MoSCoW
-next: advance to 3-development
-updated: 2026-11-14
+gate: developer accepts the build: every Must accepted, tests passing, clean tree
+next: write the development document
+updated: 2026-11-17
 ---
 
 # Build 04 — Admin re-checks and taking pins down
