@@ -14,8 +14,10 @@ import {
 import {
   handlePredictModal,
   handleBetModal,
-  handleResolveModal,
 } from './modals.js';
+import { handleResolveModal } from './resolveModal.js';
+import { isAdmin } from '../../lib/auth.js';
+import { getPrediction, resolvePrediction } from '../../../betting.js';
 import { handleBetButton, handleDonateButton, handlePredictionsPageButton } from './buttons.js';
 import { PREDICTIONS_PAGE_NAMESPACE } from './predictionsList.js';
 
@@ -32,7 +34,8 @@ registerCommand('beg',            handleBeg);
 
 registerModal('predict_modal', handlePredictModal);
 registerModal('bet_modal',     handleBetModal);
-registerModal('resolve_modal', handleResolveModal);
+registerModal('resolve_modal', (interaction) =>
+  handleResolveModal(interaction, { isAdmin, getPrediction, resolvePrediction }));
 
 registerButton('bet',    handleBetButton);
 registerButton('donate', handleDonateButton);

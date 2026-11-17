@@ -1,7 +1,6 @@
 import {
   createPrediction,
   placeBet,
-  resolvePrediction,
   getPrediction,
 } from '../../../betting.js';
 import { ephemeral, public_ } from '../../lib/response.js';
@@ -79,30 +78,3 @@ export async function handleBetModal(interaction) {
     option: selectedOption,
   }));
 }
-
-export async function handleResolveModal(interaction) {
-  const { data } = interaction;
-  const { parts } = decode(data.custom_id);
-  const predictionId = parseInt(parts[0]);
-  const outcome      = data.components[0].components[0].value;
-
-  const prediction = await getPrediction(predictionId);
-  if (!prediction) {
-    return ephemeral(messageText('prediction.notFound', { predictionId }));
-  }
-
-  const result = await resolvePrediction(predictionId, outcome);
-  if (!result.success) {
-    return bettingErrorReply(result.error);
-  }
-
-  const results = messageText('resolve.winners', { items: result.winners });
-  return public_(messageText('resolve.announcement', {
-    predictionId,
-    question: prediction.question,
-    outcome,
-    totalPot: result.totalPot,
-    results,
-  }));
-}
-

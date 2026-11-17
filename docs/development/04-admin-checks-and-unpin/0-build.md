@@ -10,7 +10,7 @@ blocked_on:
 version: 1.4.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: The developer pushes push B, then the agent drives the F1 live check (forcepin a throwaway message)
+next: The developer pushes F2, then the agent drives the M1 and M2 live checks
 updated: 2026-11-17
 ---
 
