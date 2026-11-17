@@ -120,3 +120,4 @@ down** is to delete its post in the pinboard channel, by hand, in Discord.
   only new deletions; W11 as Should; all rows proposed.
 - **2026-11-14** — developer agreed M1-M8, S1, W1-W6 via /pipeline-signoff, as drafted.
 - **2026-11-17** — review: W7-W11 added for issues outside scope, destinations proposed.
+- **2026-11-17** — developer agreed W7-W11 destinations.

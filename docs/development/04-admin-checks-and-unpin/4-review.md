@@ -79,11 +79,11 @@ CLAUDE.md, where conventions are kept.
 
 | Issue | Evidence | Size | Outcome |
 |---|---|---|---|
-| I1 — A forced pin's heading shows "1 Pin" whatever its count. O2 keeps the forced heading below the threshold, so at 2 📌 (threshold 3) the post still reads "📌 1 Pin (forced)" | `messages.json` `pinboard.post.forcedHeading` is the fixed text `"📌 1 Pin (forced)"` with no `{count}`. `pinboardEmbed.js` uses it whenever `forced` is true; `decideReactionOutcome` keeps a forced row forced at every count below the threshold | Outside scope: the agreed behaviour (O2) is built. The fix is a wording choice for the developer | Proposed: build 05, with the other message values (W7) |
-| I2 — Six admin checks written before this build deny without logging, while CLAUDE.md asks for a log at every permission denial. Only the two new checks log | `grep -A2 "isAdmin("`: `debug/handlers.js`, `debug/modals.js`, `pinboard/handlers.js` and three in `betting/handlers.js` return `ephemeral(messageText(…))`; only `debug/buttons.js` and `betting/resolveModal.js` call `denyNonAdmin` | Outside scope: handlers this build did not touch | Proposed: a later build (W8) |
-| I3 — No unit test shows forcepin writes `forced`. The design planned one | `handleForcePin` is in `pinboard/handlers.js`, which imports `config.js` and `utils.js`. Shown live in MC2 | Outside scope: a test gap in a handler that needs moving first | Proposed: a later build that touches forcepin (W9) |
-| I4 — `/pinboard forcepin`'s description says "(for testing)". It is now also how a ban is lifted | `pinboard/commands.js:53` | Outside scope: the fix registers the slash commands again | Proposed: build 05 (W10) |
-| I5 — A forcepin on a message already on the board posts a second copy and leaves the first behind | [2-design.md](2-design.md) R5, unchanged by this build. Deleting the orphan matches no row, so it does nothing | Outside scope: today's behaviour | Proposed: a later build that touches forcepin (W11) |
+| I1 — A forced pin's heading shows "1 Pin" whatever its count. O2 keeps the forced heading below the threshold, so at 2 📌 (threshold 3) the post still reads "📌 1 Pin (forced)" | `messages.json` `pinboard.post.forcedHeading` is the fixed text `"📌 1 Pin (forced)"` with no `{count}`. `pinboardEmbed.js` uses it whenever `forced` is true; `decideReactionOutcome` keeps a forced row forced at every count below the threshold | Outside scope: the agreed behaviour (O2) is built. The fix is a wording choice for the developer | Build 05, with the other message values (W7). The developer agreed |
+| I2 — Six admin checks written before this build deny without logging, while CLAUDE.md asks for a log at every permission denial. Only the two new checks log | `grep -A2 "isAdmin("`: `debug/handlers.js`, `debug/modals.js`, `pinboard/handlers.js` and three in `betting/handlers.js` return `ephemeral(messageText(…))`; only `debug/buttons.js` and `betting/resolveModal.js` call `denyNonAdmin` | Outside scope: handlers this build did not touch | A later build (W8). The developer agreed |
+| I3 — No unit test shows forcepin writes `forced`. The design planned one | `handleForcePin` is in `pinboard/handlers.js`, which imports `config.js` and `utils.js`. Shown live in MC2 | Outside scope: a test gap in a handler that needs moving first | A later build that touches forcepin (W9). The developer agreed |
+| I4 — `/pinboard forcepin`'s description says "(for testing)". It is now also how a ban is lifted | `pinboard/commands.js:53` | Outside scope: the fix registers the slash commands again | Build 05 (W10). The developer agreed |
+| I5 — A forcepin on a message already on the board posts a second copy and leaves the first behind | [2-design.md](2-design.md) R5, unchanged by this build. Deleting the orphan matches no row, so it does nothing | Outside scope: today's behaviour | A later build that touches forcepin (W11). The developer agreed |
 
 ## Final acceptance
 
@@ -143,5 +143,6 @@ Recommended order:
 
 - **2026-11-17** — review drafted: deployment and rollback, documents checked, README and CLAUDE.md updated, I1-I5 found, final acceptance planned.
 - **2026-11-17** — developer waived FA1-FA3, not run; M6 and M8 keep their limits.
+- **2026-11-17** — developer agreed I1-I5 destinations; review signed off.
 
 ## Evidence
