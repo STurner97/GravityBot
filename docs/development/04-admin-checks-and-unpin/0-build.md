@@ -1,17 +1,17 @@
 ---
 build: 04-admin-checks-and-unpin
 phase: 5-publish
-status: awaiting-signoff
+status: signed-off
 size: standard
 format: 2
-signed_off: 1-requirements, 2-design, 3-development, 4-review
-signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby, 4-review=Ferby
+signed_off: 1-requirements, 2-design, 3-development, 4-review, 5-publish
+signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby, 4-review=Ferby, 5-publish=Ferby
 blocked_on: 
 accepted: e9af5c041de809f727a1be64f32700c94407b708
 version: 1.4.0-alpha
 stage: alpha
 gate: developer confirms the distributable installs and runs; version and stage recorded, or nothing to publish
-next: the developer checks Heroku release and one command (install rows 1-2), then signs off publish
+next: build complete
 updated: 2026-11-17
 ---
 
