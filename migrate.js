@@ -57,6 +57,13 @@ async function migrate() {
     );
   `);
 
+  // Rows from before pin_state existed read as natural pins; no row value changes.
+  await query(`
+    ALTER TABLE pinboard_posts
+      ADD COLUMN IF NOT EXISTS pin_state TEXT NOT NULL DEFAULT 'natural'
+      CHECK (pin_state IN ('natural', 'forced', 'banned'));
+  `);
+
   // Fix any existing databases where the default was incorrectly set to 100.
   await query(`
     DO $$
