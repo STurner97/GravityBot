@@ -40,7 +40,7 @@ dependency is added.
 
 | # | Requirement | Demonstrated by | Verdict |
 |---|---|---|---|
-| M3 | A taken-down natural pin stays down | `pinRules.test.js` (banned ignores every count), `handleMessageDeleted.test.js`. Live, by accident: the developer deleted the post of a pre-build forced pin, stored as natural. Log `outcome=ban`, `SELECT` showed `banned` | Pass |
+| M3 | A taken-down natural pin stays down | `pinRules.test.js` (banned ignores every count), `handleMessageDeleted.test.js`. Live, by accident: the developer deleted the post of a pre-build forced pin, stored as natural. Log `outcome=ban`, `SELECT` showed `banned`; the developer then removed that row by hand | Pass |
 | M4 | A taken-down forced pin is forgotten | Unit tests. Live (MC2): `SELECT` showed the forced row, the post was deleted, the row was gone. Log `outcome=forget` | Pass |
 | M5 | A forced pin at the threshold becomes natural | `pinRules.test.js` only (O4) | Pass with a limit: unit test only, as agreed |
 | M6 | Forcepin lifts a ban and posts a forced pin | Live (MC2): forcepin wrote `forced`. Unit tests cover `publishOrUpdatePin` and the pin state passed to the upsert | Pass with a limit: lifting a ban over a banned row was not run live, and the `handleForcePin` call has no unit test because `handlers.js` needs env vars |
@@ -81,8 +81,6 @@ dependency is added.
 
 - A pin force-pinned before this build is stored as natural. Deleting its post bans it instead
   of forgetting it. A forcepin lifts the ban. Not fixable: the old rows hold no forced marker.
-- Row `1570440533342691371` (banned live at 12:48:48 UTC) was gone from the next `SELECT`, with
-  no worker log line for it. Open: asked the developer whether they removed it by hand.
 
 <!-- What is known to be wrong now, and whether it blocks acceptance. -->
 
