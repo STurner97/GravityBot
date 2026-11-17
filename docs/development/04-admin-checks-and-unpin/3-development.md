@@ -40,6 +40,13 @@ dependency is added.
 
 | # | Requirement | Demonstrated by | Verdict |
 |---|---|---|---|
+| M3 | A taken-down natural pin stays down | `pinRules.test.js` (banned ignores every count), `handleMessageDeleted.test.js`. Live, by accident: the developer deleted the post of a pre-build forced pin, stored as natural. Log `outcome=ban`, `SELECT` showed `banned` | Pass |
+| M4 | A taken-down forced pin is forgotten | Unit tests. Live (MC2): `SELECT` showed the forced row, the post was deleted, the row was gone. Log `outcome=forget` | Pass |
+| M5 | A forced pin at the threshold becomes natural | `pinRules.test.js` only (O4) | Pass with a limit: unit test only, as agreed |
+| M6 | Forcepin lifts a ban and posts a forced pin | Live (MC2): forcepin wrote `forced`. Unit tests cover `publishOrUpdatePin` and the pin state passed to the upsert | Pass with a limit: lifting a ban over a banned row was not run live, and the `handleForcePin` call has no unit test because `handlers.js` needs env vars |
+| M7 | The bot's own removals ban nothing | `helpers.test.js` (row before post), `handleMessageDeleted.test.js`. Live (MC3): source deleted, log `outcome=removePin`, no `ban` line, no row | Pass |
+| M8 | The stored change is additive | MC1: 7 rows before, 7 `natural` after. Existing pins kept their state | Pass |
+| S1 | One place deletes a pin post and its row | `grep`: `removeFromPinboard` in `helpers.js` is the only caller path; `npm test` passes | Pass |
 
 ## Manual checks
 
@@ -50,6 +57,8 @@ dependency is added.
 | # | Check | How | Result |
 |---|---|---|---|
 | MC1 | Migration adds the column and changes no row (M8) | `/debug sql` count before: 7. Developer ran `npm run migrate` in the Heroku Run console. `SELECT pin_state, COUNT(*) … GROUP BY 1` after | Pass: `natural` 7, the total is unchanged |
+| MC2 | A deleted forced pin post removes its row (M4, M6) | Developer forcepinned `1570373856655446047`. `SELECT` showed it `forced` with the other 7 `natural`. Developer deleted the pin post | Pass: row gone, worker log `outcome=forget` |
+| MC3 | The bot's own removal bans nothing (M7) | Developer forcepinned a different throwaway post, then deleted its source message | Pass: worker log `messageId=1572232492755460237 … outcome=removePin`, no `ban` line, row gone. The `SELECT` for the forced state of this second post was not taken |
 
 ## Feedback and triage
 
@@ -60,6 +69,7 @@ dependency is added.
 
 | Feedback | Decision | Where |
 |---|---|---|
+| Forced pins made before this build read natural, so deleting one bans it | Known limit of M8: old rows count as natural. Admin can lift it with a forcepin | Known issues |
 
 ## How it works
 
@@ -68,6 +78,11 @@ dependency is added.
      it; record here where the build departed from the design, and why. -->
 
 ## Known issues
+
+- A pin force-pinned before this build is stored as natural. Deleting its post bans it instead
+  of forgetting it. A forcepin lifts the ban. Not fixable: the old rows hold no forced marker.
+- Row `1570440533342691371` (banned live at 12:48:48 UTC) was gone from the next `SELECT`, with
+  no worker log line for it. Open: asked the developer whether they removed it by hand.
 
 <!-- What is known to be wrong now, and whether it blocks acceptance. -->
 
