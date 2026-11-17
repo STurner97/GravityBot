@@ -66,15 +66,15 @@ Known not to work or not covered:
 
 This project's install is a deploy, so the install test is the deployed bot. The agent cannot
 see Heroku, so the developer confirms the rows. The deploy was the developer's push over the
-running app, not a clean install on a new app, so each row is `Pass with a limit`.
+running app, not a clean install on a new app, so no row could be a clean install. The developer waived both rows without running them.
 
 Review owes nothing to publish ([4-review.md](4-review.md), *Requirements met*), so no
 requirement id needs a row here.
 
 | # | Check | Result |
 |---|---|---|
-| 1 | Heroku is running a release built from the reviewed code (Activity tab) | not yet run: the developer checks the latest release |
-| 2 | Both dynos are up and the bot answers a command | not yet run: the developer runs one command |
+| 1 | Heroku is running a release built from the reviewed code (Activity tab) | Waived by the developer: not run |
+| 2 | Both dynos are up and the bot answers a command | Waived by the developer: not run |
 
 ## Withdrawing it
 
@@ -88,6 +88,7 @@ would lose any ban. A withdrawn number is not reused; the replacement is 1.4.1-a
 
 - **2026-11-17** — publish doc written: 1.4.0-alpha confirmed, release notes, install rows
   awaiting the developer.
+- **2026-11-17** — install rows 1-2 waived by the developer, not run.
 
 ## Evidence
 
