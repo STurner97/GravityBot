@@ -10,7 +10,7 @@ blocked_on:
 version: 1.4.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: The developer counts pinboard_posts rows, then pushes push A (f339249 only); agent builds F1 code locally meanwhile
+next: Agent builds F1 code (pinRules, handleMessageDeleted, data, helpers) test-first, local commits only; push B waits for the developer
 updated: 2026-11-17
 ---
 

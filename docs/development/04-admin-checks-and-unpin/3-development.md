@@ -49,6 +49,7 @@ dependency is added.
 
 | # | Check | How | Result |
 |---|---|---|---|
+| MC1 | Migration adds the column and changes no row (M8) | `/debug sql` count before: 7. Developer ran `npm run migrate` in the Heroku Run console. `SELECT pin_state, COUNT(*) … GROUP BY 1` after | Pass: `natural` 7, the total is unchanged |
 
 ## Feedback and triage
 
