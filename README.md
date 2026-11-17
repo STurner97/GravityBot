@@ -11,7 +11,7 @@ GravityBot runs as two Heroku processes:
 | Process | Entry point | Purpose |
 |---------|-------------|---------|
 | `web` | `app.js` | Express HTTP server — receives Discord interaction webhooks |
-| `worker` | `pinboard-worker.js` | Discord.js gateway client — handles emoji reactions |
+| `worker` | `pinboard-worker.js` | Discord.js gateway client — handles 📌 reactions and deleted messages |
 
 ### Directory structure
 
@@ -33,6 +33,7 @@ GravityBot runs as two Heroku processes:
     │   ├── customId.js       # encode/decode for modal and button custom_id values
     │   ├── discordLimits.js  # Discord's fixed limits (2000 chars, rows, buttons, TEXT_LIMITS per place)
     │   ├── auth.js           # isAdmin() guard
+    │   ├── adminDenial.js    # denyNonAdmin(): the logged denial reply every admin check returns
     │   └── messages/
     │       ├── index.js          # Reads messages.json once at startup, exports messageText()
     │       ├── catalog.js        # Every message the code needs and the values it gives each
@@ -50,7 +51,8 @@ GravityBot runs as two Heroku processes:
         ├── betting/
         │   ├── commands.js   # BETTING_COMMANDS array (slash command definitions)
         │   ├── handlers.js   # One function per slash command
-        │   ├── modals.js     # Modal submit handlers
+        │   ├── modals.js     # Predict and bet modal submit handlers
+        │   ├── resolveModal.js   # resolve_modal submit handler (isAdmin and data functions passed in by index.js)
         │   ├── buildModals.js           # Pure: the predict, bet and resolve modal layouts
         │   ├── buttons.js    # Button click handlers (bet, donate, /predictions paging)
         │   ├── bettingErrorReply.js     # Turns a betting.js error code into its message
@@ -64,7 +66,7 @@ GravityBot runs as two Heroku processes:
         │   ├── commands.js   # DEBUG_COMMANDS array
         │   ├── handlers.js   # /debug command handler + subcommands
         │   ├── modals.js     # debug_sql_modal submit handler
-        │   ├── buttons.js    # confirm_reset button handler (reset is passed in by index.js)
+        │   ├── buttons.js    # confirm_reset button handler (isAdmin and reset passed in by index.js)
         │   ├── formatDebugReplies.js    # Pure: the stats, prediction, user and recent replies
         │   ├── buildDebugComponents.js  # Pure: the reset prompt and its buttons, the SQL modal
         │   ├── formatSqlResult.js       # Pure: the SQL reply; table layout in code, words from the file
@@ -78,8 +80,10 @@ GravityBot runs as two Heroku processes:
             ├── formatWhitelist.js # Pure: the whitelist_list reply
             ├── index.js      # Registers pinboard command handler
             └── worker/
-                ├── helpers.js              # shouldProcessReaction, buildPostPayload, etc.
+                ├── pinRules.js             # Pure: what a 📌 count or a deleted message does to a pin
+                ├── helpers.js              # shouldProcessReaction, buildPostPayload, removeFromPinboard, etc.
                 ├── handleReactionChange.js # Orchestrates a single reaction event
+                ├── handleMessageDeleted.js # Applies a deleted message's outcome to each row it names
                 ├── reportFailures.js       # Logs a failed event instead of stopping the worker
                 └── index.js               # Client setup, event wiring, startWorker()
 ```
@@ -424,7 +428,26 @@ Users with more than 10 credits receive a private "You are too rich to beg" repl
 | `/pinboard whitelist_add <channel>` | Admin | Monitor a channel for 📌 reactions |
 | `/pinboard whitelist_remove <channel>` | Admin | Stop monitoring a channel |
 | `/pinboard whitelist_list` | Admin | Show current configuration |
-| `/pinboard forcepin <message_url>` | Admin | Manually pin a message |
+| `/pinboard forcepin <message_url>` | Admin | Manually pin a message, or bring back one that was taken down |
+
+A message is pinned once its 📌 count, not counting the author or bots, reaches the threshold
+(3 by default). Its post in the pinboard channel follows the count, and goes when the count
+falls to zero or the source message is deleted.
+
+**Taking a pin down.** Anyone allowed to delete messages in the pinboard channel takes a pin
+down by deleting its post there:
+
+- A **forced** pin (made by `forcepin`, below the threshold) is forgotten: the message is
+  ordinary again, and 📌 reaching the threshold pins it as usual.
+- A **natural** pin (one that reached the threshold) is banned: no 📌 brings it back. A
+  `forcepin` lifts the ban and posts it as a forced pin. A forced pin whose 📌 reach the
+  threshold becomes natural.
+
+The worker only sees deletions while it is running. A post deleted while it was down, or before
+1.4.0-alpha, leaves its row behind, and the pin comes back at the next 📌 on the source. Remove
+such a row once with `/debug sql`:
+`DELETE FROM pinboard_posts WHERE message_id = '<source message id>'`, after a `SELECT` with the
+same `WHERE` shows the one row.
 
 ### Debug (Admin only)
 
@@ -441,7 +464,7 @@ Users with more than 10 credits receive a private "You are too rich to beg" repl
 
 ## Database schema
 
-Six tables, created by `npm run migrate`. The migration is idempotent (`CREATE TABLE IF NOT EXISTS`) and safe to re-run.
+Six tables, created by `npm run migrate`. The migration is idempotent (`CREATE TABLE IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`) and safe to re-run. Heroku does not run it on deploy: it is run by hand, from the Heroku dashboard's Run console, when a build adds to the schema.
 
 ### `users`
 
@@ -499,7 +522,7 @@ Source channels that the pinboard worker monitors for reactions.
 
 ### `pinboard_posts`
 
-Tracks which source messages have been posted to the pinboard channel, so they can be edited or deleted when reaction counts change.
+One row per pin: which source message was posted to the pinboard channel, so its post can be edited or deleted when the 📌 count changes, and what kind of pin it is.
 
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
@@ -509,6 +532,11 @@ Tracks which source messages have been posted to the pinboard channel, so they c
 | `author_id` | `TEXT` | `NOT NULL` | — |
 | `reaction_count` | `INTEGER` | `NOT NULL` | `0` |
 | `created_at` | `TIMESTAMPTZ` | `NOT NULL` | `NOW()` |
+| `pin_state` | `TEXT` | `NOT NULL`, one of `natural`, `forced`, `banned` | `natural` |
+
+`pin_state` is `natural` for a pin that reached the threshold, and for every row from before
+1.4.0-alpha; `forced` for a `forcepin` below the threshold; `banned` for a natural pin whose post
+a person deleted. A banned row keeps the id of its deleted post.
 
 ---
 

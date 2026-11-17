@@ -38,7 +38,7 @@ GravityBot is a Discord prediction-betting bot built with Discord.js v14, Expres
 
 - **Never trust user input.** Validate and sanitise all values from Discord interactions before using them in queries, log lines, or API calls.
 - **Use parameterised queries exclusively.** Never interpolate user-supplied values into SQL strings. Use `pg` placeholders (`$1`, `$2`, …) at all times.
-- **Admin checks must be explicit and early.** Perform the `ADMIN_IDS` check at the top of any admin-only handler before any database read or write occurs.
+- **Admin checks must be explicit and early.** Perform the `ADMIN_IDS` check at the top of any admin-only handler before any database read or write occurs. That includes the buttons and modal submits an admin command opens: each checks again, never trusting the command's check. Deny with `denyNonAdmin` (`src/lib/adminDenial.js`), which logs the denial and returns the shared reply. Pass `isAdmin` in from the feature's `index.js`, so the handler's test loads no config.
 - **Secrets stay in environment variables.** Do not hardcode tokens, database URLs, or sensitive IDs. Validate that required `process.env` values are present at startup and fail fast if they are missing.
 - **Fail closed on permission errors.** If an auth check fails, respond with an ephemeral denial and return immediately — do not fall through to privileged logic.
 - **Do not expose internal state to users.** Error responses to Discord should be generic; full error details belong in server logs only.

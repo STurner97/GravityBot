@@ -81,6 +81,11 @@ down** is to delete its post in the pinboard channel, by hand, in Discord.
 | W4 | Limiting who can take a pin down to `ADMIN_IDS` | Not planned: Discord's own permission to delete messages in the pinboard channel decides it. The worker is not told who deleted a message |
 | W5 | Values inside messages becoming settings: default credits, beg limit, donate amounts, pin threshold (build 03's W4) | Build 05, configuration |
 | W6 | The betting checks that have never run live: Next across a resolve, "too rich to beg", the no-winners and no-refunds announcements (build 03's W7) | Build 05, which touches the betting values they exercise. M2 adds a check to the resolve form and changes nothing after it |
+| W7 | A forced pin's heading showing its real 📌 count: it reads "📌 1 Pin (forced)" whatever the count (review I1) | Build 05, with the other message values |
+| W8 | The six admin checks written before this build (`/debug`, `/pinboard`, `/resolve`, `/voidprediction`, `/changebalance`, and the SQL form) logging their denials through `denyNonAdmin` (review I2) | A later build that touches those handlers |
+| W9 | A unit test that forcepin writes `forced`: `handleForcePin` would move out of `handlers.js` with its data functions passed in (review I3) | A later build that touches forcepin |
+| W10 | `/pinboard forcepin`'s description, "Force pin a message (for testing)", naming its other use: bringing back a taken-down pin (review I4) | Build 05, with the slash commands registered again |
+| W11 | A forcepin on a message already on the board posting a second copy, the first left behind ([2-design.md](2-design.md) R5, review I5) | A later build that touches forcepin |
 
 ## Decisions taken in this phase
 
@@ -114,3 +119,4 @@ down** is to delete its post in the pinboard channel, by hand, in Discord.
   takedown, forced undo vs natural ban, forcepin lifts ban, forced turns natural at threshold,
   only new deletions; W11 as Should; all rows proposed.
 - **2026-11-14** — developer agreed M1-M8, S1, W1-W6 via /pipeline-signoff, as drafted.
+- **2026-11-17** — review: W7-W11 added for issues outside scope, destinations proposed.

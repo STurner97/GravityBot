@@ -150,8 +150,8 @@ returns the `denied.admin` reply. Because both checks use the helper, they canno
 - **M4, M7.** The developer force-pins a throwaway message of their own. The pin is public in
   the pinboard channel for approximately one minute. A `/debug sql` `SELECT` shows the row as
   `forced`. The developer deletes the post, and the `SELECT` then shows no row. Next, the
-  developer force-pins the message again and deletes the source message. The bot deletes the
-  post and the row, and it bans nothing.
+  developer force-pins a second throwaway message and deletes its source message. The bot
+  deletes the post and the row, and it bans nothing.
 - **M3, M5, M6.** A live check of a natural pin needs a natural pin. That needs as many 📌 as
   the threshold, from persons other than the author. The developer does not touch a natural pin
   live. Only unit tests prove these three (O4). The live check on the throwaway message still
@@ -282,7 +282,7 @@ dyno, and their risk is low.
 
 | Feature | Requirements | Tests first | Accepted by |
 |---|---|---|---|
-| F1 — Taking pins down | M3, M4, M5, M6, M7, M8, S1 | `pinRules.test.js`: every row of the table in R4, and every row of the deletion table. `handleMessageDeleted.test.js`, with fake data and a fake client: a forced row goes. A natural row becomes banned. A source deletion calls `removeFromPinboard`. Each id in a bulk deletion gets its own outcome. No row means nothing happens. `helpers.test.js`: `removeFromPinboard` deletes the row before it calls Discord. `publishOrUpdatePin` sends the state to the upsert. The upsert from forcepin carries `forced` | Push A and the migration: counts before and after (M8). Push B: the forced-pin checks in R7 (M4, M7, and the forcepin part of M6). An existing pin updates at its next 📌 change (M8). Only unit tests prove M3 and M5 (O4) |
+| F1 — Taking pins down | M3, M4, M5, M6, M7, M8, S1 | `pinRules.test.js`: every row of the table in R4, and every row of the deletion table. `handleMessageDeleted.test.js`, with fake data and a fake client: a forced row goes. A natural row becomes banned. A source deletion calls `removeFromPinboard`. Each id in a bulk deletion gets its own outcome. No row means nothing happens. `helpers.test.js`: `removeFromPinboard` deletes the row before it calls Discord. `publishOrUpdatePin` sends the state to the upsert. Forcepin's upsert carrying `forced` has no unit test: `handlers.js` imports `config.js`, so MC2 shows it live instead | Push A and the migration: counts before and after (M8). Push B: the forced-pin checks in R7 (M4, M7, and the forcepin part of M6). An existing pin updates at its next 📌 change (M8). Only unit tests prove M3 and M5 (O4) |
 | F2 — Admin re-checks | M1, M2 | `buttons.test.js`: a non-admin on Yes and on Cancel gets the denial. `reset` never runs, and the log has the line. Admins get the same result as before. `resolveModal.test.js`: a non-admin gets the denial. Neither `getPrediction` nor `resolvePrediction` runs. An admin goes through. `adminDenial.test.js`: the reply and the log line | One push. The developer cancels a reset prompt. Then the developer submits `/resolve` for an already-resolved prediction of their choice, and reads "already resolved" |
 
 Push A stamps the version in `package.json`. Thus every acceptance runs 1.4.0-alpha.
@@ -329,6 +329,7 @@ In review, the agent updates the pinboard section and the table list in the READ
 - **2026-11-14** — O1-O4 answered: Run console, forced heading kept, resolve test picked live,
   natural pins unit-tested only.
 - **2026-11-14** — prose rewritten in plain technical English (STE style). No design change.
+- **2026-11-17** — review: forcepin's `forced` upsert has no unit test (MC2 live instead); M4/M7 check used a second throwaway message.
 
 ## Evidence
 
