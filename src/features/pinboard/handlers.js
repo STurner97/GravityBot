@@ -5,6 +5,7 @@ import {
   addPinboardWhitelist,
   removePinboardWhitelist,
   upsertPinboardPost,
+  PIN_STATE,
 } from './data.js';
 import { buildPinboardEmbed } from './pinboardEmbed.js';
 import { DiscordRequest } from '../../../utils.js';
@@ -143,6 +144,7 @@ async function handleForcePin(subcommand) {
       pinboardMessageId: sentMessage.id,
       authorId: message.author.id,
       reactionCount: 1,
+      pinState: PIN_STATE.forced,
     });
 
     return ephemeral(messageText('pinboard.forcepin.done', {

@@ -28,7 +28,7 @@ dependency is added.
 
 | Feature | Requirements | Status |
 |---|---|---|
-| F1 — Taking pins down (push A, migration, push B) | M3, M4, M5, M6, M7, M8, S1 | building: push A committed |
+| F1 — Taking pins down (push A, migration, push B) | M3, M4, M5, M6, M7, M8, S1 | building: push A live, migration verified (MC1); code and tests committed locally, awaiting push B and live check |
 | F2 — Admin re-checks | M1, M2 | planned |
 
 ## Acceptance — requirement by requirement
@@ -78,6 +78,7 @@ dependency is added.
      - **YYYY-MM-DD** — what changed, and why if it is not obvious.
      check requires at least one dated entry before sign-off. -->
 
+- **2026-11-17** — F1 code and tests: pinRules, handleMessageDeleted, row-first removal, forcepin writes forced; 206 tests pass.
 - **2026-11-17** — dev doc opened; F1 push A committed (migrate column, 1.4.0-alpha).
 
 ## Evidence

@@ -10,7 +10,7 @@ blocked_on:
 version: 1.4.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: Agent builds F1 code (pinRules, handleMessageDeleted, data, helpers) test-first, local commits only; push B waits for the developer
+next: The developer pushes push B, then the agent drives the F1 live check (forcepin a throwaway message)
 updated: 2026-11-17
 ---
 

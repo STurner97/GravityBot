@@ -1,7 +1,7 @@
 import { Client, Events, GatewayIntentBits, Partials } from 'discord.js';
 // Imported for its startup check, which logs the [Messages] line when the worker boots.
 import '../../../lib/messages/index.js';
-import { getPinboardConfig, getPinboardPost, deletePinboardPost } from '../data.js';
+import { handleMessageDeleted } from './handleMessageDeleted.js';
 import { handleReactionChange } from './handleReactionChange.js';
 import { reportFailures } from './reportFailures.js';
 
@@ -24,19 +24,11 @@ export function startWorker() {
   client.on(Events.MessageReactionRemove, reportFailures('messageReactionRemove', (reaction, user) =>
     handleReactionChange(client, reaction, user)));
 
-  client.on(Events.MessageDelete, reportFailures('messageDelete', async (message) => {
-    const existing = await getPinboardPost(message.id);
-    if (!existing) return;
+  client.on(Events.MessageDelete, reportFailures('messageDelete', (message) =>
+    handleMessageDeleted(client, message.id)));
 
-    const { target_channel_id: targetChannelId } = await getPinboardConfig();
-    if (!targetChannelId) return;
-
-    const targetChannel = await client.channels.fetch(targetChannelId).catch(() => null);
-    if (targetChannel?.isTextBased()) {
-      await targetChannel.messages.delete(existing.pinboard_message_id).catch(() => null);
-    }
-
-    await deletePinboardPost(message.id);
+  client.on(Events.MessageBulkDelete, reportFailures('messageBulkDelete', async (messages) => {
+    for (const id of messages.keys()) await handleMessageDeleted(client, id);
   }));
 
   client.once(Events.ClientReady, () => {

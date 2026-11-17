@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildPostPayload, publishOrUpdatePin } from './helpers.js';
+import { buildPostPayload, publishOrUpdatePin, removeFromPinboard } from './helpers.js';
 import { referenceText } from '../../../lib/messages/fixtures/referenceMessages.js';
 
 const message = {
@@ -40,4 +40,43 @@ test('with a broken pin message nothing is sent or edited', async () => {
   await assert.rejects(publishOrUpdatePin(client, '5', message, 3, null, broken), /broken/);
   await assert.rejects(publishOrUpdatePin(client, '5', message, 3, { pinboard_message_id: '9' }, broken), /broken/);
   assert.deepEqual(calls, []);
+});
+
+test('removeFromPinboard deletes the row before it touches Discord (R2)', async () => {
+  const calls = [];
+  const channel = { isTextBased: () => true, messages: { delete: async () => calls.push('discordDelete') } };
+  const client = { channels: { fetch: async () => channel } };
+  const deleteRow = async () => calls.push('deleteRow');
+
+  await removeFromPinboard(client, '5', { pinboard_message_id: '9' }, '3', deleteRow);
+  assert.deepEqual(calls, ['deleteRow', 'discordDelete']);
+});
+
+function publishFixture() {
+  const upserts = [];
+  const channel = {
+    isTextBased: () => true,
+    send: async () => ({ id: '9' }),
+    messages: { fetch: async () => ({ edit: async () => {} }) },
+  };
+  const client = { channels: { fetch: async () => channel } };
+  return { upserts, client, upsert: async (row) => upserts.push(row) };
+}
+
+test('publishOrUpdatePin writes the pin state it is given, on a new post', async () => {
+  const { upserts, client, upsert } = publishFixture();
+  await publishOrUpdatePin(client, '5', message, 3, null, referenceText, 'natural', upsert);
+  assert.equal(upserts[0].pinState, 'natural');
+});
+
+test('publishOrUpdatePin writes the pin state it is given, on an edit', async () => {
+  const { upserts, client, upsert } = publishFixture();
+  await publishOrUpdatePin(client, '5', message, 1, { pinboard_message_id: '9' }, referenceText, 'forced', upsert);
+  assert.equal(upserts[0].pinState, 'forced');
+  assert.equal(upserts[0].pinboardMessageId, '9');
+});
+
+test('a forced pin keeps the forced heading, a natural pin shows the count (O2)', () => {
+  assert.equal(buildPostPayload(message, 1, referenceText, 'forced').embeds[0].author.name, referenceText('pinboard.post.forcedHeading'));
+  assert.equal(buildPostPayload(message, 1, referenceText, 'natural').embeds[0].author.name, '📌 1 Pin');
 });

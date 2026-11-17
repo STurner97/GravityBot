@@ -6,6 +6,11 @@ export const PINBOARD_EMOJI = {
   discordName: 'pushpin',
 };
 export const DEFAULT_EMOJI = PINBOARD_EMOJI.character;
+export const PIN_STATE = {
+  natural: 'natural',
+  forced: 'forced',
+  banned: 'banned',
+};
 
 export async function getPinboardConfig() {
   const result = await query(
@@ -57,7 +62,7 @@ export async function removePinboardWhitelist(channelId) {
 
 export async function getPinboardPost(messageId) {
   const result = await query(
-    `SELECT message_id, source_channel_id, pinboard_message_id, author_id, reaction_count
+    `SELECT message_id, source_channel_id, pinboard_message_id, author_id, reaction_count, pin_state
      FROM pinboard_posts
      WHERE message_id = $1`,
     [messageId]
@@ -65,15 +70,36 @@ export async function getPinboardPost(messageId) {
   return result.rows[0] || null;
 }
 
-export async function upsertPinboardPost({ messageId, sourceChannelId, pinboardMessageId, authorId, reactionCount }) {
+// Rows whose source message or pin post has this id. A deletion event does not say which.
+export async function findPinboardPostsByAnyMessageId(id) {
+  const result = await query(
+    `SELECT message_id, source_channel_id, pinboard_message_id, author_id, reaction_count, pin_state
+     FROM pinboard_posts
+     WHERE message_id = $1 OR pinboard_message_id = $1`,
+    [id]
+  );
+  return result.rows;
+}
+
+export async function markPinboardPostBanned(messageId) {
   await query(
-    `INSERT INTO pinboard_posts (message_id, source_channel_id, pinboard_message_id, author_id, reaction_count)
-     VALUES ($1, $2, $3, $4, $5)
+    'UPDATE pinboard_posts SET pin_state = $2 WHERE message_id = $1',
+    [messageId, PIN_STATE.banned]
+  );
+}
+
+export async function upsertPinboardPost({
+  messageId, sourceChannelId, pinboardMessageId, authorId, reactionCount, pinState = PIN_STATE.natural,
+}) {
+  await query(
+    `INSERT INTO pinboard_posts (message_id, source_channel_id, pinboard_message_id, author_id, reaction_count, pin_state)
+     VALUES ($1, $2, $3, $4, $5, $6)
      ON CONFLICT (message_id)
      DO UPDATE SET
        pinboard_message_id = EXCLUDED.pinboard_message_id,
-       reaction_count      = EXCLUDED.reaction_count`,
-    [messageId, sourceChannelId, pinboardMessageId, authorId, reactionCount]
+       reaction_count      = EXCLUDED.reaction_count,
+       pin_state           = EXCLUDED.pin_state`,
+    [messageId, sourceChannelId, pinboardMessageId, authorId, reactionCount, pinState]
   );
 }
 

@@ -6,6 +6,8 @@ import {
   removeFromPinboard,
   publishOrUpdatePin,
 } from './helpers.js';
+import { decideReactionOutcome } from './pinRules.js';
+import { messageText } from '../../../lib/messages/index.js';
 
 export async function handleReactionChange(client, reaction, user) {
   const config = await getPinboardConfig();
@@ -20,12 +22,12 @@ export async function handleReactionChange(client, reaction, user) {
 
   console.log(`[Pinboard] userId=${user?.id} messageId=${message.id} reactionCount=${reactionCount} threshold=${threshold} existing=${!!existing}`);
 
-  if (existing && reactionCount === 0) {
+  const outcome = decideReactionOutcome({ row: existing, reactionCount, threshold });
+  if (outcome.action === 'remove') {
     await removeFromPinboard(client, targetChannelId, existing, message.id);
     return;
   }
-
-  if (reactionCount < threshold && !existing) return;
-
-  await publishOrUpdatePin(client, targetChannelId, message, reactionCount, existing);
+  if (outcome.action === 'publish') {
+    await publishOrUpdatePin(client, targetChannelId, message, reactionCount, existing, messageText, outcome.pinState);
+  }
 }

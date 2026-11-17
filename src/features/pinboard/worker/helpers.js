@@ -2,6 +2,7 @@ import { ChannelType } from 'discord.js';
 import { buildPinboardEmbed } from '../pinboardEmbed.js';
 import { messageText } from '../../../lib/messages/index.js';
 import {
+  PIN_STATE,
   PINBOARD_EMOJI,
   listPinboardWhitelist,
   upsertPinboardPost,
@@ -65,11 +66,12 @@ export function resolveMediaUrl(message) {
 }
 
 // Builds the embed array and file list to send/edit a pinboard post.
-export function buildPostPayload(message, reactionCount, text = messageText) {
+export function buildPostPayload(message, reactionCount, text = messageText, pinState = PIN_STATE.natural) {
   const { imageUrl, hasImageAttachment } = resolveMediaUrl(message);
 
   const pinboardEmbed = buildPinboardEmbed({
     count: reactionCount,
+    forced: pinState === PIN_STATE.forced,
     messageUrl: message.url,
     messageContent: message.content,
     authorId: message.author?.id,
@@ -94,44 +96,44 @@ export function buildPostPayload(message, reactionCount, text = messageText) {
   return { embeds: [pinboardEmbed, ...embeds], files };
 }
 
-// Removes a message from the pinboard channel and deletes the DB record.
-export async function removeFromPinboard(client, targetChannelId, existing, messageId) {
+// Deletes the row first: the bot's own post deletion then reaches the worker as an event that
+// finds no row, so it cannot be mistaken for a person taking the pin down.
+export async function removeFromPinboard(client, targetChannelId, existing, messageId, deleteRow = deletePinboardPost) {
+  await deleteRow(messageId);
   const targetChannel = await client.channels.fetch(targetChannelId).catch(() => null);
   if (targetChannel?.isTextBased()) {
     await targetChannel.messages.delete(existing.pinboard_message_id).catch(() => null);
   }
-  await deletePinboardPost(messageId);
 }
 
 // Creates or updates a pinboard post for the given message.
-export async function publishOrUpdatePin(client, targetChannelId, message, reactionCount, existing, text = messageText) {
+export async function publishOrUpdatePin(
+  client, targetChannelId, message, reactionCount, existing,
+  text = messageText, pinState = PIN_STATE.natural, upsert = upsertPinboardPost
+) {
   const targetChannel = await client.channels.fetch(targetChannelId);
   if (!targetChannel?.isTextBased()) return;
 
-  const { embeds, files } = buildPostPayload(message, reactionCount, text);
+  const { embeds, files } = buildPostPayload(message, reactionCount, text, pinState);
   const fileOption = files.length > 0 ? files : undefined;
+  const savePin = (pinboardMessageId) => upsert({
+    messageId: message.id,
+    sourceChannelId: message.channelId,
+    pinboardMessageId,
+    authorId: message.author?.id || 'unknown',
+    reactionCount,
+    pinState,
+  });
 
   if (existing?.pinboard_message_id) {
     const pinMessage = await targetChannel.messages.fetch(existing.pinboard_message_id).catch(() => null);
     if (pinMessage) {
       await pinMessage.edit({ embeds, files: fileOption });
-      await upsertPinboardPost({
-        messageId: message.id,
-        sourceChannelId: message.channelId,
-        pinboardMessageId: existing.pinboard_message_id,
-        authorId: message.author?.id || 'unknown',
-        reactionCount,
-      });
+      await savePin(existing.pinboard_message_id);
       return;
     }
   }
 
   const sent = await targetChannel.send({ embeds, files: fileOption });
-  await upsertPinboardPost({
-    messageId: message.id,
-    sourceChannelId: message.channelId,
-    pinboardMessageId: sent.id,
-    authorId: message.author?.id || 'unknown',
-    reactionCount,
-  });
+  await savePin(sent.id);
 }
