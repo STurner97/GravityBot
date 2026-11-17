@@ -1,16 +1,17 @@
 ---
 build: 04-admin-checks-and-unpin
 phase: 3-development
-status: awaiting-signoff
+status: signed-off
 size: standard
 format: 2
-signed_off: 1-requirements, 2-design
-signed_off_by: 1-requirements=Ferby, 2-design=Ferby
+signed_off: 1-requirements, 2-design, 3-development
+signed_off_by: 1-requirements=Ferby, 2-design=Ferby, 3-development=Ferby
 blocked_on: 
+accepted: e9af5c041de809f727a1be64f32700c94407b708
 version: 1.4.0-alpha
 stage: alpha
 gate: developer accepts the build: every Must accepted, tests passing, clean tree
-next: The developer reviews the acceptance table in 3-development.md and signs off the accepted commit
+next: advance to 4-review
 updated: 2026-11-17
 ---
 
