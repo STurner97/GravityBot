@@ -10,7 +10,7 @@ prose below the fence, not the table.
 | [Build 01 — List all active predictions](01-predictions-list-all/0-build.md) | 5-publish | signed off | — | build complete |
 | [Build 02 — Betting messages from a template file](02-message-templates/0-build.md) | 5-publish | signed off | — | build complete |
 | [Build 03 — Pinboard, debug and channel-denial messages from the template file](03-remaining-wording/0-build.md) | 5-publish | signed off | — | build complete |
-| [Build 04 — Admin re-checks and taking pins down](04-admin-checks-and-unpin/0-build.md) | 4-review | in progress | — | Developer pushes review docs; FA1 boot, FA2 existing pin, FA3 ban and lift on throwaway |
+| [Build 04 — Admin re-checks and taking pins down](04-admin-checks-and-unpin/0-build.md) | 4-review | awaiting sign-off | — | Developer signs off review (FA waived) and agrees W7-W11 destinations |
 
 **By phase**
 

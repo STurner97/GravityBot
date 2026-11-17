@@ -1,7 +1,7 @@
 ---
 build: 04-admin-checks-and-unpin
 phase: 4-review
-status: in-progress
+status: awaiting-signoff
 size: standard
 format: 2
 signed_off: 1-requirements, 2-design, 3-development
@@ -11,7 +11,7 @@ accepted: e9af5c041de809f727a1be64f32700c94407b708
 version: 1.4.0-alpha
 stage: alpha
 gate: documents match reality, final acceptance passed, next steps written
-next: Developer pushes review docs; FA1 boot, FA2 existing pin, FA3 ban and lift on throwaway
+next: Developer signs off review (FA waived) and agrees W7-W11 destinations
 updated: 2026-11-17
 ---
 
@@ -43,6 +43,7 @@ the two most destructive actions, and gives the pinboard a way to take a pin dow
 - **2026-11-17** — F1 and F2 built and accepted live; see [3-development.md](3-development.md).
 - **2026-11-17** — development signed off, `e9af5c0` accepted. Review: README and CLAUDE.md
   updated, I1-I5 found and proposed for later builds (W7-W11); see [4-review.md](4-review.md).
+- **2026-11-17** — final acceptance waived by the developer, not run.
 
 ## Open questions
 

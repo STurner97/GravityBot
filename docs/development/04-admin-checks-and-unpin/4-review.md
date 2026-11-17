@@ -1,7 +1,7 @@
 # Build 04 — Phase 4: Review
 
 <!-- pipeline:nav -->
-> **Build 04 — Admin re-checks and taking pins down** · Phase 4 of 5 · in progress
+> **Build 04 — Admin re-checks and taking pins down** · Phase 4 of 5 · awaiting sign-off
 > [← Development](3-development.md) · [State](0-build.md) · Publish → · [All builds](../README.md)
 <!-- /pipeline:nav -->
 
@@ -87,15 +87,17 @@ CLAUDE.md, where conventions are kept.
 
 ## Final acceptance
 
-On the reviewed commit, after the developer pushes it. FA2 changes a live pin's count and puts it
-back. FA3 runs on throwaway messages only and writes to their rows alone. `/debug reset` is not
-run.
+Planned for the reviewed commit. The developer waived all three on 2026-11-17 and accepted the
+review without running them, so none is verified live. Review changed documents only, and the
+code is the accepted `e9af5c0`, live since `7d8ac59`. The checks stay here as written, for
+whoever wants to clear M6's and M8's limits later. FA2 would change a live pin's count and put
+it back. FA3 runs on throwaway messages only. `/debug reset` is not run.
 
 | # | Check | How | Result |
 |---|---|---|---|
-| FA1 | Both dynos boot on the reviewed commit | Heroku log after the push: `[Messages] … problems=0` from web and worker, the worker's login line | not yet run |
-| FA2 | An existing pin updates as before (M8's limit) | The developer adds 📌 to a message already on the board that they did not write: the post's count goes up by one with the ordinary heading. Then removes it: the count goes back | not yet run |
-| FA3 | A natural pin taken down stays down, and forcepin lifts the ban (M3 live on purpose, M6's limit) | On a throwaway message: forcepin; `UPDATE` its one row to `natural`, standing in for the threshold; delete the pin post (log `outcome=ban`, row `banned`); 📌 on the source posts nothing; forcepin again (row `forced`, forced heading); delete the post (log `outcome=forget`, no row) | not yet run |
+| FA1 | Both dynos boot on the reviewed commit | Heroku log after the push: `[Messages] … problems=0` from web and worker, the worker's login line | Waived by the developer: not run |
+| FA2 | An existing pin updates as before (M8's limit) | The developer adds 📌 to a message already on the board that they did not write: the post's count goes up by one with the ordinary heading. Then removes it: the count goes back | Waived by the developer: not run |
+| FA3 | A natural pin taken down stays down, and forcepin lifts the ban (M3 live on purpose, M6's limit) | On a throwaway message: forcepin; `UPDATE` its one row to `natural`, standing in for the threshold; delete the pin post (log `outcome=ban`, row `banned`); 📌 on the source posts nothing; forcepin again (row `forced`, forced heading); delete the post (log `outcome=forget`, no row) | Waived by the developer: not run |
 
 ## What this build retired
 
@@ -140,5 +142,6 @@ Recommended order:
 ## Edit log
 
 - **2026-11-17** — review drafted: deployment and rollback, documents checked, README and CLAUDE.md updated, I1-I5 found, final acceptance planned.
+- **2026-11-17** — developer waived FA1-FA3, not run; M6 and M8 keep their limits.
 
 ## Evidence
